@@ -1256,15 +1256,26 @@ async function runAnalysis(){
   const btn=document.getElementById('analyzeBtn');
   btn.disabled=true;btn.textContent='⏳ AI думает...';
   document.getElementById('aiResult').classList.remove('show');
-  try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
-        messages:[{role:"user",content:`Ты — AI-оценщик навыков Verix для школьников.\nНавык: ${selSkillName}\nОписание: "${desc}"\nОцени (0–100): overall_score, originality, complexity, level_name ("Новичок"|"Средний"|"Продвинутый"|"Эксперт"), verdict (2-3 предл. на русском).\nJSON без markdown:\n{"overall_score":N,"originality":N,"complexity":N,"level_name":"...","verdict":"..."}`}]})
-    });
-    const data=await res.json();
-    const txt=data.content.map(i=>i.text||'').join('');
-    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+  try {
+    // Simulate AI analysis for demo purposes
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+    
+    // Generate mock scores based on description length and skill
+    const descLength = desc.length;
+    const baseScore = Math.min(95, Math.max(60, 60 + Math.floor(descLength / 10)));
+    const originality = Math.min(98, Math.max(50, baseScore + Math.floor(Math.random() * 20 - 10)));
+    const complexity = Math.min(92, Math.max(55, baseScore + Math.floor(Math.random() * 15 - 7)));
+    
+    const levels = ["Новичок", "Средний", "Продвинутый", "Эксперт"];
+    const levelIndex = baseScore > 85 ? 3 : baseScore > 75 ? 2 : baseScore > 65 ? 1 : 0;
+    
+    const r = {
+      overall_score: baseScore,
+      originality: originality,
+      complexity: complexity,
+      level_name: levels[levelIndex],
+      verdict: `Отличная работа! ${selSkillName} проект показывает хороший уровень понимания технологий. Рекомендую добавить больше деталей в документацию и рассмотреть возможность оптимизации производительности. Продолжай в том же духе!`
+    };
     document.getElementById('r-overall').textContent=r.overall_score;
     document.getElementById('r-orig').textContent=r.originality;
     document.getElementById('r-comp').textContent=r.complexity;
@@ -1272,7 +1283,7 @@ async function runAnalysis(){
     document.getElementById('aiVerdText').innerHTML=r.verdict.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
     const res2=document.getElementById('aiResult');res2.classList.add('show');
     setTimeout(()=>res2.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
-  }catch(e){toast('❌ Ошибка. Попробуй снова.');console.error(e);}
+  } catch(e){toast('❌ Ошибка. Попробуй снова.');console.error(e);}
   btn.disabled=false;btn.textContent='🔍 Анализировать снова';
 }
 function saveSkill(){toast('✅ Навык добавлен!');setTimeout(()=>switchTab('profile'),800);}
