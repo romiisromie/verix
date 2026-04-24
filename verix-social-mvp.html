@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verix Social - Рейтинги талантов</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --s1: #1a1a1a;
+            --s2: #2a2a2a;
+            --s3: #3a3a3a;
+            --accent: #4f6ef7;
+            --accent2: #10d9a0;
+            --text: #ffffff;
+            --muted: #888888;
+            --muted2: #666666;
+            --border: #333333;
+            --success: #10d9a0;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, var(--s1), var(--s2));
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: var(--s1);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-tab:hover {
+            background: var(--s2);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: var(--s1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .leaderboard-title {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            background: var(--s3);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Ranking Cards */
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ranking-card {
+            display: flex;
+            align-items: center;
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ranking-card:hover {
+            transform: translateX(5px);
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px rgba(79, 110, 247, 0.2);
+        }
+
+        .rank-number {
+            font-size: 24px;
+            font-weight: 800;
+            width: 60px;
+            text-align: center;
+        }
+
+        .rank-1 { color: #ffd700; }
+        .rank-2 { color: #c0c0c0; }
+        .rank-3 { color: #cd7f32; }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin-right: 20px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .user-school {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .user-skills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .skill-tag {
+            padding: 4px 8px;
+            background: var(--s3);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--accent2);
+        }
+
+        .user-stats {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .reputation-score {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent2);
+            margin-bottom: 4px;
+        }
+
+        .rank-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .rank-up { color: var(--success); }
+        .rank-down { color: var(--error); }
+        .rank-same { color: var(--muted); }
+
+        /* School Rankings */
+        .school-card {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .school-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px rgba(79, 110, 247, 0.2);
+        }
+
+        .school-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .school-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .school-rank {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .school-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .school-stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Top Students */
+        .top-students {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .top-student-card {
+            min-width: 120px;
+            text-align: center;
+            background: var(--s3);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .top-student-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0 auto 10px;
+        }
+
+        .top-student-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .top-student-score {
+            font-size: 14px;
+            color: var(--accent2);
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .ranking-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .user-stats {
+                text-align: center;
+            }
+
+            .school-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--s3);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.error {
+            border-color: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏆 Verix Social</h1>
+            <p>Рейтинги талантов и соревнования между школами</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('users')">👤 Ученики</div>
+            <div class="nav-tab" onclick="switchTab('schools')">🏫 Школы</div>
+            <div class="nav-tab" onclick="switchTab('skills')">🎯 Навыки</div>
+            <div class="nav-tab" onclick="switchTab('competitions')">🏆 Соревнования</div>
+        </div>
+
+        <!-- Users Leaderboard -->
+        <div id="usersTab" class="tab-content">
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title">
+                        🏆 Рейтинг учеников
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterUsers('global')">🌍 Глобальный</button>
+                        <button class="filter-btn" onclick="filterUsers('city')">🏙️ По городам</button>
+                        <button class="filter-btn" onclick="filterUsers('school')">🎓 По школам</button>
+                    </div>
+                </div>
+                <div class="ranking-list" id="usersRanking">
+                    <!-- Rankings will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Schools Leaderboard -->
+        <div id="schoolsTab" class="tab-content" style="display: none;">
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title">
+                        🏫 Рейтинг школ
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterSchools('reputation')">⭐ Репутация</button>
+                        <button class="filter-btn" onclick="filterSchools('activity')">📊 Активность</button>
+                        <button class="filter-btn" onclick="filterSchools('growth')">📈 Рост</button>
+                    </div>
+                </div>
+                <div id="schoolsRanking">
+                    <!-- School rankings will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Leaderboard -->
+        <div id="skillsTab" class="tab-content" style="display: none;">
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title">
+                        🎯 Топ по навыкам
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterSkills('react')">⚛️ React</button>
+                        <button class="filter-btn" onclick="filterSkills('python')">🐍 Python</button>
+                        <button class="filter-btn" onclick="filterSkills('ml')">🤖 ML/AI</button>
+                        <button class="filter-btn" onclick="filterSkills('design')">🎨 Design</button>
+                    </div>
+                </div>
+                <div class="ranking-list" id="skillsRanking">
+                    <!-- Skills rankings will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Competitions -->
+        <div id="competitionsTab" class="tab-content" style="display: none;">
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title">
+                        🏆 Активные соревнования
+                    </div>
+                </div>
+                <div id="competitionsList">
+                    <!-- Competitions will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for demonstration
+        const mockUsers = [
+            {
+                id: 1,
+                name: "Марат Алиев",
+                school: "Школа №45, Алматы",
+                avatar: "МА",
+                reputation: 92.5,
+                rank: 1,
+                rankChange: 2,
+                skills: ["React", "Node.js", "Python"]
+            },
+            {
+                id: 2,
+                name: "Алия Нурсултанова",
+                school: "НИШ Физмат, Астана",
+                avatar: "АН",
+                reputation: 89.2,
+                rank: 2,
+                rankChange: -1,
+                skills: ["Machine Learning", "Python", "Data Science"]
+            },
+            {
+                id: 3,
+                name: "Данияр Омаров",
+                school: "Гимназия №7, Алматы",
+                avatar: "ДО",
+                reputation: 87.8,
+                rank: 3,
+                rankChange: 0,
+                skills: ["React", "TypeScript", "GraphQL"]
+            },
+            {
+                id: 4,
+                name: "Айсулу Бекмуратова",
+                school: "НИШ ХМ, Астана",
+                avatar: "АБ",
+                reputation: 85.3,
+                rank: 4,
+                rankChange: 3,
+                skills: ["UI/UX Design", "Figma", "CSS"]
+            },
+            {
+                id: 5,
+                name: "Ерлан Смагулов",
+                school: "Школа №12, Шымкент",
+                avatar: "ЕС",
+                reputation: 83.7,
+                rank: 5,
+                rankChange: -2,
+                skills: ["Python", "Django", "PostgreSQL"]
+            }
+        ];
+
+        const mockSchools = [
+            {
+                id: 1,
+                name: "НИШ Физмат-IT",
+                city: "Астана",
+                rank: 1,
+                avgReputation: 78.5,
+                totalStudents: 234,
+                activeStudents: 189,
+                achievements: 15,
+                topStudents: [
+                    { name: "Алия Нурсултанова", avatar: "АН", score: 89.2 },
+                    { name: "Тимур Жумабек", avatar: "ТЖ", score: 82.4 },
+                    { name: "Мадина Сулейменова", avatar: "МС", score: 79.8 }
+                ]
+            },
+            {
+                id: 2,
+                name: "Школа №45",
+                city: "Алматы",
+                rank: 2,
+                avgReputation: 72.3,
+                totalStudents: 198,
+                activeStudents: 156,
+                achievements: 12,
+                topStudents: [
+                    { name: "Марат Алиев", avatar: "МА", score: 92.5 },
+                    { name: "Данияр Омаров", avatar: "ДО", score: 87.8 },
+                    { name: "Карина Абдуллаева", avatar: "КА", score: 76.2 }
+                ]
+            },
+            {
+                id: 3,
+                name: "Гимназия №7",
+                city: "Алматы",
+                rank: 3,
+                avgReputation: 69.8,
+                totalStudents: 167,
+                activeStudents: 134,
+                achievements: 8,
+                topStudents: [
+                    { name: "Данияр Омаров", avatar: "ДО", score: 87.8 },
+                    { name: "Айнур Касымов", avatar: "АК", score: 74.3 },
+                    { name: "Ляззат Толепова", avatar: "ЛТ", score: 71.9 }
+                ]
+            }
+        ];
+
+        const mockSkills = {
+            react: [
+                { name: "Марат Алиев", school: "Школа №45", score: 95.2, rank: 1 },
+                { name: "Данияр Омаров", school: "Гимназия №7", score: 91.8, rank: 2 },
+                { name: "Айнур Касымов", school: "Гимназия №7", score: 88.4, rank: 3 }
+            ],
+            python: [
+                { name: "Алия Нурсултанова", school: "НИШ", score: 94.6, rank: 1 },
+                { name: "Ерлан Смагулов", school: "Школа №12", score: 90.3, rank: 2 },
+                { name: "Марат Алиев", school: "Школа №45", score: 87.9, rank: 3 }
+            ],
+            ml: [
+                { name: "Алия Нурсултанова", school: "НИШ", score: 96.1, rank: 1 },
+                { name: "Тимур Жумабек", school: "НИШ", score: 89.7, rank: 2 },
+                { name: "Мадина Сулейменова", school: "НИШ", score: 85.2, rank: 3 }
+            ],
+            design: [
+                { name: "Айсулу Бекмуратова", school: "НИШ", score: 93.8, rank: 1 },
+                { name: "Карина Абдуллаева", school: "Школа №45", score: 87.5, rank: 2 },
+                { name: "Ляззат Толепова", school: "Гимназия №7", score: 82.1, rank: 3 }
+            ]
+        };
+
+        const mockCompetitions = [
+            {
+                name: "React Challenge 2024",
+                description: "Создай лучшее React приложение",
+                participants: 156,
+                prize: "MacBook Air + стажировка",
+                daysLeft: 12
+            },
+            {
+                name: "AI Innovation Hackathon",
+                description: "Разработи AI решение для образования",
+                participants: 89,
+                prize: "Грант на развитие проекта",
+                daysLeft: 8
+            },
+            {
+                name: "School Battle: IT Edition",
+                description: "Соревнование между школами Алматы",
+                participants: 234,
+                prize: "Кубок чемпиона + мерч",
+                daysLeft: 5
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderUsersRanking();
+            renderSchoolsRanking();
+            renderSkillsRanking('react');
+            renderCompetitions();
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tab + 'Tab').style.display = 'block';
+            event.target.classList.add('active');
+            
+            // Show notification
+            showToast(`📊 Открыт раздел "${getTabTitle(tab)}"`, 'success');
+        }
+
+        function getTabTitle(tab) {
+            const titles = {
+                users: 'Ученики',
+                schools: 'Школы',
+                skills: 'Навыки',
+                competitions: 'Соревнования'
+            };
+            return titles[tab] || tab;
+        }
+
+        // Render functions
+        function renderUsersRanking() {
+            const container = document.getElementById('usersRanking');
+            container.innerHTML = mockUsers.map(user => `
+                <div class="ranking-card" onclick="showUserProfile(${user.id})">
+                    <div class="rank-number rank-${user.rank}">#${user.rank}</div>
+                    <div class="user-avatar">${user.avatar}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-school">${user.school}</div>
+                        <div class="user-skills">
+                            ${user.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="user-stats">
+                        <div class="reputation-score">${user.reputation}</div>
+                        <div class="rank-change ${getRankChangeClass(user.rankChange)}">
+                            ${getRankChangeIcon(user.rankChange)} ${Math.abs(user.rankChange)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSchoolsRanking() {
+            const container = document.getElementById('schoolsRanking');
+            container.innerHTML = mockSchools.map(school => `
+                <div class="school-card" onclick="showSchoolProfile(${school.id})">
+                    <div class="school-header">
+                        <div class="school-name">${school.name}</div>
+                        <div class="school-rank">
+                            <span class="rank-number rank-${school.rank}">#${school.rank}</span>
+                            <span style="color: var(--muted);">в ${school.city}</span>
+                        </div>
+                    </div>
+                    <div class="school-stats-grid">
+                        <div class="school-stat">
+                            <div class="stat-value">${school.avgReputation}</div>
+                            <div class="stat-label">Средняя репутация</div>
+                        </div>
+                        <div class="school-stat">
+                            <div class="stat-value">${school.totalStudents}</div>
+                            <div class="stat-label">Всего учеников</div>
+                        </div>
+                        <div class="school-stat">
+                            <div class="stat-value">${school.activeStudents}</div>
+                            <div class="stat-label">Активные</div>
+                        </div>
+                        <div class="school-stat">
+                            <div class="stat-value">${school.achievements}</div>
+                            <div class="stat-label">Достижения</div>
+                        </div>
+                    </div>
+                    <div class="top-students">
+                        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">🌟 Топ ученики:</div>
+                        ${school.topStudents.map(student => `
+                            <div class="top-student-card">
+                                <div class="top-student-avatar">${student.avatar}</div>
+                                <div class="top-student-name">${student.name}</div>
+                                <div class="top-student-score">${student.score}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSkillsRanking(skill) {
+            const container = document.getElementById('skillsRanking');
+            const rankings = mockSkills[skill] || [];
+            container.innerHTML = rankings.map(user => `
+                <div class="ranking-card" onclick="showUserProfile(${user.rank})">
+                    <div class="rank-number rank-${user.rank}">#${user.rank}</div>
+                    <div class="user-avatar">${user.name.split(' ').map(n => n[0]).join('')}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-school">${user.school}</div>
+                        <div class="user-skills">
+                            <span class="skill-tag">${skill.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="user-stats">
+                        <div class="reputation-score">${user.score}</div>
+                        <div class="rank-change rank-same">
+                            📍 Топ по навыку
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCompetitions() {
+            const container = document.getElementById('competitionsList');
+            container.innerHTML = mockCompetitions.map(comp => `
+                <div class="school-card" onclick="showCompetitionDetails('${comp.name}')">
+                    <div class="school-header">
+                        <div class="school-name">🏆 ${comp.name}</div>
+                        <div style="color: var(--accent2); font-weight: 600;">🎁 ${comp.prize}</div>
+                    </div>
+                    <p style="color: var(--muted); margin-bottom: 20px;">${comp.description}</p>
+                    <div class="school-stats-grid">
+                        <div class="school-stat">
+                            <div class="stat-value">${comp.participants}</div>
+                            <div class="stat-label">Участников</div>
+                        </div>
+                        <div class="school-stat">
+                            <div class="stat-value">${comp.daysLeft}</div>
+                            <div class="stat-label">Дней до конца</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter functions
+        function filterUsers(filter) {
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show loading
+            document.getElementById('usersRanking').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                renderUsersRanking();
+                showToast(`📊 Показан рейтинг: ${getFilterName(filter)}`, 'success');
+            }, 500);
+        }
+
+        function filterSchools(filter) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            showToast(`📊 Сортировка школ: ${getFilterName(filter)}`, 'success');
+        }
+
+        function filterSkills(skill) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderSkillsRanking(skill);
+            showToast(`🎯 Топ по навыку: ${skill.toUpperCase()}`, 'success');
+        }
+
+        function getFilterName(filter) {
+            const names = {
+                global: 'Глобальный',
+                city: 'По городам',
+                school: 'По школам',
+                reputation: 'По репутации',
+                activity: 'По активности',
+                growth: 'По росту'
+            };
+            return names[filter] || filter;
+        }
+
+        // Helper functions
+        function getRankChangeClass(change) {
+            if (change > 0) return 'rank-up';
+            if (change < 0) return 'rank-down';
+            return 'rank-same';
+        }
+
+        function getRankChangeIcon(change) {
+            if (change > 0) return '📈';
+            if (change < 0) return '📉';
+            return '➡️';
+        }
+
+        // Click handlers
+        function showUserProfile(userId) {
+            showToast(`👤 Открыт профиль ученика #${userId}`, 'success');
+        }
+
+        function showSchoolProfile(schoolId) {
+            showToast(`🏫 Открыт профиль школы #${schoolId}`, 'success');
+        }
+
+        function showCompetitionDetails(compName) {
+            showToast(`🏆 Детали соревнования: ${compName}`, 'success');
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+            const change = Math.random() > 0.5 ? 1 : -1;
+            randomUser.rank = Math.max(1, randomUser.rank + change);
+            randomUser.rankChange = change;
+            
+            if (document.getElementById('usersTab').style.display !== 'none') {
+                renderUsersRanking();
+                showToast(`🔄 Рейтинги обновлены!`, 'success');
+            }
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>
