@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Verix</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080f;--s1:#0d0f1b;--s2:#121528;--s3:#1a1e36;
+  --border:#1e2340;--accent:#4f6ef7;--green:#10d9a0;
+  --orange:#f97316;--pink:#ec4899;--text:#e2e5f0;
+  --muted:#525878;--muted2:#8891b0;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+/* ── Мобильный фикс высоты ── */
+html{height:-webkit-fill-available;}
+body{
+  min-height:100vh;
+  min-height:-webkit-fill-available;
+  min-height:100dvh;
+  background:var(--bg);color:var(--text);
+  font-family:'Outfit',sans-serif;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:fixed;width:100%;
+}
+
+.blob{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;}
+.blob1{width:400px;height:400px;background:rgba(79,110,247,.09);top:-80px;left:-80px;}
+.blob2{width:350px;height:350px;background:rgba(16,217,160,.06);bottom:-40px;right:-40px;}
+
+#app{
+  position:relative;z-index:1;
+  max-width:430px;margin:0 auto;width:100%;
+  height:100vh;height:100dvh;
+  flex-direction:column;
+  overflow:hidden;
+  display:none;
+}
+
+.screen{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.screen.active{display:flex;animation:fin .25s ease;}
+@keyframes fin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+nav{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;
+  padding-top:max(13px, env(safe-area-inset-top));
+  background:rgba(7,8,15,.95);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-right{display:flex;gap:7px;}
+.nbtn{width:36px;height:36px;min-width:36px;border-radius:10px;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;touch-action:manipulation;}
+.nbtn:active{background:var(--s3);}
+
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 14px 20px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
+.scroll::-webkit-scrollbar{width:0;}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:16px;position:relative;overflow:hidden;flex-shrink:0;}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(79,110,247,.04),transparent);pointer-events:none;}
+.glow{box-shadow:0 0 28px rgba(79,110,247,.07);}
+
+/* TABBAR — ключевой мобильный фикс */
+.tabbar{
+  flex-shrink:0;display:flex;
+  background:rgba(7,8,15,.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:11px 0 9px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+.tab-ico{font-size:22px;opacity:.3;transition:opacity .2s,transform .2s;}
+.tab-lbl{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.tab.active .tab-ico{opacity:1;transform:translateY(-2px);}
+.tab.active .tab-lbl{color:var(--accent);}
+
+/* UTILS */
+.lbl{font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.sh-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.sh-btn{font-size:11px;color:var(--accent);cursor:pointer;padding:4px 10px;background:rgba(79,110,247,.12);border-radius:7px;touch-action:manipulation;}
+
+/* PROFILE */
+.p-header{display:flex;align-items:center;gap:13px;}
+.avatar{width:66px;height:66px;border-radius:18px;background:linear-gradient(135deg,#4f6ef7,#10d9a0);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;position:relative;border:2px solid rgba(79,110,247,.3);}
+.av-badge{position:absolute;bottom:-8px;right:-8px;background:var(--green);border-radius:6px;padding:2px 6px;font-size:9px;font-weight:700;color:#000;font-family:'Syne',sans-serif;border:2px solid var(--s1);}
+.p-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.3px;}
+.p-sub{color:var(--muted2);font-size:12px;margin-top:2px;}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+.tag{background:var(--s3);border:1px solid var(--border);border-radius:7px;padding:3px 8px;font-size:11px;color:var(--muted2);}
+.tag.h{border-color:rgba(79,110,247,.35);color:#a0b0ff;}
+
+.rep-wrap{display:flex;align-items:center;gap:14px;}
+.rep-ring{width:88px;height:88px;flex-shrink:0;position:relative;}
+.rep-ring svg{transform:rotate(-90deg);}
+.rbg{fill:none;stroke:var(--s3);stroke-width:7;}
+.rfg{fill:none;stroke:url(#rg);stroke-width:7;stroke-linecap:round;stroke-dasharray:245;stroke-dashoffset:34;}
+.rep-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:23px;line-height:1;}
+.rep-sub{font-size:9px;color:var(--muted);font-family:'Outfit',sans-serif;}
+.rep-bars{flex:1;display:flex;flex-direction:column;gap:8px;}
+.br-top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-bottom:3px;}
+.br-top span:last-child{font-weight:600;color:var(--text);}
+.bar{height:4px;background:var(--s3);border-radius:99px;overflow:hidden;}
+.bf{height:100%;border-radius:99px;}
+.bf-b{background:linear-gradient(90deg,#4f6ef7,#7c8fff);}
+.bf-g{background:linear-gradient(90deg,#10d9a0,#34d399);}
+.bf-o{background:linear-gradient(90deg,#f97316,#fb923c);}
+.chip{display:inline-flex;align-items:center;gap:4px;background:rgba(16,217,160,.1);border:1px solid rgba(16,217,160,.2);border-radius:7px;padding:3px 8px;font-size:11px;color:var(--green);}
+
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:13px;text-align:center;cursor:pointer;touch-action:manipulation;}
+.stat:active{background:var(--s2);}
+.stat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+.stat-l{font-size:10px;color:var(--muted);margin-top:1px;}
+
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.skc{background:var(--s2);border:1px solid var(--border);border-radius:13px;padding:12px;cursor:pointer;touch-action:manipulation;}
+.skc:active{border-color:rgba(79,110,247,.4);}
+.skc-ico{font-size:20px;margin-bottom:5px;}
+.skc-name{font-size:12px;font-weight:600;}
+.skc-lv{font-size:10px;color:var(--muted2);}
+.skc-bar{height:3px;background:var(--s3);border-radius:99px;overflow:hidden;margin-top:7px;}
+.skc-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#4f6ef7,#10d9a0);}
+
+.proj{display:flex;gap:10px;align-items:center;padding:11px;background:var(--s2);border-radius:12px;border:1px solid var(--border);cursor:pointer;touch-action:manipulation;}
+.proj:active{border-color:rgba(79,110,247,.35);}
+.proj-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.proj-name{font-size:13px;font-weight:600;}
+.proj-desc{font-size:11px;color:var(--muted2);margin-top:1px;}
+.proj-score{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--green);flex-shrink:0;}
+
+.bdg-row{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;}
+.bdg-row::-webkit-scrollbar{height:0;}
+.bdg{flex-shrink:0;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;width:72px;cursor:pointer;touch-action:manipulation;}
+.bdg-ico{font-size:20px;}
+.bdg-name{font-size:9px;color:var(--muted2);margin-top:3px;}
+
+/* BUTTONS */
+.go-btn{width:100%;padding:14px;background:linear-gradient(135deg,#4f6ef7,#10d9a0);border:none;border-radius:14px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;touch-action:manipulation;box-shadow:0 6px 20px rgba(79,110,247,.25);}
+.go-btn:active{opacity:.82;}
+.go-btn:disabled{opacity:.45;cursor:not-allowed;}
+.save-btn{background:linear-gradient(135deg,#10d9a0,#059669);box-shadow:0 6px 20px rgba(16,217,160,.2);}
+.outline-btn{width:100%;padding:12px;background:var(--s2);border:1px solid var(--accent);border-radius:12px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer;margin-top:8px;touch-action:manipulation;}
+.outline-btn:active{background:rgba(79,110,247,.1);}
+.danger-btn{border-color:#ef4444 !important;color:#ef4444 !important;}
+.danger-btn:active{background:rgba(239,68,68,.1) !important;}
+
+/* INPUT */
+.inp{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:11px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;-webkit-appearance:none;appearance:none;}
+.inp:focus{border-color:var(--accent);}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238891b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
+select.inp option{background:var(--s2);color:var(--text);}
+
+/* SKILLPROOF */
+.ai-hero{text-align:center;padding:4px 0;}
+.ai-title{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;letter-spacing:-.3px;}
+.ai-title span{background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ai-sub{color:var(--muted2);font-size:12px;margin-top:4px;}
+.sk-sel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.sk-sel{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;touch-action:manipulation;font-size:11px;}
+.sk-sel:active,.sk-sel.on{border-color:var(--accent);background:rgba(79,110,247,.1);color:#a0b0ff;}
+.sk-sel .i{font-size:19px;margin-bottom:3px;}
+textarea.ai-ta{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:13px;padding:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;resize:none;outline:none;min-height:90px;line-height:1.5;-webkit-appearance:none;}
+textarea.ai-ta:focus{border-color:var(--accent);}
+.ai-result{display:none;flex-direction:column;gap:11px;}
+.ai-result.show{display:flex;animation:fin .3s ease;}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sc-box{background:var(--s2);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;}
+.sc-n{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;}
+.sc-l{font-size:10px;color:var(--muted2);margin-top:2px;}
+.ai-verd{background:var(--s2);border:1px solid rgba(79,110,247,.2);border-radius:14px;padding:14px;}
+.ai-verd-h{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:8px;}
+.ai-verd-t{font-size:13px;color:var(--muted2);line-height:1.65;}
+.ai-verd-t strong{color:var(--text);}
+
+/* TALENT */
+.opp-card{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:18px;position:relative;overflow:hidden;}
+.opp-bg{position:absolute;inset:0;border-radius:20px;opacity:.12;pointer-events:none;}
+.opp-type{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border-radius:7px;padding:4px 9px;font-size:10px;font-weight:600;text-transform:uppercase;position:relative;z-index:1;}
+.opp-org{font-size:12px;color:var(--muted2);margin-top:8px;position:relative;z-index:1;}
+.opp-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-top:3px;position:relative;z-index:1;}
+.opp-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px;position:relative;z-index:1;}
+.opp-tag{background:rgba(255,255,255,.08);border-radius:6px;padding:3px 7px;font-size:10px;}
+.opp-match{position:relative;z-index:1;margin-top:10px;display:flex;align-items:center;gap:8px;}
+.mb-wrap{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+.mb{height:100%;background:linear-gradient(90deg,#10d9a0,#4f6ef7);border-radius:99px;transition:width .4s;}
+.mp{font-size:12px;font-weight:700;color:var(--green);}
+.opp-desc{margin-top:10px;font-size:12px;color:var(--muted2);position:relative;z-index:1;line-height:1.5;}
+.liked-badge,.nope-badge{position:absolute;top:14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;padding:4px 10px;border-radius:8px;z-index:10;opacity:0;transition:opacity .15s;pointer-events:none;}
+.liked-badge{right:14px;background:var(--green);color:#000;}
+.nope-badge{left:14px;background:#ef4444;color:#fff;}
+.sw-actions{display:flex;justify-content:center;gap:20px;margin-top:12px;}
+.sw-btn{width:60px;height:60px;border-radius:50%;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
+.sw-btn:active{transform:scale(.88);}
+.sw-no{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.3);color:#ef4444;}
+.sw-yes{background:rgba(16,217,160,.15);border:2px solid rgba(16,217,160,.3);color:var(--green);}
+.sw-star{background:rgba(79,110,247,.15);border:2px solid rgba(79,110,247,.3);color:var(--accent);}
+.matches-row{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;}
+.matches-row::-webkit-scrollbar{height:0;}
+.m-chip{flex-shrink:0;background:var(--s2);border:1px solid var(--green);border-radius:10px;padding:6px 11px;font-size:11px;color:var(--green);font-weight:600;cursor:pointer;touch-action:manipulation;}
+
+/* EDUPATH */
+.path-bar{height:5px;background:var(--s3);border-radius:99px;overflow:hidden;margin-top:9px;}
+.path-fill{height:100%;background:linear-gradient(90deg,#4f6ef7,#10d9a0);border-radius:99px;}
+.rm{display:flex;flex-direction:column;}
+.rm-item{display:flex;gap:13px;}
+.rm-left{display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;}
+.rm-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid var(--border);background:var(--s2);}
+.rm-dot.done{background:rgba(16,217,160,.15);border-color:var(--green);}
+.rm-dot.now{background:rgba(79,110,247,.15);border-color:var(--accent);box-shadow:0 0 14px rgba(79,110,247,.2);}
+.rm-dot.locked{opacity:.35;}
+.rm-line{flex:1;width:2px;background:var(--border);margin:3px 0;}
+.rm-content{flex:1;padding-bottom:16px;}
+.rm-phase{font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.rm-title{font-size:13px;font-weight:600;}
+.rm-desc{font-size:11px;color:var(--muted2);margin-top:2px;line-height:1.5;}
+.rm-tasks{display:flex;flex-direction:column;gap:5px;margin-top:7px;}
+.tk{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2);}
+.tk-box{width:14px;height:14px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
+.tk-box.done{background:var(--green);border-color:var(--green);color:#000;}
+.tk-box.now{border-color:var(--accent);}
+
+/* MODAL */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+#modal-overlay.show{display:flex;animation:mIn .2s ease;}
+@keyframes mIn{from{opacity:0}to{opacity:1}}
+#modal-box{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:24px 24px 0 0;
+  padding:20px 18px;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom, 0px));
+  width:100%;max-width:430px;
+  max-height:90vh;overflow-y:auto;
+  animation:mUp .25s cubic-bezier(.4,0,.2,1);
+  -webkit-overflow-scrolling:touch;
+}
+@keyframes mUp{from{transform:translateY(40px)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--s3);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:500;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* RANKINGS */
+.rankings-hero{text-align:center;padding:16px 0;}
+.rankings-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.3px;}
+.rankings-sub{color:var(--muted2);font-size:12px;margin-top:4px;}
+.rank-tabs{display:flex;gap:8px;margin:16px 0;padding:0 16px;overflow-x:auto;}
+.rank-tabs::-webkit-scrollbar{height:0;}
+.rank-tab{flex-shrink:0;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation;white-space:nowrap;}
+.rank-tab:active,.rank-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.ranking-list{padding:0 16px;}
+.ranking-card{display:flex;align-items:center;background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;touch-action:manipulation;transition:all .2s;}
+.ranking-card:active{transform:scale(.98);border-color:var(--accent);}
+.rank-num{font-size:20px;font-weight:800;width:40px;text-align:center;}
+.rank-1{color:#ffd700;}
+.rank-2{color:#c0c0c0;}
+.rank-3{color:#cd7f32;}
+.r-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin:0 12px;}
+.r-info{flex:1;min-width:0;}
+.r-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.r-school{font-size:11px;color:var(--muted2);margin-bottom:6px;}
+.r-skills{display:flex;gap:4px;flex-wrap:wrap;}
+.r-skill{background:var(--s3);border-radius:6px;padding:2px 6px;font-size:10px;color:var(--muted2);}
+.r-stats{text-align:right;min-width:80px;}
+.r-score{font-size:18px;font-weight:800;color:var(--green);margin-bottom:2px;}
+.r-change{font-size:10px;display:flex;align-items:center;justify-content:flex-end;gap:2px;}
+.r-up{color:var(--green);}
+.r-down{color:var(--orange);}
+.r-same{color:var(--muted);}
+.school-card{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.school-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.school-name{font-size:16px;font-weight:700;}
+.school-rank{display:flex;align-items:center;gap:8px;}
+.school-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.school-stat{text-align:center;}
+.school-stat-val{font-size:18px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.school-stat-lbl{font-size:10px;color:var(--muted);}
+.top-students{display:flex;gap:10px;overflow-x:auto;padding:8px 0;}
+.top-students::-webkit-scrollbar{height:0;}
+.top-student{flex-shrink:0;text-align:center;background:var(--s3);border-radius:12px;padding:12px;width:80px;}
+.top-student-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;margin:0 auto 8px;}
+.top-student-name{font-size:10px;font-weight:600;margin-bottom:2px;}
+.top-student-score{font-size:12px;color:var(--green);font-weight:700;}
+.comp-card{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.comp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.comp-name{font-size:16px;font-weight:700;}
+.comp-prize{font-size:12px;color:var(--green);font-weight:600;}
+.comp-desc{font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.5;}
+.comp-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.comp-stat{text-align:center;}
+.comp-stat-val{font-size:16px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.comp-stat-lbl{font-size:10px;color:var(--muted);}
+
+/* USER PROFILE MODAL */
+.user-profile-modal{max-width:400px;}
+.user-profile-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.user-profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;}
+.user-profile-info{flex:1;}
+.user-profile-name{font-size:20px;font-weight:800;margin-bottom:4px;}
+.user-profile-school{font-size:13px;color:var(--muted2);margin-bottom:8px;}
+.user-profile-bio{font-size:13px;color:var(--muted2);line-height:1.5;}
+.user-profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0;}
+.user-profile-stat{text-align:center;}
+.user-profile-stat-val{font-size:18px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.user-profile-stat-lbl{font-size:10px;color:var(--muted);}
+.user-profile-skills{margin:20px 0;}
+.user-profile-skills-title{font-size:14px;font-weight:600;margin-bottom:12px;}
+.user-profile-skill-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.user-profile-skill-tag{background:var(--s3);border-radius:8px;padding:6px 12px;font-size:11px;}
+.user-profile-projects{margin:20px 0;}
+.user-profile-projects-title{font-size:14px;font-weight:600;margin-bottom:12px;}
+.user-profile-project{display:flex;align-items:center;gap:12px;padding:12px;background:var(--s2);border-radius:12px;margin-bottom:8px;}
+.user-profile-project-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.user-profile-project-info{flex:1;}
+.user-profile-project-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.user-profile-project-desc{font-size:11px;color:var(--muted2);}
+.user-profile-project-score{font-size:14px;font-weight:800;color:var(--green);flex-shrink:0;}
+.user-profile-actions{display:flex;gap:12px;margin-top:24px;}
+.contact-btn{flex:1;padding:12px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;touch-action:manipulation;}
+.contact-btn:hover{opacity:.9;}
+.contact-btn.secondary{background:var(--s2);border:1px solid var(--border);color:var(--text);}
+
+/* MESSENGER */
+.messenger-modal{max-width:400px;height:70vh;max-height:600px;display:flex;flex-direction:column;}
+.messenger-header{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.messenger-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;}
+.messenger-info{flex:1;}
+.messenger-name{font-size:14px;font-weight:600;}
+.messenger-status{font-size:11px;color:var(--green);}
+.messenger-close{font-size:24px;color:var(--muted);cursor:pointer;padding:4px;}
+.messenger-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.messenger-message{display:flex;gap:8px;max-width:80%;}
+.message-sent{align-self:flex-end;flex-direction:row-reverse;}
+.message-received{align-self:flex-start;}
+.message-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.message-content{background:var(--s2);border-radius:16px;padding:10px 14px;}
+.message-sent .message-content{background:var(--accent);color:#fff;}
+.message-text{font-size:13px;line-height:1.4;margin-bottom:2px;}
+.message-time{font-size:10px;color:var(--muted);opacity:.7;}
+.messenger-input{display:flex;gap:8px;padding:16px;border-top:1px solid var(--border);flex-shrink:0;}
+.messenger-input input{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:10px 16px;color:var(--text);font-size:13px;outline:none;}
+.messenger-input button{background:var(--accent);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;touch-action:manipulation;}
+.messenger-input button:hover{opacity:.9;}
+
+@media(min-width:431px){#app{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="display:flex;position:fixed;inset:0;z-index:10;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+  <div style="text-align:center;margin-bottom:30px;">
+    <div style="font-size:48px;margin-bottom:12px;">🚀</div>
+    <h1 style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Verix</h1>
+    <p style="color:var(--muted2);font-size:14px;">Digital Reputation Platform</p>
+  </div>
+
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:360px;margin-bottom:20px;">
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">Email</label>
+      <input type="email" id="emailInput" class="inp" placeholder="romiisromie@email.com" style="width:100%;">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">Пароль</label>
+      <input type="password" id="passwordInput" class="inp" placeholder="verix2026" style="width:100;">
+    </div>
+    <button onclick="checkLogin()" class="go-btn" style="width:100%;margin-bottom:12px;">Войти в Verix</button>
+    <div style="text-align:center;">
+      <span style="color:var(--muted2);font-size:12px;">Ещё нет аккаунта?</span>
+      <span onclick="showRegister()" style="color:var(--accent);font-size:12px;cursor:pointer;margin-left:4px;">Зарегистрироваться</span>
+    </div>
+  </div>
+
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:16px;width:100%;max-width:360px;">
+    <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;">📋 Инструкция</h3>
+    <div style="font-size:12px;color:var(--muted2);line-height:1.6;">
+      <div style="margin-bottom:8px;">🔹 <strong>Вход:</strong> используйте email <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">romiisromie@email.com</code> и пароль <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">verix2026</code></div>
+      <div style="margin-bottom:8px;">🔹 <strong>Профиль:</strong> заполните информацию о себе и навыках</div>
+      <div style="margin-bottom:8px;">🔹 <strong>SkillProof:</strong> верифицируйте навыки через AI</div>
+      <div style="margin-bottom:8px;">🔹 <strong>TalentMatch:</strong> находите стажировки и гранты</div>
+      <div>🔹 <strong>EduPath:</strong> индивидуальный план развития</div>
+    </div>
+  </div>
+</div>
+<div id="app">
+
+<!-- ══════════ PROFILE ══════════ -->
+<div class="screen active" id="screen-profile">
+  <nav>
+    <div class="nav-logo">Verix</div>
+    <div class="nav-right">
+      <div class="nbtn" onclick="openModal('share')">🔗</div>
+      <div class="nbtn" onclick="openModal('notif')">🔔</div>
+    </div>
+  </nav>
+  <div class="scroll">
+    <div class="card glow">
+      <div class="p-header">
+        <div class="avatar"><span id="avatarEmoji">👩‍💻</span><div class="av-badge" id="levelBadge">LVL 7</div></div>
+        <div style="flex:1;min-width:0;">
+          <div class="p-name" id="profileName">Рамина Ибраимова</div>
+          <div class="p-sub" id="profileSub">10 класс · Алматы, Казахстан</div>
+          <div class="tags" id="profileTags"></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <button class="go-btn" style="flex:1;font-size:12px;padding:10px;" onclick="openModal('edit-profile')">✏️ Редактировать</button>
+        <button class="go-btn save-btn" style="flex:1;font-size:12px;padding:10px;" onclick="openModal('share')">📤 Поделиться</button>
+      </div>
+    </div>
+
+    <div class="card glow">
+      <div class="lbl">Репутационный скор</div>
+      <div class="rep-wrap">
+        <div class="rep-ring">
+          <svg width="88" height="88" viewBox="0 0 100 100">
+            <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4f6ef7"/><stop offset="100%" stop-color="#10d9a0"/></linearGradient></defs>
+            <circle class="rbg" cx="50" cy="50" r="39"/>
+            <circle class="rfg" cx="50" cy="50" r="39"/>
+          </svg>
+          <div class="rep-num">86<span class="rep-sub">/100</span></div>
+        </div>
+        <div class="rep-bars">
+          <div><div class="br-top"><span>Проекты</span><span>92</span></div><div class="bar"><div class="bf bf-b" style="width:92%"></div></div></div>
+          <div><div class="br-top"><span>Навыки</span><span>88</span></div><div class="bar"><div class="bf bf-g" style="width:88%"></div></div></div>
+          <div><div class="br-top"><span>Активность</span><span>76</span></div><div class="bar"><div class="bf bf-o" style="width:76%"></div></div></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+        <div class="chip">⬆ +4 за неделю</div>
+        <span style="font-size:11px;color:var(--muted);">🏆 #7 в рейтинге школы</span>
+        <span style="font-size:11px;color:var(--muted);">Топ 12% среди школьников</span>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat" onclick="openModal('projects')"><div class="stat-n" style="color:var(--accent)">7</div><div class="stat-l">Проектов</div></div>
+      <div class="stat" onclick="switchTab('skillproof')"><div class="stat-n" style="color:var(--green)">12</div><div class="stat-l">Навыков</div></div>
+      <div class="stat" onclick="switchTab('talent')"><div class="stat-n" style="color:var(--orange)">3</div><div class="stat-l">Матча</div></div>
+    </div>
+
+    <div>
+      <div class="sh"><div class="sh-title">Навыки</div><div class="sh-btn" onclick="switchTab('skillproof')">+ Проверить AI</div></div>
+      <div class="skills-grid">
+        <div class="skc" onclick="openModal('skill-react')"><div class="skc-ico">⚛️</div><div class="skc-name">React</div><div class="skc-lv">Продвинутый</div><div class="skc-bar"><div class="skc-fill" style="width:85%"></div></div></div>
+        <div class="skc" onclick="openModal('skill-python')"><div class="skc-ico">🐍</div><div class="skc-name">Python</div><div class="skc-lv">Средний</div><div class="skc-bar"><div class="skc-fill" style="width:60%"></div></div></div>
+        <div class="skc" onclick="openModal('skill-figma')"><div class="skc-ico">🎨</div><div class="skc-name">Figma</div><div class="skc-lv">Продвинутый</div><div class="skc-bar"><div class="skc-fill" style="width:80%"></div></div></div>
+        <div class="skc" onclick="openModal('skill-ai')"><div class="skc-ico">🤖</div><div class="skc-name">ML/AI</div><div class="skc-lv">Начинающий</div><div class="skc-bar"><div class="skc-fill" style="width:35%"></div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sh"><div class="sh-title">Достижения</div><div class="sh-btn" onclick="openModal('badges')">Все (8)</div></div>
+      <div class="bdg-row">
+        <div class="bdg" onclick="openModal('badge-hack')"><div class="bdg-ico">🏆</div><div class="bdg-name">Хакатон</div></div>
+        <div class="bdg" onclick="openModal('badge-fire')"><div class="bdg-ico">🔥</div><div class="bdg-name">Стрик 7д</div></div>
+        <div class="bdg" onclick="openModal('badge-star')"><div class="bdg-ico">⭐</div><div class="bdg-name">1й проект</div></div>
+        <div class="bdg" onclick="openModal('badge-match')"><div class="bdg-ico">🤝</div><div class="bdg-name">3 матча</div></div>
+        <div class="bdg" onclick="openModal('badge-top')"><div class="bdg-ico">🎯</div><div class="bdg-name">Top 12%</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sh"><div class="sh-title">Проекты</div><div class="sh-btn" onclick="openModal('projects')">Все (7)</div></div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div class="proj" onclick="openModal('proj-verix')"><div class="proj-ico" style="background:rgba(79,110,247,.15)">📱</div><div style="flex:1;min-width:0"><div class="proj-name">Verix App</div><div class="proj-desc">React Native · Digital Reputation</div></div><div class="proj-score">91</div></div>
+        <div class="proj" onclick="openModal('proj-ml')"><div class="proj-ico" style="background:rgba(16,217,160,.15)">🤖</div><div style="flex:1;min-width:0"><div class="proj-name">ML Classifier</div><div class="proj-desc">Python · Классификатор изображений</div></div><div class="proj-score">84</div></div>
+        <div class="proj" onclick="openModal('proj-eco')"><div class="proj-ico" style="background:rgba(249,115,22,.15)">🌱</div><div style="flex:1;min-width:0"><div class="proj-name">EcoTrack</div><div class="proj-desc">React · Трекер углеродного следа</div></div><div class="proj-score">78</div></div>
+      </div>
+    </div>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- ══════════ SKILLPROOF ══════════ -->
+<div class="screen" id="screen-skillproof">
+  <nav>
+    <div class="nav-logo">SkillProof <span style="font-size:11px;color:var(--accent);background:rgba(79,110,247,.15);padding:2px 7px;border-radius:5px;-webkit-text-fill-color:var(--accent);">AI</span></div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('skillproof-info')">ℹ️</div></div>
+  </nav>
+  <div class="scroll">
+    <div class="ai-hero">
+      <div class="ai-title">Докажи свой <span>навык</span></div>
+      <div class="ai-sub">AI выдаст честный скор — без оценок учителей</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Выбери навык</div>
+      <div class="sk-sel-grid">
+        <div class="sk-sel" onclick="selSkill(this,'⚛️ React')"><div class="i">⚛️</div>React</div>
+        <div class="sk-sel" onclick="selSkill(this,'🐍 Python')"><div class="i">🐍</div>Python</div>
+        <div class="sk-sel" onclick="selSkill(this,'🤖 ML/AI')"><div class="i">🤖</div>ML/AI</div>
+        <div class="sk-sel" onclick="selSkill(this,'🎨 Design')"><div class="i">🎨</div>Design</div>
+        <div class="sk-sel" onclick="selSkill(this,'📊 Data')"><div class="i">📊</div>Data</div>
+        <div class="sk-sel" onclick="selSkill(this,'🌐 Web')"><div class="i">🌐</div>Web</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lbl">Опиши проект</div>
+      <textarea class="ai-ta" id="projDesc" placeholder="Например: Сделала сайт на React с авторизацией, тёмной темой, API подключением. Использовала хуки useState, useEffect, Context API. Деплой на Vercel..."></textarea>
+    </div>
+    <button class="go-btn" id="analyzeBtn" onclick="runAnalysis()">🔍 Анализировать с AI</button>
+    <div class="ai-result" id="aiResult">
+      <div class="card">
+        <div class="lbl">Результат</div>
+        <div class="sc-grid">
+          <div class="sc-box"><div class="sc-n" style="color:var(--accent)" id="r-overall">—</div><div class="sc-l">Общий скор</div></div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--green)" id="r-orig">—</div><div class="sc-l">Оригинальность</div></div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--orange)" id="r-comp">—</div><div class="sc-l">Сложность</div></div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--pink)" id="r-lvl">—</div><div class="sc-l">Уровень</div></div>
+        </div>
+      </div>
+      <div class="ai-verd"><div class="ai-verd-h">🤖 Вердикт AI</div><div class="ai-verd-t" id="aiVerdText">...</div></div>
+      <button class="go-btn save-btn" onclick="saveSkill()">✅ Добавить в профиль</button>
+    </div>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- ══════════ TALENT ══════════ -->
+<div class="screen" id="screen-talent">
+  <nav>
+    <div class="nav-logo">TalentMatch</div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('talent-info')">🎯</div></div>
+  </nav>
+  <div class="scroll">
+    <div style="text-align:center;padding:4px 0 6px;">
+      <div style="font-size:12px;color:var(--muted2)">Подобрано под твой профиль</div>
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Свайп → матч 🔥</div>
+    </div>
+    <div>
+      <div class="lbl">Твои матчи (3)</div>
+      <div class="matches-row">
+        <div class="m-chip" onclick="openModal('match-kolesa')">🤝 Kolesa Group</div>
+        <div class="m-chip" onclick="openModal('match-epam')">🤝 EPAM Systems</div>
+        <div class="m-chip" onclick="openModal('match-most')">🤝 MOST Grant</div>
+      </div>
+    </div>
+    <div>
+      <div class="opp-card" id="swipeCard">
+        <div class="nope-badge" id="nopeBadge">ПРОПУСТИТЬ</div>
+        <div class="liked-badge" id="likedBadge">МАТЧ! 🎉</div>
+        <div class="opp-bg" id="cardBg"></div>
+        <div class="opp-type" id="cardType"></div>
+        <div class="opp-org" id="cardOrg"></div>
+        <div class="opp-title" id="cardTitle"></div>
+        <div class="opp-tags" id="cardTags"></div>
+        <div class="opp-match">
+          <span style="font-size:11px;color:var(--muted2)">Совпадение</span>
+          <div class="mb-wrap"><div class="mb" id="matchBar"></div></div>
+          <span class="mp" id="matchPct"></span>
+        </div>
+        <div class="opp-desc" id="cardDesc"></div>
+        <div style="margin-top:13px;position:relative;z-index:1;">
+          <button class="go-btn" style="font-size:12px;padding:11px;" onclick="openCurrentOpp()">Подать заявку →</button>
+        </div>
+      </div>
+    </div>
+    <div class="sw-actions">
+      <button class="sw-btn sw-no" onclick="swipe('no')">✕</button>
+      <button class="sw-btn sw-star" onclick="swipe('super')">⭐</button>
+      <button class="sw-btn sw-yes" onclick="swipe('yes')">✓</button>
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:-2px;">✕ Пропустить &nbsp;·&nbsp; ⭐ Суперлайк &nbsp;·&nbsp; ✓ Матч</div>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- ══════════ EDUPATH ══════════ -->
+<div class="screen" id="screen-edupath">
+  <nav>
+    <div class="nav-logo">EduPath</div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('path-goals')">🎯</div></div>
+  </nav>
+  <div class="scroll">
+    <div class="card glow">
+      <div style="text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;">ТВОЯ ЦЕЛЬ</div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">Стать <span style="background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Frontend Engineer</span></div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:4px;">8 месяцев · Прогресс 35%</div>
+        <div class="path-bar"><div class="path-fill" style="width:35%"></div></div>
+      </div>
+      <div style="display:flex;gap:7px;margin-top:12px;">
+        <button class="outline-btn" style="margin:0;flex:1;" onclick="openModal('change-goal')">Сменить цель</button>
+        <button class="outline-btn" style="margin:0;flex:1;background:rgba(79,110,247,.08);" onclick="openModal('share')">📤 Поделиться</button>
+      </div>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;">Роадмап</div>
+    <div class="rm">
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot done">✅</div><div class="rm-line"></div></div>
+        <div class="rm-content">
+          <div class="rm-phase">Фаза 1 · Завершена</div><div class="rm-title">Основы веба</div>
+          <div class="rm-desc">HTML, CSS, JavaScript — пройдено!</div>
+          <div class="rm-tasks">
+            <div class="tk"><div class="tk-box done">✓</div>HTML & CSS основы</div>
+            <div class="tk"><div class="tk-box done">✓</div>JavaScript основы</div>
+            <div class="tk"><div class="tk-box done">✓</div>Первая страница на GitHub</div>
+          </div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot now">⚡</div><div class="rm-line"></div></div>
+        <div class="rm-content">
+          <div class="rm-phase">Фаза 2 · Сейчас</div><div class="rm-title">React & компоненты</div>
+          <div class="rm-desc">Компонентный подход, хуки, управление состоянием</div>
+          <div class="rm-tasks">
+            <div class="tk"><div class="tk-box done">✓</div>Компоненты и пропсы</div>
+            <div class="tk"><div class="tk-box now">→</div>useState & useEffect</div>
+            <div class="tk"><div class="tk-box">○</div>Роутинг (React Router)</div>
+            <div class="tk"><div class="tk-box">○</div>API запросы (fetch)</div>
+          </div>
+          <button class="outline-btn" onclick="openModal('start-task')">▶ Продолжить задание</button>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot locked">🔒</div><div class="rm-line"></div></div>
+        <div class="rm-content">
+          <div class="rm-phase">Фаза 3 · Скоро</div><div class="rm-title">Продвинутый React</div>
+          <div class="rm-desc">TypeScript, Redux, тестирование</div>
+          <div class="rm-tasks">
+            <div class="tk" style="opacity:.4"><div class="tk-box">○</div>TypeScript</div>
+            <div class="tk" style="opacity:.4"><div class="tk-box">○</div>Redux / Zustand</div>
+            <div class="tk" style="opacity:.4"><div class="tk-box">○</div>Jest Testing</div>
+          </div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot locked">🔒</div></div>
+        <div class="rm-content" style="padding-bottom:4px">
+          <div class="rm-phase">Фаза 4 · Финал</div><div class="rm-title">Portfolio + Job Ready</div>
+          <div class="rm-desc">Финальный проект, резюме, подготовка к интервью</div>
+        </div>
+      </div>
+    </div>
+    <div class="ai-verd">
+      <div class="ai-verd-h">🤖 AI рекомендация</div>
+      <div class="ai-verd-t">Ты прогрессируешь <strong>быстрее среднего на 23%</strong>. Следующий шаг: закончи задание по <strong>useEffect</strong> — это разблокирует фазу API-запросов и поднимет скор на ~6 пунктов.</div>
+    </div>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- ══════════ RANKINGS ══════════ -->
+<div class="screen" id="screen-rankings">
+  <nav>
+    <div class="nav-logo">🏆 Рейтинги</div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('rankings-info')">ℹ️</div></div>
+  </nav>
+  <div class="scroll">
+    <div class="rankings-hero">
+      <div class="rankings-title">Соревнуйся и побеждай</div>
+      <div class="rankings-sub">Смотри на лучших и вдохновляйся</div>
+    </div>
+
+    <div class="rank-tabs">
+      <div class="rank-tab active" onclick="switchRanking('users')">👤 Ученики</div>
+      <div class="rank-tab" onclick="switchRanking('schools')">🏫 Школы</div>
+      <div class="rank-tab" onclick="switchRanking('skills')">🎯 Навыки</div>
+      <div class="rank-tab" onclick="switchRanking('competitions')">🏆 Соревнования</div>
+    </div>
+
+    <!-- Users Rankings -->
+    <div id="rankings-users" class="ranking-content">
+      <div class="ranking-list">
+        <div class="ranking-card" onclick="openUserProfile(1)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">МА</div>
+          <div class="r-info">
+            <div class="r-name">Марат Алиев</div>
+            <div class="r-school">Школа №45, Алматы</div>
+            <div class="r-skills">
+              <span class="r-skill">React</span>
+              <span class="r-skill">Node.js</span>
+              <span class="r-skill">Python</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">92.5</div>
+            <div class="r-change r-up">📈 +2</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(2)">
+          <div class="rank-num rank-2">#2</div>
+          <div class="r-avatar">АН</div>
+          <div class="r-info">
+            <div class="r-name">Алия Нурсултанова</div>
+            <div class="r-school">НИШ Физмат, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill">ML</span>
+              <span class="r-skill">Python</span>
+              <span class="r-skill">Data</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">89.2</div>
+            <div class="r-change r-down">📉 -1</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(3)">
+          <div class="rank-num rank-3">#3</div>
+          <div class="r-avatar">ДО</div>
+          <div class="r-info">
+            <div class="r-name">Данияр Омаров</div>
+            <div class="r-school">Гимназия №7, Алматы</div>
+            <div class="r-skills">
+              <span class="r-skill">React</span>
+              <span class="r-skill">TypeScript</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">87.8</div>
+            <div class="r-change r-same">➡️ 0</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(4)">
+          <div class="rank-num">#4</div>
+          <div class="r-avatar">АБ</div>
+          <div class="r-info">
+            <div class="r-name">Айсулу Бекмуратова</div>
+            <div class="r-school">НИШ ХМ, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill">Design</span>
+              <span class="r-skill">Figma</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">85.3</div>
+            <div class="r-change r-up">📈 +3</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(5)">
+          <div class="rank-num">#5</div>
+          <div class="r-avatar">ЕС</div>
+          <div class="r-info">
+            <div class="r-name">Ерлан Смагулов</div>
+            <div class="r-school">Школа №12, Шымкент</div>
+            <div class="r-skills">
+              <span class="r-skill">Python</span>
+              <span class="r-skill">Django</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">83.7</div>
+            <div class="r-change r-down">📉 -2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schools Rankings -->
+    <div id="rankings-schools" class="ranking-content" style="display:none;">
+      <div class="school-card" onclick="toast('🏫 Детальная информация о НИШ Физмат-IT')">
+        <div class="school-header">
+          <div class="school-name">НИШ Физмат-IT</div>
+          <div class="school-rank">
+            <span class="rank-num rank-1">#1</span>
+            <span style="color:var(--muted);">в Астане</span>
+          </div>
+        </div>
+        <div class="school-stats">
+          <div class="school-stat">
+            <div class="school-stat-val">78.5</div>
+            <div class="school-stat-lbl">Средняя репутация</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">234</div>
+            <div class="school-stat-lbl">Всего учеников</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">15</div>
+            <div class="school-stat-lbl">Достижений</div>
+          </div>
+        </div>
+        <div class="top-students">
+          <div class="top-student">
+            <div class="top-student-avatar">АН</div>
+            <div class="top-student-name">Алия Н.</div>
+            <div class="top-student-score">89.2</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">ТЖ</div>
+            <div class="top-student-name">Тимур Ж.</div>
+            <div class="top-student-score">82.4</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">МС</div>
+            <div class="top-student-name">Мадина С.</div>
+            <div class="top-student-score">79.8</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="school-card" onclick="toast('🏫 Детальная информация о Школе №45')">
+        <div class="school-header">
+          <div class="school-name">Школа №45</div>
+          <div class="school-rank">
+            <span class="rank-num rank-2">#2</span>
+            <span style="color:var(--muted);">в Алматы</span>
+          </div>
+        </div>
+        <div class="school-stats">
+          <div class="school-stat">
+            <div class="school-stat-val">72.3</div>
+            <div class="school-stat-lbl">Средняя репутация</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">198</div>
+            <div class="school-stat-lbl">Всего учеников</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">12</div>
+            <div class="school-stat-lbl">Достижений</div>
+          </div>
+        </div>
+        <div class="top-students">
+          <div class="top-student">
+            <div class="top-student-avatar">МА</div>
+            <div class="top-student-name">Марат А.</div>
+            <div class="top-student-score">92.5</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">ДО</div>
+            <div class="top-student-name">Данияр О.</div>
+            <div class="top-student-score">87.8</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">КА</div>
+            <div class="top-student-name">Карина А.</div>
+            <div class="top-student-score">76.2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Rankings -->
+    <div id="rankings-skills" class="ranking-content" style="display:none;">
+      <div class="ranking-list">
+        <div class="ranking-card" onclick="openUserProfile(1)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">МА</div>
+          <div class="r-info">
+            <div class="r-name">Марат Алиев</div>
+            <div class="r-school">Школа №45, Алматы</div>
+            <div class="r-skills">
+              <span class="r-skill" style="background:rgba(79,110,247,.2);color:#a0b0ff;">⚛️ React</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">95.2</div>
+            <div class="r-change r-up">📈 +1</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(2)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">АН</div>
+          <div class="r-info">
+            <div class="r-name">Алия Нурсултанова</div>
+            <div class="r-school">НИШ Физмат, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill" style="background:rgba(16,217,160,.2);color:#34d399;">🐍 Python</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">94.6</div>
+            <div class="r-change r-same">➡️ 0</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(2)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">АН</div>
+          <div class="r-info">
+            <div class="r-name">Алия Нурсултанова</div>
+            <div class="r-school">НИШ Физмат, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill" style="background:rgba(249,115,22,.2);color:#fb923c;">🤖 ML/AI</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">96.1</div>
+            <div class="r-change r-up">📈 +2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competitions -->
+    <div id="rankings-competitions" class="ranking-content" style="display:none;">
+      <div class="comp-card" onclick="toast('🏆 Подать заявку на React Challenge 2024')">
+        <div class="comp-header">
+          <div class="comp-name">🏆 React Challenge 2024</div>
+          <div class="comp-prize">🎁 MacBook Air + стажировка</div>
+        </div>
+        <div class="comp-desc">Создай лучшее React приложение и выиграй ценные призы</div>
+        <div class="comp-stats">
+          <div class="comp-stat">
+            <div class="comp-stat-val">156</div>
+            <div class="comp-stat-lbl">Участников</div>
+          </div>
+          <div class="comp-stat">
+            <div class="comp-stat-val">12</div>
+            <div class="comp-stat-lbl">Дней до конца</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-card" onclick="toast('🤖 Подать заявку на AI Innovation Hackathon')">
+        <div class="comp-header">
+          <div class="comp-name">🤖 AI Innovation Hackathon</div>
+          <div class="comp-prize">🎁 Грант на развитие проекта</div>
+        </div>
+        <div class="comp-desc">Разработи AI решение для образования и получи поддержку</div>
+        <div class="comp-stats">
+          <div class="comp-stat">
+            <div class="comp-stat-val">89</div>
+            <div class="comp-stat-lbl">Участников</div>
+          </div>
+          <div class="comp-stat">
+            <div class="comp-stat-val">8</div>
+            <div class="comp-stat-lbl">Дней до конца</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-card" onclick="toast('🏫 Подать заявку на School Battle: IT Edition')">
+        <div class="comp-header">
+          <div class="comp-name">🏫 School Battle: IT Edition</div>
+          <div class="comp-prize">🎁 Кубок чемпиона + мерч</div>
+        </div>
+        <div class="comp-desc">Соревнование между школами Алматы за звание лучшей IT-площадки</div>
+        <div class="comp-stats">
+          <div class="comp-stat">
+            <div class="comp-stat-val">234</div>
+            <div class="comp-stat-lbl">Участников</div>
+          </div>
+          <div class="comp-stat">
+            <div class="comp-stat-val">5</div>
+            <div class="comp-stat-lbl">Дней до конца</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- ══════════ TABBAR ══════════ -->
+<div class="tabbar">
+  <div class="tab active" id="tab-profile" onclick="switchTab('profile')"><div class="tab-ico">👤</div><div class="tab-lbl">Профиль</div></div>
+  <div class="tab" id="tab-skillproof" onclick="switchTab('skillproof')"><div class="tab-ico">🔍</div><div class="tab-lbl">SkillProof</div></div>
+  <div class="tab" id="tab-talent" onclick="switchTab('talent')"><div class="tab-ico">💼</div><div class="tab-lbl">Матчинг</div></div>
+  <div class="tab" id="tab-rankings" onclick="switchTab('rankings')"><div class="tab-ico">🏆</div><div class="tab-lbl">Рейтинги</div></div>
+  <div class="tab" id="tab-edupath" onclick="switchTab('edupath')"><div class="tab-ico">🗺️</div><div class="tab-lbl">EduPath</div></div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModalOutside(event)">
+  <div id="modal-box">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ════════════ PROFILE DATA ════════════
+const DEFAULTS = {
+  name:'Рамина Ибраимова', grade:'10 класс', city:'Алматы, Казахстан',
+  emoji:'👩‍💻', level:7, about:'Frontend разработчица, люблю создавать продукты с нуля.',
+  tag1:'Frontend', tag2:'AI/ML', tag3:'Design'
+};
+const TAG_ICONS = {Frontend:'💻','AI/ML':'🤖',Design:'🎨',Backend:'⚙️',Data:'📊',Mobile:'📱','Game Dev':'🎮',Cybersecurity:'🔐'};
+const GRADES = ['8 класс','9 класс','10 класс','11 класс','1 курс','2 курс','3 курс','4 курс'];
+const SKILL_TAGS = ['Frontend','AI/ML','Design','Backend','Data','Mobile','Game Dev','Cybersecurity'];
+const AVATARS = ['👩‍💻','👨‍💻','🧑‍💻','👩‍🎨','👨‍🎨','🧑‍🔬','👩‍🔬','🦊','🐱','🐼','🦁','🐸','🦋','🚀','🎮','🎯'];
+
+function loadP(){try{const s=localStorage.getItem('vx_p');return s?{...DEFAULTS,...JSON.parse(s)}:{...DEFAULTS};}catch(e){return{...DEFAULTS};}}
+function saveP(d){try{localStorage.setItem('vx_p',JSON.stringify(d));}catch(e){}}
+
+function renderProfile(){
+  const p=loadP();
+  document.getElementById('avatarEmoji').textContent=p.emoji;
+  document.getElementById('levelBadge').textContent='LVL '+p.level;
+  document.getElementById('profileName').textContent=p.name;
+  document.getElementById('profileSub').textContent=p.grade+' · '+p.city;
+  const tags=[p.tag1,p.tag2,p.tag3].filter(Boolean);
+  document.getElementById('profileTags').innerHTML=tags.map((t,i)=>
+    `<span class="tag ${i<2?'h':''}">${TAG_ICONS[t]||'🔖'} ${t}</span>`
+  ).join('');
+}
+
+// ════════════ EDIT PROFILE MODAL ════════════
+let _selEmoji='';
+
+function openEditProfile(){
+  const p=loadP();
+  _selEmoji=p.emoji;
+
+  const avGrid=AVATARS.map(e=>`
+    <div id="av${e.codePointAt(0)}" onclick="pickEmoji('${e}')"
+      style="width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+      font-size:26px;cursor:pointer;touch-action:manipulation;flex-shrink:0;
+      border:2px solid ${e===p.emoji?'var(--accent)':'var(--border)'};background:var(--s2);">${e}</div>`
+  ).join('');
+
+  const grOpts=GRADES.map(g=>`<option value="${g}"${p.grade===g?' selected':''}>${g}</option>`).join('');
+  const tOpts=(cur)=>SKILL_TAGS.map(t=>`<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+
+  document.getElementById('modal-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;">Редактировать профиль ✏️</div>
+      <span onclick="closeModal()" style="cursor:pointer;font-size:26px;color:var(--muted);touch-action:manipulation;padding:4px;">×</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div>
+        <div class="lbl">Аватар</div>
+        <div style="display:flex;gap:7px;overflow-x:auto;padding:3px 0 6px;">${avGrid}</div>
+      </div>
+      <div>
+        <div class="lbl">Имя</div>
+        <input class="inp" id="e_name" value="${p.name}" placeholder="Твоё имя">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;">
+          <div class="lbl">Класс / Курс</div>
+          <select class="inp" id="e_grade">${grOpts}</select>
+        </div>
+        <div style="flex:1;">
+          <div class="lbl">Уровень (1–10)</div>
+          <input class="inp" id="e_level" type="number" min="1" max="10" value="${p.level}" inputmode="numeric">
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Город</div>
+        <input class="inp" id="e_city" value="${p.city}" placeholder="Город, Страна">
+      </div>
+      <div>
+        <div class="lbl">О себе</div>
+        <textarea class="inp" id="e_about" style="resize:none;height:68px;line-height:1.5;">${p.about}</textarea>
+      </div>
+      <div>
+        <div class="lbl">Направления (3 тега)</div>
+        <div style="display:flex;gap:6px;">
+          <select class="inp" id="e_t1" style="flex:1;">${tOpts(p.tag1)}</select>
+          <select class="inp" id="e_t2" style="flex:1;">${tOpts(p.tag2)}</select>
+          <select class="inp" id="e_t3" style="flex:1;">${tOpts(p.tag3)}</select>
+        </div>
+      </div>
+      <button class="go-btn" onclick="applyProfile()">✅ Сохранить</button>
+      <button class="outline-btn danger-btn" style="margin-top:0;" onclick="if(confirm('Сбросить к стандартному?')){localStorage.removeItem('vx_p');renderProfile();closeModal();toast('🔄 Сброшено');}">🗑 Сбросить</button>
+    </div>`;
+
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function pickEmoji(e){
+  AVATARS.forEach(a=>{
+    const el=document.getElementById('av'+a.codePointAt(0));
+    if(el)el.style.borderColor='var(--border)';
+  });
+  const el=document.getElementById('av'+e.codePointAt(0));
+  if(el)el.style.borderColor='var(--accent)';
+  _selEmoji=e;
+}
+
+function applyProfile(){
+  const p=loadP();
+  p.emoji=_selEmoji||p.emoji;
+  p.name=document.getElementById('e_name').value.trim()||p.name;
+  p.grade=document.getElementById('e_grade').value;
+  p.city=document.getElementById('e_city').value.trim()||p.city;
+  p.about=document.getElementById('e_about').value.trim();
+  p.level=Math.min(10,Math.max(1,parseInt(document.getElementById('e_level').value)||p.level));
+  p.tag1=document.getElementById('e_t1').value;
+  p.tag2=document.getElementById('e_t2').value;
+  p.tag3=document.getElementById('e_t3').value;
+  saveP(p);renderProfile();closeModal();toast('✅ Профиль сохранён!');
+}
+
+// ════════════ TABS ════════════
+function switchTab(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ════════════ TOAST ════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ════════════ MODALS ════════════
+function openModal(key){
+  if(key==='edit-profile'){openEditProfile();return;}
+  const m=MODALS[key];if(!m)return;
+  document.getElementById('modal-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${m.sub?'4px':'14px'}">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;flex:1;min-width:0;">${m.title}</div>
+      <span onclick="closeModal()" style="cursor:pointer;font-size:26px;color:var(--muted);margin-left:10px;flex-shrink:0;touch-action:manipulation;padding:4px;">×</span>
+    </div>
+    ${m.sub?`<div style="font-size:12px;color:var(--muted2);margin-bottom:14px;">${m.sub}</div>`:''}
+    ${m.body}`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+function closeModalOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+const MODALS={
+  notif:{title:'Уведомления 🔔',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
+    <div class="proj"><div class="proj-ico" style="background:rgba(16,217,160,.15)">🎉</div><div style="flex:1"><div class="proj-name">Новый матч!</div><div class="proj-desc">Kolesa Group · 2ч назад</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(79,110,247,.15)">⬆️</div><div style="flex:1"><div class="proj-name">Скор вырос до 86</div><div class="proj-desc">+4 очка за неделю · 1д назад</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(249,115,22,.15)">🏆</div><div style="flex:1"><div class="proj-name">Новое достижение</div><div class="proj-desc">«Стрик 7 дней» · 2д назад</div></div></div>
+  </div>`},
+  share:{title:'Поделиться профилем 📤',sub:'Покажи навыки университетам и работодателям',body:`
+    <div style="background:var(--s2);border-radius:13px;padding:14px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Публичная ссылка</div>
+      <div style="font-size:14px;font-weight:600;color:var(--accent);">verix.app/u/ramina</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="go-btn" onclick="toast('📋 Ссылка скопирована!');closeModal()">📋 Скопировать ссылку</button>
+      <button class="outline-btn" style="margin:0;" onclick="toast('📄 PDF скачан!');closeModal()">📄 Скачать PDF резюме</button>
+      <button class="outline-btn" style="margin:0;" onclick="toast('📧 Отправлено!');closeModal()">📧 Отправить на email</button>
+    </div>`},
+  'skillproof-info':{title:'Как работает SkillProof AI',sub:'',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="proj"><div class="proj-ico" style="background:rgba(79,110,247,.15)">1️⃣</div><div style="flex:1"><div class="proj-name">Выбираешь навык</div><div class="proj-desc">React, Python, ML, Design и другие</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(16,217,160,.15)">2️⃣</div><div style="flex:1"><div class="proj-name">Описываешь проект</div><div class="proj-desc">Технологии, что сделала, сложность</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(249,115,22,.15)">3️⃣</div><div style="flex:1"><div class="proj-name">AI анализирует</div><div class="proj-desc">Сложность, оригинальность, уровень</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(236,72,153,.15)">4️⃣</div><div style="flex:1"><div class="proj-name">Добавляешь в профиль</div><div class="proj-desc">Скор виден работодателям</div></div></div>
+  </div>`},
+  'talent-info':{title:'Как работает TalentMatch 🎯',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Подбирает стажировки, гранты и конкурсы под твой профиль.</div>
+    <div class="ai-verd"><div class="ai-verd-h">Как свайпать:</div><div class="ai-verd-t"><strong>✕</strong> — не интересно &nbsp; <strong>⭐</strong> — суперлайк &nbsp; <strong>✓</strong> — хочу матч</div></div>
+  </div>`},
+  projects:{title:'Все проекты (7)',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="proj" onclick="closeModal();toast('📱 Verix App')"><div class="proj-ico" style="background:rgba(79,110,247,.15)">📱</div><div style="flex:1"><div class="proj-name">Verix App</div><div class="proj-desc">React Native · 91/100</div></div><div class="proj-score">91</div></div>
+    <div class="proj" onclick="closeModal();toast('🤖 ML Classifier')"><div class="proj-ico" style="background:rgba(16,217,160,.15)">🤖</div><div style="flex:1"><div class="proj-name">ML Classifier</div><div class="proj-desc">Python · 84/100</div></div><div class="proj-score">84</div></div>
+    <div class="proj" onclick="closeModal();toast('🌱 EcoTrack')"><div class="proj-ico" style="background:rgba(249,115,22,.15)">🌱</div><div style="flex:1"><div class="proj-name">EcoTrack</div><div class="proj-desc">React · 78/100</div></div><div class="proj-score">78</div></div>
+    <div class="proj" onclick="closeModal();toast('🎨 Portfolio')"><div class="proj-ico" style="background:rgba(236,72,153,.15)">🎨</div><div style="flex:1"><div class="proj-name">Portfolio Site</div><div class="proj-desc">HTML/CSS · 72/100</div></div><div class="proj-score">72</div></div>
+    <button class="outline-btn" style="margin-top:4px;" onclick="closeModal();switchTab('skillproof')">+ Добавить проект</button>
+  </div>`},
+  'start-task':{title:'useState & useEffect ⚡',sub:'Фаза 2 · Задание 2 из 4',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Создай компонент таймера:<br>• Считает секунды (useState)<br>• Запускает интервал (useEffect)<br>• Кнопки Старт / Пауза / Сброс</div>
+    <div class="ai-verd"><div class="ai-verd-h">💡 Подсказка</div><div class="ai-verd-t">Очищай интервал в <strong>return</strong> из useEffect — иначе утечки памяти.</div></div>
+    <button class="go-btn" onclick="toast('▶️ Задание началось!');closeModal()">▶ Начать</button>
+    <button class="outline-btn" style="margin:0;" onclick="toast('📹 Видео открыт');closeModal()">📹 Смотреть урок</button>
+  </div>`},
+  'change-goal':{title:'Выбрать цель 🎯',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="proj" onclick="toast('✅ Frontend Engineer');closeModal()"><div class="proj-ico" style="background:rgba(79,110,247,.15)">⚛️</div><div style="flex:1"><div class="proj-name">Frontend Engineer</div><div class="proj-desc">React, TypeScript · 8 мес</div></div><div style="font-size:18px;">✓</div></div>
+    <div class="proj" onclick="toast('✅ Data Scientist');closeModal()"><div class="proj-ico" style="background:rgba(16,217,160,.15)">📊</div><div style="flex:1"><div class="proj-name">Data Scientist</div><div class="proj-desc">Python, ML · 10 мес</div></div></div>
+    <div class="proj" onclick="toast('✅ UI/UX Designer');closeModal()"><div class="proj-ico" style="background:rgba(236,72,153,.15)">🎨</div><div style="flex:1"><div class="proj-name">UI/UX Designer</div><div class="proj-desc">Figma, Research · 6 мес</div></div></div>
+    <div class="proj" onclick="toast('✅ Backend Developer');closeModal()"><div class="proj-ico" style="background:rgba(249,115,22,.15)">⚙️</div><div style="flex:1"><div class="proj-name">Backend Developer</div><div class="proj-desc">Python/Node, APIs · 9 мес</div></div></div>
+  </div>`},
+  'path-goals':{title:'Карьерные цели 🗺️',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="font-size:13px;color:var(--muted2);line-height:1.6;">EduPath строит роадмап под твой уровень и цель. AI обновляет план каждую неделю.</div>
+    <button class="go-btn" onclick="openModal('change-goal')">🎯 Сменить цель</button>
+    <button class="outline-btn" style="margin:0;" onclick="toast('📊 Статистика');closeModal()">📊 Статистика</button>
+  </div>`},
+  'skill-react':{title:'⚛️ React',sub:'Верифицирован AI · Продвинутый',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">85</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">3</div><div class="sc-l">Проекта</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">🤖 AI оценка</div><div class="ai-verd-t">Сильная архитектура. Изучи <strong>React Query</strong> и <strong>оптимизацию рендеров</strong>.</div></div>
+    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">🔄 Пересдать тест</button>
+  </div>`},
+  'skill-python':{title:'🐍 Python',sub:'Верифицирован AI · Средний',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">60</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">2</div><div class="sc-l">Проекта</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">🤖 AI оценка</div><div class="ai-verd-t">Хорошая база. Изучи <strong>pandas</strong>, <strong>numpy</strong>, <strong>sklearn</strong>.</div></div>
+    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">🔄 Улучшить</button>
+  </div>`},
+  'skill-figma':{title:'🎨 Figma',sub:'Верифицирован AI · Продвинутый',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">80</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">4</div><div class="sc-l">Проекта</div></div></div>
+    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">🔄 Пересдать</button>
+  </div>`},
+  'skill-ai':{title:'🤖 ML/AI',sub:'Верифицирован AI · Начинающий',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">35</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--orange)">1</div><div class="sc-l">Проект</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">🤖 AI оценка</div><div class="ai-verd-t">Рекомендую <strong>EduPath → Data Scientist</strong>.</div></div>
+    <button class="go-btn" onclick="switchTab('edupath');closeModal()">🗺️ EduPath</button>
+  </div>`},
+  badges:{title:'Все достижения 🏅',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🏆</div><div style="flex:1"><div class="proj-name">Хакатон 2024</div><div class="proj-desc">2 место в Almaty Hack</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🔥</div><div style="flex:1"><div class="proj-name">Стрик 7 дней</div><div class="proj-desc">7 дней подряд</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">⭐</div><div style="flex:1"><div class="proj-name">Первый проект</div><div class="proj-desc">Первый проект в портфолио</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🤝</div><div style="flex:1"><div class="proj-name">3 матча</div><div class="proj-desc">3 матча с компаниями</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🎯</div><div style="flex:1"><div class="proj-name">Top 12%</div><div class="proj-desc">Топ 12% школьников</div></div></div>
+    <div class="proj" style="opacity:.4"><div class="proj-ico" style="font-size:22px">🔒</div><div style="flex:1"><div class="proj-name">Top 5%</div><div class="proj-desc">Войди в топ 5%</div></div></div>
+  </div>`},
+  'badge-hack':{title:'🏆 Хакатон 2024',sub:'15 ноября 2024',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🏆</div><div style="margin-top:10px;font-size:13px;color:var(--muted2);line-height:1.6;">2 место на Almaty Hack 2024.<br>Команда из 4 человек, проект EcoTrack.<br>+15 к репутационному скору.</div></div>`},
+  'badge-fire':{title:'🔥 Стрик 7 дней',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🔥</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">7 дней активности подряд. +5 к скору.</div></div>`},
+  'badge-star':{title:'⭐ Первый проект',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">⭐</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">Добавила первый проект!</div></div>`},
+  'badge-match':{title:'🤝 3 матча',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🤝</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">3 матча с компаниями!</div></div>`},
+  'badge-top':{title:'🎯 Top 12%',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🎯</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">Топ 12% школьников на платформе!</div></div>`},
+  'match-kolesa':{title:'🤝 Kolesa Group',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Junior Frontend Developer</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Стажировка · Алматы · 80к/мес<br>Гибкий график, ментор</div></div>
+    <button class="go-btn" onclick="toast('📧 Заявка отправлена!');closeModal()">📧 Отправить заявку</button>
+    <button class="outline-btn" style="margin:0;" onclick="toast('💬 Чат открыт');closeModal()">💬 Написать рекрутеру</button>
+  </div>`},
+  'match-epam':{title:'🤝 EPAM Systems',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Young Talent Program</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Онлайн · 3 месяца · Сертификат</div></div>
+    <button class="go-btn" onclick="toast('📧 Заявка!');closeModal()">📧 Подать заявку</button>
+  </div>`},
+  'match-most':{title:'🤝 MOST Grant',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Грант $500 для IT-школьников</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Нужно: портфолио + письмо<br>Дедлайн: 30 апреля 2025</div></div>
+    <button class="go-btn" onclick="toast('📝 Заявка начата!');closeModal()">📝 Подать на грант</button>
+  </div>`},
+  'proj-verix':{title:'📱 Verix App',sub:'AI Score: 91/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">91</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">88</div><div class="sc-l">Оригинальность</div></div></div>
+    <div style="font-size:12px;color:var(--muted2);">React Native · TypeScript · Expo</div>
+    <button class="go-btn" onclick="toast('🔗 GitHub!');closeModal()">🔗 GitHub</button>
+  </div>`},
+  'proj-ml':{title:'🤖 ML Classifier',sub:'AI Score: 84/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">84</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">79</div><div class="sc-l">Сложность</div></div></div>
+    <div style="font-size:12px;color:var(--muted2);">Python · TensorFlow · 94% точность</div>
+    <button class="go-btn" onclick="toast('🔗 GitHub!');closeModal()">🔗 GitHub</button>
+  </div>`},
+  'proj-eco':{title:'🌱 EcoTrack',sub:'AI Score: 78/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">78</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--orange)">72</div><div class="sc-l">Сложность</div></div></div>
+    <div style="font-size:12px;color:var(--muted2);">React · Chart.js · Almaty Hack 2024, 2 место</div>
+    <button class="go-btn" onclick="toast('🔗 GitHub!');closeModal()">🔗 GitHub</button>
+  </div>`},
+};
+
+// ════════════ SKILLPROOF ════════════
+let selSkillName='';
+function selSkill(el,name){
+  document.querySelectorAll('.sk-sel').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');selSkillName=name;
+}
+async function runAnalysis(){
+  const desc=document.getElementById('projDesc').value.trim();
+  if(!selSkillName){toast('⚠️ Выбери навык');return;}
+  if(!desc){toast('⚠️ Опиши проект');return;}
+  const btn=document.getElementById('analyzeBtn');
+  btn.disabled=true;btn.textContent='⏳ AI думает...';
+  document.getElementById('aiResult').classList.remove('show');
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+        messages:[{role:"user",content:`Ты — AI-оценщик навыков Verix для школьников.\nНавык: ${selSkillName}\nОписание: "${desc}"\nОцени (0–100): overall_score, originality, complexity, level_name ("Новичок"|"Средний"|"Продвинутый"|"Эксперт"), verdict (2-3 предл. на русском).\nJSON без markdown:\n{"overall_score":N,"originality":N,"complexity":N,"level_name":"...","verdict":"..."}`}]})
+    });
+    const data=await res.json();
+    const txt=data.content.map(i=>i.text||'').join('');
+    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    document.getElementById('r-overall').textContent=r.overall_score;
+    document.getElementById('r-orig').textContent=r.originality;
+    document.getElementById('r-comp').textContent=r.complexity;
+    document.getElementById('r-lvl').textContent=r.level_name;
+    document.getElementById('aiVerdText').innerHTML=r.verdict.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    const res2=document.getElementById('aiResult');res2.classList.add('show');
+    setTimeout(()=>res2.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  }catch(e){toast('❌ Ошибка. Попробуй снова.');console.error(e);}
+  btn.disabled=false;btn.textContent='🔍 Анализировать снова';
+}
+function saveSkill(){toast('✅ Навык добавлен!');setTimeout(()=>switchTab('profile'),800);}
+
+// ════════════ TALENT ════════════
+const OPPS=[
+  {type:'🚀 Стажировка',org:'Kolesa Group · Алматы',title:'Junior Frontend Developer',tags:['React','JS','80к/мес'],match:94,bg:'linear-gradient(135deg,#4f6ef7,#7c3aed)',desc:'Реальный проект. Ментор, 80к/мес, гибкий график.'},
+  {type:'🎓 Грант',org:'MOST Business School',title:'Грант для IT-школьников',tags:['$500','Portfolio'],match:87,bg:'linear-gradient(135deg,#10d9a0,#059669)',desc:'$500 на развитие проекта. Нужно портфолио + письмо.'},
+  {type:'🏆 Хакатон',org:'EPAM Systems · KZ',title:'Young Talent Hackathon',tags:['48ч','300к приз'],match:91,bg:'linear-gradient(135deg,#f97316,#ec4899)',desc:'48ч, команды 3-4 чел., приз 300 000 ₸.'},
+  {type:'📚 Программа',org:'Nazarbayev University',title:'Summer AI School 2025',tags:['Лето','Бесплатно'],match:79,bg:'linear-gradient(135deg,#7c3aed,#4f6ef7)',desc:'2 недели AI для школьников 9-11 класса. Бесплатно.'},
+  {type:'💡 Конкурс',org:'Digital Almaty',title:'Best Youth App Award',tags:['Менторы','Приз'],match:83,bg:'linear-gradient(135deg,#ec4899,#f97316)',desc:'Городской конкурс. Победители получают менторов.'},
+];
+let oppIdx=0;
+function renderOpp(){
+  const o=OPPS[oppIdx%OPPS.length];
+  document.getElementById('cardType').textContent=o.type;
+  document.getElementById('cardOrg').textContent=o.org;
+  document.getElementById('cardTitle').textContent=o.title;
+  document.getElementById('cardDesc').textContent=o.desc;
+  document.getElementById('cardBg').style.background=o.bg;
+  document.getElementById('matchBar').style.width=o.match+'%';
+  document.getElementById('matchPct').textContent=o.match+'%';
+  document.getElementById('cardTags').innerHTML=o.tags.map(t=>`<span class="opp-tag">${t}</span>`).join('');
+  document.getElementById('nopeBadge').style.opacity=0;
+  document.getElementById('likedBadge').style.opacity=0;
+  document.getElementById('swipeCard').style.transform='';
+}
+function swipe(dir){
+  const card=document.getElementById('swipeCard');
+  const o=OPPS[oppIdx%OPPS.length];
+  if(dir==='yes'||dir==='super'){
+    document.getElementById('likedBadge').style.opacity=1;
+    card.style.transform='translateX(45px) rotate(4deg)';
+    toast(dir==='super'?`⭐ Суперлайк → ${o.org}!`:`🎉 Матч с ${o.org}!`);
+  }else{
+    document.getElementById('nopeBadge').style.opacity=1;
+    card.style.transform='translateX(-45px) rotate(-4deg)';
+    toast('✕ Пропущено');
+  }
+  setTimeout(()=>{oppIdx++;renderOpp();},420);
+}
+function openCurrentOpp(){toast(`📝 "${OPPS[oppIdx%OPPS.length].title}"`);}
+
+// ════════════ LOGIN ════════════
+function checkLogin(){
+  const email=document.getElementById('emailInput').value;
+  const password=document.getElementById('passwordInput').value;
+  if(email==='romiisromie@email.com'&&password==='verix2026'){
+    sessionStorage.setItem('verixAuthenticated','true');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    toast('🎉 Добро пожаловать в Verix!');
+  }else{
+    document.getElementById('passwordInput').style.borderColor='var(--accent)';
+    document.getElementById('emailInput').style.borderColor='var(--accent)';
+    toast('❌ Неверный email или пароль');
+    setTimeout(()=>{
+      document.getElementById('passwordInput').style.borderColor='';
+      document.getElementById('emailInput').style.borderColor='';
+    },2000);
+  }
+}
+function showRegister(){toast('📝 Регистрация временно отключена');}
+function handleLoginKey(e){if(e.key==='Enter')checkLogin();}
+
+document.addEventListener('DOMContentLoaded',function(){
+  if(sessionStorage.getItem('verixAuthenticated')==='true'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='flex';
+  }
+  document.getElementById('emailInput').addEventListener('keypress',handleLoginKey);
+  document.getElementById('passwordInput').addEventListener('keypress',handleLoginKey);
+});
+
+// ════════════ RANKINGS ════════════
+function switchRanking(type) {
+  // Hide all ranking contents
+  document.querySelectorAll('.ranking-content').forEach(content => {
+    content.style.display = 'none';
+  });
+  
+  // Remove active class from all tabs
+  document.querySelectorAll('.rank-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Show selected content
+  document.getElementById('rankings-' + type).style.display = 'block';
+  
+  // Add active class to clicked tab
+  event.target.classList.add('active');
+  
+  // Show toast notification
+  const messages = {
+    users: '👤 Рейтинг учеников',
+    schools: '🏫 Рейтинг школ', 
+    skills: '🎯 Топ по навыкам',
+    competitions: '🏆 Соревнования'
+  };
+  toast(messages[type] || '📊 Рейтинги');
+}
+
+// Mock data for rankings (in real app, this would come from API)
+const rankingsData = {
+  users: [
+    { 
+      rank: 1, 
+      name: 'Марат Алиев', 
+      school: 'Школа №45, Алматы', 
+      avatar: 'МА', 
+      score: 92.5, 
+      change: 2, 
+      skills: ['React', 'Node.js', 'Python'],
+      bio: 'Frontend разработчик, увлекаюсь React и созданием современных веб-приложений. Люблю решать сложные задачи и учиться новому.',
+      projects: [
+        { name: 'Verix App', desc: 'React Native · Digital Reputation Platform', score: 91, icon: '📱' },
+        { name: 'EcoTracker', desc: 'React · Трекер углеродного следа', score: 85, icon: '🌱' },
+        { name: 'Task Manager', desc: 'React + TypeScript · Управление задачами', score: 88, icon: '📋' }
+      ],
+      stats: { projects: 12, skills: 8, matches: 5 },
+      level: 8,
+      isOnline: true
+    },
+    { 
+      rank: 2, 
+      name: 'Алия Нурсултанова', 
+      school: 'НИШ Физмат, Астана', 
+      avatar: 'АН', 
+      score: 89.2, 
+      change: -1, 
+      skills: ['ML', 'Python', 'Data'],
+      bio: 'Data Scientist в будущем. Изучаю машинное обучение и анализ данных. Участница хакатонов и грантов.',
+      projects: [
+        { name: 'ML Classifier', desc: 'Python · Классификатор изображений', score: 94, icon: '🤖' },
+        { name: 'Data Visualizer', desc: 'Python · Визуализация данных', score: 87, icon: '📊' },
+        { name: 'ChatBot AI', desc: 'Python · NLP чат-бот', score: 89, icon: '💬' }
+      ],
+      stats: { projects: 9, skills: 6, matches: 3 },
+      level: 7,
+      isOnline: true
+    },
+    { 
+      rank: 3, 
+      name: 'Данияр Омаров', 
+      school: 'Гимназия №7, Алматы', 
+      avatar: 'ДО', 
+      score: 87.8, 
+      change: 0, 
+      skills: ['React', 'TypeScript'],
+      bio: 'Full-stack разработчик. Специализируюсь на React и Node.js. Создаю масштабируемые приложения.',
+      projects: [
+        { name: 'Social Network', desc: 'React + Node.js · Социальная сеть', score: 86, icon: '🌐' },
+        { name: 'E-commerce Platform', desc: 'React + TypeScript · Интернет-магазин', score: 90, icon: '🛒' },
+        { name: 'API Gateway', desc: 'Node.js · Микросервисы', score: 84, icon: '⚙️' }
+      ],
+      stats: { projects: 11, skills: 7, matches: 4 },
+      level: 7,
+      isOnline: false
+    },
+    { 
+      rank: 4, 
+      name: 'Айсулу Бекмуратова', 
+      school: 'НИШ ХМ, Астана', 
+      avatar: 'АБ', 
+      score: 85.3, 
+      change: 3, 
+      skills: ['Design', 'Figma'],
+      bio: 'UI/UX дизайнер. Создаю красивые и функциональные интерфейсы. Любую работу с пользователями.',
+      projects: [
+        { name: 'Banking App UI', desc: 'Figma · Мобильный банкинг', score: 92, icon: '🏦' },
+        { name: 'E-commerce Design', desc: 'Figma · Дизайн магазина', score: 88, icon: '🛍️' },
+        { name: 'Social Media UI', desc: 'Figma · Соцсеть дизайн', score: 85, icon: '📱' }
+      ],
+      stats: { projects: 15, skills: 5, matches: 6 },
+      level: 6,
+      isOnline: true
+    },
+    { 
+      rank: 5, 
+      name: 'Ерлан Смагулов', 
+      school: 'Школа №12, Шымкент', 
+      avatar: 'ЕС', 
+      score: 83.7, 
+      change: -2, 
+      skills: ['Python', 'Django'],
+      bio: 'Backend разработчик. Работаю с Python и Django. Создаю надежные и быстрые API.',
+      projects: [
+        { name: 'Blog Platform', desc: 'Django · Блоговая платформа', score: 87, icon: '📝' },
+        { name: 'REST API', desc: 'Django REST · API сервис', score: 82, icon: '🔌' },
+        { name: 'Task Scheduler', desc: 'Python · Планировщик задач', score: 79, icon: '⏰' }
+      ],
+      stats: { projects: 8, skills: 4, matches: 2 },
+      level: 5,
+      isOnline: false
+    }
+  ],
+  schools: [
+    { rank: 1, name: 'НИШ Физмат-IT', city: 'Астана', avgReputation: 78.5, totalStudents: 234, achievements: 15, topStudents: [
+      { name: 'Алия Нурсултанова', avatar: 'АН', score: 89.2 },
+      { name: 'Тимур Жумабек', avatar: 'ТЖ', score: 82.4 },
+      { name: 'Мадина Сулейменова', avatar: 'МС', score: 79.8 }
+    ]},
+    { rank: 2, name: 'Школа №45', city: 'Алматы', avgReputation: 72.3, totalStudents: 198, achievements: 12, topStudents: [
+      { name: 'Марат Алиев', avatar: 'МА', score: 92.5 },
+      { name: 'Данияр Омаров', avatar: 'ДО', score: 87.8 },
+      { name: 'Карина Абдуллаева', avatar: 'КА', score: 76.2 }
+    ]}
+  ],
+  skills: {
+    react: [
+      { rank: 1, name: 'Марат Алиев', school: 'Школа №45, Алматы', avatar: 'МА', score: 95.2, change: 1 },
+      { rank: 2, name: 'Данияр Омаров', school: 'Гимназия №7, Алматы', avatar: 'ДО', score: 91.8, change: -1 },
+      { rank: 3, name: 'Айнур Касымов', school: 'Гимназия №7', avatar: 'АК', score: 88.4, change: 0 }
+    ],
+    python: [
+      { rank: 1, name: 'Алия Нурсултанова', school: 'НИШ', avatar: 'АН', score: 94.6, change: 0 },
+      { rank: 2, name: 'Ерлан Смагулов', school: 'Школа №12', avatar: 'ЕС', score: 90.3, change: 2 },
+      { rank: 3, name: 'Марат Алиев', school: 'Школа №45', avatar: 'МА', score: 87.9, change: -1 }
+    ],
+    ml: [
+      { rank: 1, name: 'Алия Нурсултанова', school: 'НИШ', avatar: 'АН', score: 96.1, change: 2 },
+      { rank: 2, name: 'Тимур Жумабек', school: 'НИШ', avatar: 'ТЖ', score: 89.7, change: -1 },
+      { rank: 3, name: 'Мадина Сулейменова', school: 'НИШ', avatar: 'МС', score: 85.2, change: 0 }
+    ]
+  },
+  competitions: [
+    { name: 'React Challenge 2024', prize: 'MacBook Air + стажировка', participants: 156, daysLeft: 12, description: 'Создай лучшее React приложение и выиграй ценные призы' },
+    { name: 'AI Innovation Hackathon', prize: 'Грант на развитие проекта', participants: 89, daysLeft: 8, description: 'Разработи AI решение для образования и получи поддержку' },
+    { name: 'School Battle: IT Edition', prize: 'Кубок чемпиона + мерч', participants: 234, daysLeft: 5, description: 'Соревнование между школами Алматы за звание лучшей IT-площадки' }
+  ]
+};
+
+// Simulate real-time updates
+function simulateRankingUpdates() {
+  setInterval(() => {
+    // Random user position change
+    const randomUser = rankingsData.users[Math.floor(Math.random() * rankingsData.users.length)];
+    const change = Math.random() > 0.5 ? 1 : -1;
+    randomUser.rank = Math.max(1, randomUser.rank + change);
+    randomUser.change = change;
+    
+    // Update UI if rankings tab is active
+    if (document.getElementById('screen-rankings').classList.contains('active')) {
+      renderUserRankings();
+      toast('🔄 Рейтинги обновлены!');
+    }
+  }, 30000); // Update every 30 seconds
+}
+
+// ════════════ USER PROFILES & MESSENGER ════════════
+let currentChatUser = null;
+let chatMessages = {};
+
+// Initialize chat storage
+function initializeChats() {
+  rankingsData.users.forEach(user => {
+    chatMessages[user.name] = [
+      {
+        text: 'Привет! Рад пообщаться с тобой 😊',
+        time: '10:30',
+        sent: false
+      }
+    ];
+  });
+}
+
+// Open user profile modal
+function openUserProfile(userId) {
+  const user = rankingsData.users.find(u => u.rank === userId);
+  if (!user) return;
+  
+  const modal = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  
+  const skillsHtml = user.skills.map(skill => 
+    `<span class="user-profile-skill-tag">${skill}</span>`
+  ).join('');
+  
+  const projectsHtml = user.projects.map(project => `
+    <div class="user-profile-project">
+      <div class="user-profile-project-ico" style="background:rgba(79,110,247,.15)">${project.icon}</div>
+      <div class="user-profile-project-info">
+        <div class="user-profile-project-name">${project.name}</div>
+        <div class="user-profile-project-desc">${project.desc}</div>
+      </div>
+      <div class="user-profile-project-score">${project.score}</div>
+    </div>
+  `).join('');
+  
+  content.innerHTML = `
+    <div class="user-profile-modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">Профиль ученика</div>
+        <span onclick="closeModal()" style="cursor:pointer;font-size:24px;color:var(--muted);padding:4px;">×</span>
+      </div>
+      
+      <div class="user-profile-header">
+        <div class="user-profile-avatar">${user.avatar}</div>
+        <div class="user-profile-info">
+          <div class="user-profile-name">${user.name}</div>
+          <div class="user-profile-school">${user.school}</div>
+          <div class="user-profile-bio">${user.bio}</div>
+        </div>
+      </div>
+      
+      <div class="user-profile-stats">
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-val">${user.stats.projects}</div>
+          <div class="user-profile-stat-lbl">Проектов</div>
+        </div>
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-val">${user.stats.skills}</div>
+          <div class="user-profile-stat-lbl">Навыков</div>
+        </div>
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-val">${user.stats.matches}</div>
+          <div class="user-profile-stat-lbl">Матчей</div>
+        </div>
+      </div>
+      
+      <div class="user-profile-skills">
+        <div class="user-profile-skills-title">🎯 Навыки</div>
+        <div class="user-profile-skill-tags">${skillsHtml}</div>
+      </div>
+      
+      <div class="user-profile-projects">
+        <div class="user-profile-projects-title">🚀 Топ проекты</div>
+        ${projectsHtml}
+      </div>
+      
+      <div class="user-profile-actions">
+        <button class="contact-btn" onclick="openMessenger('${user.name}')">
+          💬 Написать сообщение
+        </button>
+        <button class="contact-btn secondary" onclick="viewFullProfile('${user.name}')">
+          👤 Полный профиль
+        </button>
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('show');
+}
+
+// Open messenger
+function openMessenger(userName) {
+  const user = rankingsData.users.find(u => u.name === userName);
+  if (!user) return;
+  
+  currentChatUser = userName;
+  const modal = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  
+  const messages = chatMessages[userName] || [];
+  const messagesHtml = messages.map(msg => `
+    <div class="messenger-message ${msg.sent ? 'message-sent' : 'message-received'}">
+      <div class="message-avatar">${msg.sent ? 'Я' : user.avatar}</div>
+      <div class="message-content">
+        <div class="message-text">${msg.text}</div>
+        <div class="message-time">${msg.time}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  content.innerHTML = `
+    <div class="messenger-modal">
+      <div class="messenger-header">
+        <div class="messenger-avatar">${user.avatar}</div>
+        <div class="messenger-info">
+          <div class="messenger-name">${user.name}</div>
+          <div class="messenger-status">${user.isOnline ? '🟢 В сети' : '🔴 Не в сети'}</div>
+        </div>
+        <div class="messenger-close" onclick="closeModal()">×</div>
+      </div>
+      
+      <div class="messenger-messages" id="chatMessages">
+        ${messagesHtml}
+      </div>
+      
+      <div class="messenger-input">
+        <input type="text" id="messageInput" placeholder="Напиши сообщение..." onkeypress="handleMessageKeypress(event)">
+        <button onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('show');
+  
+  // Focus input and scroll to bottom
+  setTimeout(() => {
+    document.getElementById('messageInput').focus();
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }, 100);
+}
+
+// Send message
+function sendMessage() {
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+  
+  if (!text || !currentChatUser) return;
+  
+  const now = new Date();
+  const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  
+  // Add message to chat
+  if (!chatMessages[currentChatUser]) {
+    chatMessages[currentChatUser] = [];
+  }
+  
+  chatMessages[currentChatUser].push({
+    text: text,
+    time: time,
+    sent: true
+  });
+  
+  // Clear input
+  input.value = '';
+  
+  // Re-render messages
+  openMessenger(currentChatUser);
+  
+  // Simulate response after 2 seconds
+  setTimeout(() => {
+    if (chatMessages[currentChatUser]) {
+      const responses = [
+        'Спасибо за сообщение! 👍',
+        'Интересно! Расскажи подробнее.',
+        'Круто! Давай обсудим это.',
+        'Согласен! Отличная идея.',
+        'Я тоже думаю об этом. 🤔'
+      ];
+      
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      const responseTime = new Date();
+      const responseTimeStr = `${responseTime.getHours().toString().padStart(2, '0')}:${responseTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      chatMessages[currentChatUser].push({
+        text: randomResponse,
+        time: responseTimeStr,
+        sent: false
+      });
+      
+      // Update if still in chat
+      if (currentChatUser === rankingsData.users.find(u => u.name === currentChatUser)?.name) {
+        openMessenger(currentChatUser);
+        toast('📨 Новое сообщение!');
+      }
+    }
+  }, 2000);
+  
+  toast('📤 Сообщение отправлено!');
+}
+
+// Handle enter key in message input
+function handleMessageKeypress(event) {
+  if (event.key === 'Enter') {
+    sendMessage();
+  }
+}
+
+// View full profile (placeholder)
+function viewFullProfile(userName) {
+  toast(`👤 Открыт полный профиль: ${userName}`);
+  closeModal();
+  // In real app, this would navigate to full profile page
+}
+
+// Render functions (used for dynamic updates)
+function renderUserRankings() {
+  // This would be called when data updates
+  // For now, the HTML is static, but in real app this would be dynamic
+  console.log('User rankings updated');
+}
+
+// ════════════ INIT ════════════
+renderProfile();
+renderOpp();
+initializeChats();
+simulateRankingUpdates();
+</script>
+</body>
+</html>
+
