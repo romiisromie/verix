@@ -254,7 +254,109 @@ textarea.ai-ta:focus{border-color:var(--accent);}
 #toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--s3);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:500;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-@media(min-width:431px){#app{border-left:1px solid var(--border);border-right:1px solid var(#border);}}
+/* RANKINGS */
+.rankings-hero{text-align:center;padding:16px 0;}
+.rankings-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.3px;}
+.rankings-sub{color:var(--muted2);font-size:12px;margin-top:4px;}
+.rank-tabs{display:flex;gap:8px;margin:16px 0;padding:0 16px;overflow-x:auto;}
+.rank-tabs::-webkit-scrollbar{height:0;}
+.rank-tab{flex-shrink:0;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation;white-space:nowrap;}
+.rank-tab:active,.rank-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.ranking-list{padding:0 16px;}
+.ranking-card{display:flex;align-items:center;background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;touch-action:manipulation;transition:all .2s;}
+.ranking-card:active{transform:scale(.98);border-color:var(--accent);}
+.rank-num{font-size:20px;font-weight:800;width:40px;text-align:center;}
+.rank-1{color:#ffd700;}
+.rank-2{color:#c0c0c0;}
+.rank-3{color:#cd7f32;}
+.r-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin:0 12px;}
+.r-info{flex:1;min-width:0;}
+.r-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.r-school{font-size:11px;color:var(--muted2);margin-bottom:6px;}
+.r-skills{display:flex;gap:4px;flex-wrap:wrap;}
+.r-skill{background:var(--s3);border-radius:6px;padding:2px 6px;font-size:10px;color:var(--muted2);}
+.r-stats{text-align:right;min-width:80px;}
+.r-score{font-size:18px;font-weight:800;color:var(--green);margin-bottom:2px;}
+.r-change{font-size:10px;display:flex;align-items:center;justify-content:flex-end;gap:2px;}
+.r-up{color:var(--green);}
+.r-down{color:var(--orange);}
+.r-same{color:var(--muted);}
+.school-card{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.school-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.school-name{font-size:16px;font-weight:700;}
+.school-rank{display:flex;align-items:center;gap:8px;}
+.school-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.school-stat{text-align:center;}
+.school-stat-val{font-size:18px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.school-stat-lbl{font-size:10px;color:var(--muted);}
+.top-students{display:flex;gap:10px;overflow-x:auto;padding:8px 0;}
+.top-students::-webkit-scrollbar{height:0;}
+.top-student{flex-shrink:0;text-align:center;background:var(--s3);border-radius:12px;padding:12px;width:80px;}
+.top-student-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;margin:0 auto 8px;}
+.top-student-name{font-size:10px;font-weight:600;margin-bottom:2px;}
+.top-student-score{font-size:12px;color:var(--green);font-weight:700;}
+.comp-card{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.comp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.comp-name{font-size:16px;font-weight:700;}
+.comp-prize{font-size:12px;color:var(--green);font-weight:600;}
+.comp-desc{font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.5;}
+.comp-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.comp-stat{text-align:center;}
+.comp-stat-val{font-size:16px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.comp-stat-lbl{font-size:10px;color:var(--muted);}
+
+/* USER PROFILE MODAL */
+.user-profile-modal{max-width:400px;}
+.user-profile-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.user-profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;}
+.user-profile-info{flex:1;}
+.user-profile-name{font-size:20px;font-weight:800;margin-bottom:4px;}
+.user-profile-school{font-size:13px;color:var(--muted2);margin-bottom:8px;}
+.user-profile-bio{font-size:13px;color:var(--muted2);line-height:1.5;}
+.user-profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0;}
+.user-profile-stat{text-align:center;}
+.user-profile-stat-val{font-size:18px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.user-profile-stat-lbl{font-size:10px;color:var(--muted);}
+.user-profile-skills{margin:20px 0;}
+.user-profile-skills-title{font-size:14px;font-weight:600;margin-bottom:12px;}
+.user-profile-skill-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.user-profile-skill-tag{background:var(--s3);border-radius:8px;padding:6px 12px;font-size:11px;}
+.user-profile-projects{margin:20px 0;}
+.user-profile-projects-title{font-size:14px;font-weight:600;margin-bottom:12px;}
+.user-profile-project{display:flex;align-items:center;gap:12px;padding:12px;background:var(--s2);border-radius:12px;margin-bottom:8px;}
+.user-profile-project-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.user-profile-project-info{flex:1;}
+.user-profile-project-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.user-profile-project-desc{font-size:11px;color:var(--muted2);}
+.user-profile-project-score{font-size:14px;font-weight:800;color:var(--green);flex-shrink:0;}
+.user-profile-actions{display:flex;gap:12px;margin-top:24px;}
+.contact-btn{flex:1;padding:12px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;touch-action:manipulation;}
+.contact-btn:hover{opacity:.9;}
+.contact-btn.secondary{background:var(--s2);border:1px solid var(--border);color:var(--text);}
+
+/* MESSENGER */
+.messenger-modal{max-width:400px;height:70vh;max-height:600px;display:flex;flex-direction:column;}
+.messenger-header{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.messenger-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;}
+.messenger-info{flex:1;}
+.messenger-name{font-size:14px;font-weight:600;}
+.messenger-status{font-size:11px;color:var(--green);}
+.messenger-close{font-size:24px;color:var(--muted);cursor:pointer;padding:4px;}
+.messenger-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.messenger-message{display:flex;gap:8px;max-width:80%;}
+.message-sent{align-self:flex-end;flex-direction:row-reverse;}
+.message-received{align-self:flex-start;}
+.message-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.message-content{background:var(--s2);border-radius:16px;padding:10px 14px;}
+.message-sent .message-content{background:var(--accent);color:#fff;}
+.message-text{font-size:13px;line-height:1.4;margin-bottom:2px;}
+.message-time{font-size:10px;color:var(--muted);opacity:.7;}
+.messenger-input{display:flex;gap:8px;padding:16px;border-top:1px solid var(--border);flex-shrink:0;}
+.messenger-input input{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:10px 16px;color:var(--text);font-size:13px;outline:none;}
+.messenger-input button{background:var(--accent);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;touch-action:manipulation;}
+.messenger-input button:hover{opacity:.9;}
+
+@media(min-width:431px){#app{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
 </style>
 </head>
 <body>
@@ -276,7 +378,7 @@ textarea.ai-ta:focus{border-color:var(--accent);}
     </div>
     <div style="margin-bottom:20px;">
       <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">Пароль</label>
-      <input type="password" id="passwordInput" class="inp" placeholder="verix2026" style="width:100%;">
+      <input type="password" id="passwordInput" class="inp" placeholder="verix2026" style="width:100;">
     </div>
     <button onclick="checkLogin()" class="go-btn" style="width:100%;margin-bottom:12px;">Войти в Verix</button>
     <div style="text-align:center;">
@@ -296,8 +398,8 @@ textarea.ai-ta:focus{border-color:var(--accent);}
     </div>
   </div>
 </div>
-
 <div id="app">
+
 <!-- ══════════ PROFILE ══════════ -->
 <div class="screen active" id="screen-profile">
   <nav>
@@ -308,292 +410,174 @@ textarea.ai-ta:focus{border-color:var(--accent);}
     </div>
   </nav>
   <div class="scroll">
-    <div class="card">
+    <div class="card glow">
       <div class="p-header">
-        <div class="avatar">👩‍💻</div>
-        <div style="flex:1">
-          <div class="p-name">Рамина Ибраимова</div>
-          <div class="p-sub">11 класс · Алматы, Казахстан</div>
-          <div class="tags">
-            <span class="tag h">💻 Frontend</span>
-            <span class="tag h">🤖 AI/ML</span>
-            <span class="tag">🎨 Design</span>
-          </div>
+        <div class="avatar"><span id="avatarEmoji">👩‍💻</span><div class="av-badge" id="levelBadge">LVL 7</div></div>
+        <div style="flex:1;min-width:0;">
+          <div class="p-name" id="profileName">Рамина Ибраимова</div>
+          <div class="p-sub" id="profileSub">10 класс · Алматы, Казахстан</div>
+          <div class="tags" id="profileTags"></div>
         </div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <button class="go-btn" style="flex:1;font-size:12px;padding:10px;" onclick="openModal('edit-profile')">✏️ Редактировать</button>
+        <button class="go-btn save-btn" style="flex:1;font-size:12px;padding:10px;" onclick="openModal('share')">📤 Поделиться</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">🎯 Репутационный скор</div>
-        <div class="sh-btn" onclick="openModal('rep-info')">ℹ️</div>
-      </div>
+    <div class="card glow">
+      <div class="lbl">Репутационный скор</div>
       <div class="rep-wrap">
         <div class="rep-ring">
-          <svg width="88" height="88">
-            <circle class="rbg" cx="44" cy="44" r="40"></circle>
-            <circle class="rfg" cx="44" cy="44" r="40"></circle>
+          <svg width="88" height="88" viewBox="0 0 100 100">
+            <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4f6ef7"/><stop offset="100%" stop-color="#10d9a0"/></linearGradient></defs>
+            <circle class="rbg" cx="50" cy="50" r="39"/>
+            <circle class="rfg" cx="50" cy="50" r="39"/>
           </svg>
-          <div class="rep-num">86<span style="font-size:14px;color:var(--muted)">/100</span></div>
+          <div class="rep-num">86<span class="rep-sub">/100</span></div>
         </div>
         <div class="rep-bars">
-          <div>
-            <div class="br-top"><span>Frontend</span><span>91/100</span></div>
-            <div class="bar"><div class="bf bf-b" style="width:91%"></div></div>
-          </div>
-          <div>
-            <div class="br-top"><span>AI/ML</span><span>78/100</span></div>
-            <div class="bar"><div class="bf bf-g" style="width:78%"></div></div>
-          </div>
-          <div>
-            <div class="br-top"><span>Design</span><span>72/100</span></div>
-            <div class="bar"><div class="bf bf-o" style="width:72%"></div></div>
-          </div>
+          <div><div class="br-top"><span>Проекты</span><span>92</span></div><div class="bar"><div class="bf bf-b" style="width:92%"></div></div></div>
+          <div><div class="br-top"><span>Навыки</span><span>88</span></div><div class="bar"><div class="bf bf-g" style="width:88%"></div></div></div>
+          <div><div class="br-top"><span>Активность</span><span>76</span></div><div class="bar"><div class="bf bf-o" style="width:76%"></div></div></div>
         </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+        <div class="chip">⬆ +4 за неделю</div>
+        <span style="font-size:11px;color:var(--muted);">🏆 #7 в рейтинге школы</span>
+        <span style="font-size:11px;color:var(--muted);">Топ 12% среди школьников</span>
       </div>
     </div>
 
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">📊 Статистика</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat" onclick="toast('📈 12 проверенных навыков')">
-          <div class="stat-n">12</div>
-          <div class="stat-l">Навыков</div>
-        </div>
-        <div class="stat" onclick="toast('🏆 3 матча с компаниями')">
-          <div class="stat-n">3</div>
-          <div class="stat-l">Матча</div>
-        </div>
-        <div class="stat" onclick="toast('🔥 15 дней активности')">
-          <div class="stat-n">15</div>
-          <div class="stat-l">Дней</div>
-        </div>
-      </div>
+    <div class="stat-row">
+      <div class="stat" onclick="openModal('projects')"><div class="stat-n" style="color:var(--accent)">7</div><div class="stat-l">Проектов</div></div>
+      <div class="stat" onclick="switchTab('skillproof')"><div class="stat-n" style="color:var(--green)">12</div><div class="stat-l">Навыков</div></div>
+      <div class="stat" onclick="switchTab('talent')"><div class="stat-n" style="color:var(--orange)">3</div><div class="stat-l">Матча</div></div>
     </div>
 
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">💻 Навыки</div>
-        <div class="sh-btn" onclick="openModal('all-skills')">Все</div>
-      </div>
+    <div>
+      <div class="sh"><div class="sh-title">Навыки</div><div class="sh-btn" onclick="switchTab('skillproof')">+ Проверить AI</div></div>
       <div class="skills-grid">
-        <div class="skc" onclick="openModal('skill-react')">
-          <div class="skc-ico">⚛️</div>
-          <div class="skc-name">React</div>
-          <div class="skc-lv">Продвинутый</div>
-          <div class="skc-bar"><div class="skc-fill" style="width:85%"></div></div>
-        </div>
-        <div class="skc" onclick="openModal('skill-python')">
-          <div class="skc-ico">🐍</div>
-          <div class="skc-name">Python</div>
-          <div class="skc-lv">Средний</div>
-          <div class="skc-bar"><div class="skc-fill" style="width:60%"></div></div>
-        </div>
-        <div class="skc" onclick="openModal('skill-figma')">
-          <div class="skc-ico">🎨</div>
-          <div class="skc-name">Figma</div>
-          <div class="skc-lv">Продвинутый</div>
-          <div class="skc-bar"><div class="skc-fill" style="width:80%"></div></div>
-        </div>
-        <div class="skc" onclick="openModal('skill-ai')">
-          <div class="skc-ico">🤖</div>
-          <div class="skc-name">ML/AI</div>
-          <div class="skc-lv">Начинающий</div>
-          <div class="skc-bar"><div class="skc-fill" style="width:35%"></div></div>
-        </div>
+        <div class="skc" onclick="openModal('skill-react')"><div class="skc-ico">⚛️</div><div class="skc-name">React</div><div class="skc-lv">Продвинутый</div><div class="skc-bar"><div class="skc-fill" style="width:85%"></div></div></div>
+        <div class="skc" onclick="openModal('skill-python')"><div class="skc-ico">🐍</div><div class="skc-name">Python</div><div class="skc-lv">Средний</div><div class="skc-bar"><div class="skc-fill" style="width:60%"></div></div></div>
+        <div class="skc" onclick="openModal('skill-figma')"><div class="skc-ico">🎨</div><div class="skc-name">Figma</div><div class="skc-lv">Продвинутый</div><div class="skc-bar"><div class="skc-fill" style="width:80%"></div></div></div>
+        <div class="skc" onclick="openModal('skill-ai')"><div class="skc-ico">🤖</div><div class="skc-name">ML/AI</div><div class="skc-lv">Начинающий</div><div class="skc-bar"><div class="skc-fill" style="width:35%"></div></div></div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">🚀 Проекты</div>
-        <div class="sh-btn" onclick="openModal('projects')">Все</div>
-      </div>
-      <div class="proj" onclick="openModal('proj-verix')">
-        <div class="proj-ico" style="background:rgba(79,110,247,.15)">📱</div>
-        <div style="flex:1">
-          <div class="proj-name">Verix App</div>
-          <div class="proj-desc">React Native · TypeScript</div>
-        </div>
-        <div class="proj-score">91</div>
-      </div>
-      <div class="proj" onclick="openModal('proj-ml')">
-        <div class="proj-ico" style="background:rgba(16,217,160,.15)">🤖</div>
-        <div style="flex:1">
-          <div class="proj-name">ML Classifier</div>
-          <div class="proj-desc">Python · TensorFlow</div>
-        </div>
-        <div class="proj-score">84</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">🏅 Достижения</div>
-        <div class="sh-btn" onclick="openModal('badges')">Все</div>
-      </div>
+    <div>
+      <div class="sh"><div class="sh-title">Достижения</div><div class="sh-btn" onclick="openModal('badges')">Все (8)</div></div>
       <div class="bdg-row">
-        <div class="bdg" onclick="openModal('badge-hack')">
-          <div class="bdg-ico">🏆</div>
-          <div class="bdg-name">Хакатон</div>
-        </div>
-        <div class="bdg" onclick="openModal('badge-fire')">
-          <div class="bdg-ico">🔥</div>
-          <div class="bdg-name">Стрик</div>
-        </div>
-        <div class="bdg" onclick="openModal('badge-star')">
-          <div class="bdg-ico">⭐</div>
-          <div class="bdg-name">Первый проект</div>
-        </div>
-        <div class="bdg" onclick="openModal('badge-match')">
-          <div class="bdg-ico">🤝</div>
-          <div class="bdg-name">3 матча</div>
-        </div>
+        <div class="bdg" onclick="openModal('badge-hack')"><div class="bdg-ico">🏆</div><div class="bdg-name">Хакатон</div></div>
+        <div class="bdg" onclick="openModal('badge-fire')"><div class="bdg-ico">🔥</div><div class="bdg-name">Стрик 7д</div></div>
+        <div class="bdg" onclick="openModal('badge-star')"><div class="bdg-ico">⭐</div><div class="bdg-name">1й проект</div></div>
+        <div class="bdg" onclick="openModal('badge-match')"><div class="bdg-ico">🤝</div><div class="bdg-name">3 матча</div></div>
+        <div class="bdg" onclick="openModal('badge-top')"><div class="bdg-ico">🎯</div><div class="bdg-name">Top 12%</div></div>
       </div>
     </div>
+
+    <div>
+      <div class="sh"><div class="sh-title">Проекты</div><div class="sh-btn" onclick="openModal('projects')">Все (7)</div></div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div class="proj" onclick="openModal('proj-verix')"><div class="proj-ico" style="background:rgba(79,110,247,.15)">📱</div><div style="flex:1;min-width:0"><div class="proj-name">Verix App</div><div class="proj-desc">React Native · Digital Reputation</div></div><div class="proj-score">91</div></div>
+        <div class="proj" onclick="openModal('proj-ml')"><div class="proj-ico" style="background:rgba(16,217,160,.15)">🤖</div><div style="flex:1;min-width:0"><div class="proj-name">ML Classifier</div><div class="proj-desc">Python · Классификатор изображений</div></div><div class="proj-score">84</div></div>
+        <div class="proj" onclick="openModal('proj-eco')"><div class="proj-ico" style="background:rgba(249,115,22,.15)">🌱</div><div style="flex:1;min-width:0"><div class="proj-name">EcoTrack</div><div class="proj-desc">React · Трекер углеродного следа</div></div><div class="proj-score">78</div></div>
+      </div>
+    </div>
+    <div style="height:4px"></div>
   </div>
 </div>
 
 <!-- ══════════ SKILLPROOF ══════════ -->
 <div class="screen" id="screen-skillproof">
   <nav>
-    <div class="nav-logo">SkillProof</div>
-    <div class="nav-right">
-      <div class="nbtn" onclick="openModal('skillproof-info')">ℹ️</div>
-    </div>
+    <div class="nav-logo">SkillProof <span style="font-size:11px;color:var(--accent);background:rgba(79,110,247,.15);padding:2px 7px;border-radius:5px;-webkit-text-fill-color:var(--accent);">AI</span></div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('skillproof-info')">ℹ️</div></div>
   </nav>
   <div class="scroll">
     <div class="ai-hero">
-      <div class="ai-title">🤖 <span>AI</span> верификация навыков</div>
-      <div class="ai-sub">Докажи реальные навыки через AI анализ</div>
+      <div class="ai-title">Докажи свой <span>навык</span></div>
+      <div class="ai-sub">AI выдаст честный скор — без оценок учителей</div>
     </div>
-
     <div class="card">
       <div class="lbl">Выбери навык</div>
       <div class="sk-sel-grid">
-        <div class="sk-sel" onclick="selSkill(this,'⚛️ React')">
-          <div class="i">⚛️</div>
-          React
-        </div>
-        <div class="sk-sel" onclick="selSkill(this,'🐍 Python')">
-          <div class="i">🐍</div>
-          Python
-        </div>
-        <div class="sk-sel" onclick="selSkill(this,'🤖 ML/AI')">
-          <div class="i">🤖</div>
-          ML/AI
-        </div>
-        <div class="sk-sel" onclick="selSkill(this,'🎨 Design')">
-          <div class="i">🎨</div>
-          Design
-        </div>
-        <div class="sk-sel" onclick="selSkill(this,'📊 Data')">
-          <div class="i">📊</div>
-          Data
-        </div>
-        <div class="sk-sel" onclick="selSkill(this,'🌐 Web')">
-          <div class="i">🌐</div>
-          Web
-        </div>
+        <div class="sk-sel" onclick="selSkill(this,'⚛️ React')"><div class="i">⚛️</div>React</div>
+        <div class="sk-sel" onclick="selSkill(this,'🐍 Python')"><div class="i">🐍</div>Python</div>
+        <div class="sk-sel" onclick="selSkill(this,'🤖 ML/AI')"><div class="i">🤖</div>ML/AI</div>
+        <div class="sk-sel" onclick="selSkill(this,'🎨 Design')"><div class="i">🎨</div>Design</div>
+        <div class="sk-sel" onclick="selSkill(this,'📊 Data')"><div class="i">📊</div>Data</div>
+        <div class="sk-sel" onclick="selSkill(this,'🌐 Web')"><div class="i">🌐</div>Web</div>
       </div>
     </div>
-
     <div class="card">
       <div class="lbl">Опиши проект</div>
-      <textarea id="projDesc" class="ai-ta" placeholder="Расскажи о проекте: какие технологии использовала, какие задачи решала, какая сложность..."></textarea>
+      <textarea class="ai-ta" id="projDesc" placeholder="Например: Сделала сайт на React с авторизацией, тёмной темой, API подключением. Использовала хуки useState, useEffect, Context API. Деплой на Vercel..."></textarea>
     </div>
-
-    <button id="analyzeBtn" class="go-btn" onclick="runAnalysis()">🔍 Анализировать AI</button>
-
-    <div id="aiResult" class="ai-result">
+    <button class="go-btn" id="analyzeBtn" onclick="runAnalysis()">🔍 Анализировать с AI</button>
+    <div class="ai-result" id="aiResult">
       <div class="card">
+        <div class="lbl">Результат</div>
         <div class="sc-grid">
-          <div class="sc-box">
-            <div class="sc-n" id="r-overall">--</div>
-            <div class="sc-l">Общий скор</div>
-          </div>
-          <div class="sc-box">
-            <div class="sc-n" id="r-orig">--</div>
-            <div class="sc-l">Оригинальность</div>
-          </div>
-          <div class="sc-box">
-            <div class="sc-n" id="r-comp">--</div>
-            <div class="sc-l">Сложность</div>
-          </div>
-          <div class="sc-box">
-            <div class="sc-n" id="r-lvl">--</div>
-            <div class="sc-l">Уровень</div>
-          </div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--accent)" id="r-overall">—</div><div class="sc-l">Общий скор</div></div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--green)" id="r-orig">—</div><div class="sc-l">Оригинальность</div></div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--orange)" id="r-comp">—</div><div class="sc-l">Сложность</div></div>
+          <div class="sc-box"><div class="sc-n" style="color:var(--pink)" id="r-lvl">—</div><div class="sc-l">Уровень</div></div>
         </div>
       </div>
-
-      <div class="ai-verd">
-        <div class="ai-verd-h">🤖 AI оценка</div>
-        <div class="ai-verd-t" id="aiVerdText">Анализ...</div>
-      </div>
-
+      <div class="ai-verd"><div class="ai-verd-h">🤖 Вердикт AI</div><div class="ai-verd-t" id="aiVerdText">...</div></div>
       <button class="go-btn save-btn" onclick="saveSkill()">✅ Добавить в профиль</button>
     </div>
+    <div style="height:4px"></div>
   </div>
 </div>
 
 <!-- ══════════ TALENT ══════════ -->
-<div class="screen" id="screen-talentmatch">
+<div class="screen" id="screen-talent">
   <nav>
     <div class="nav-logo">TalentMatch</div>
-    <div class="nav-right">
-      <div class="nbtn" onclick="openModal('talent-info')">ℹ️</div>
-    </div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('talent-info')">🎯</div></div>
   </nav>
   <div class="scroll">
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">🎯 Ваши матчи</div>
-        <div class="sh-btn" onclick="toast('📊 Статистика')">Стат</div>
-      </div>
+    <div style="text-align:center;padding:4px 0 6px;">
+      <div style="font-size:12px;color:var(--muted2)">Подобрано под твой профиль</div>
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Свайп → матч 🔥</div>
+    </div>
+    <div>
+      <div class="lbl">Твои матчи (3)</div>
       <div class="matches-row">
-        <div class="m-chip" onclick="openModal('match-kolesa')">Kolesa Group</div>
-        <div class="m-chip" onclick="openModal('match-epam')">EPAM Systems</div>
-        <div class="m-chip" onclick="openModal('match-most')">MOST Grant</div>
+        <div class="m-chip" onclick="openModal('match-kolesa')">🤝 Kolesa Group</div>
+        <div class="m-chip" onclick="openModal('match-epam')">🤝 EPAM Systems</div>
+        <div class="m-chip" onclick="openModal('match-most')">🤝 MOST Grant</div>
       </div>
     </div>
-
-    <div class="opp-wrap">
+    <div>
       <div class="opp-card" id="swipeCard">
+        <div class="nope-badge" id="nopeBadge">ПРОПУСТИТЬ</div>
+        <div class="liked-badge" id="likedBadge">МАТЧ! 🎉</div>
         <div class="opp-bg" id="cardBg"></div>
-        <div class="liked-badge" id="likedBadge">✓ Матч</div>
-        <div class="nope-badge" id="nopeBadge">✕ Пропустить</div>
-        
-        <div class="opp-type" id="cardType">🚀 Стажировка</div>
-        <div class="opp-org" id="cardOrg">Kolesa Group · Алматы</div>
-        <div class="opp-title" id="cardTitle">Junior Frontend Developer</div>
-        <div class="opp-tags" id="cardTags">
-          <span class="opp-tag">React</span>
-          <span class="opp-tag">JS</span>
-          <span class="opp-tag">80к/мес</span>
-        </div>
-        
+        <div class="opp-type" id="cardType"></div>
+        <div class="opp-org" id="cardOrg"></div>
+        <div class="opp-title" id="cardTitle"></div>
+        <div class="opp-tags" id="cardTags"></div>
         <div class="opp-match">
-          <span class="match-label">Совпадение</span>
-          <div class="mb-wrap">
-            <div class="mb" id="matchBar"></div>
-          </div>
-          <span class="mp" id="matchPct">94%</span>
+          <span style="font-size:11px;color:var(--muted2)">Совпадение</span>
+          <div class="mb-wrap"><div class="mb" id="matchBar"></div></div>
+          <span class="mp" id="matchPct"></span>
         </div>
-        
-        <div class="opp-desc" id="cardDesc">Реальный проект в продуктовой команде. Ментор, оплата 80к/мес, гибкий график и перспектива найма.</div>
-        
-        <button class="go-btn" onclick="applyCurrentOpp()" style="margin-top:15px;">📝 Подать заявку</button>
+        <div class="opp-desc" id="cardDesc"></div>
+        <div style="margin-top:13px;position:relative;z-index:1;">
+          <button class="go-btn" style="font-size:12px;padding:11px;" onclick="openCurrentOpp()">Подать заявку →</button>
+        </div>
       </div>
     </div>
-
     <div class="sw-actions">
       <button class="sw-btn sw-no" onclick="swipe('no')">✕</button>
-      <button class="sw-btn sw-yes" onclick="swipe('yes')">✓</button>
       <button class="sw-btn sw-star" onclick="swipe('super')">⭐</button>
+      <button class="sw-btn sw-yes" onclick="swipe('yes')">✓</button>
     </div>
+    <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:-2px;">✕ Пропустить &nbsp;·&nbsp; ⭐ Суперлайк &nbsp;·&nbsp; ✓ Матч</div>
+    <div style="height:4px"></div>
   </div>
 </div>
 
@@ -601,156 +585,564 @@ textarea.ai-ta:focus{border-color:var(--accent);}
 <div class="screen" id="screen-edupath">
   <nav>
     <div class="nav-logo">EduPath</div>
-    <div class="nav-right">
-      <div class="nbtn" onclick="openModal('path-goals')">🎯</div>
-    </div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('path-goals')">🎯</div></div>
   </nav>
   <div class="scroll">
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">🗺️ Frontend Engineer</div>
-        <div class="sh-btn" onclick="openModal('change-goal')">Сменить</div>
+    <div class="card glow">
+      <div style="text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;">ТВОЯ ЦЕЛЬ</div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">Стать <span style="background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Frontend Engineer</span></div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:4px;">8 месяцев · Прогресс 35%</div>
+        <div class="path-bar"><div class="path-fill" style="width:35%"></div></div>
       </div>
-      <div style="font-size:13px;color:var(--muted2);margin-bottom:16px;">AI построил персональный роадмап под твой уровень и цель.</div>
-      
-      <div style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-bottom:6px;">
-          <span>Прогресс</span>
-          <span style="color:var(--green);font-weight:600;">35%</span>
-        </div>
-        <div class="path-bar">
-          <div class="path-fill" style="width:35%"></div>
+      <div style="display:flex;gap:7px;margin-top:12px;">
+        <button class="outline-btn" style="margin:0;flex:1;" onclick="openModal('change-goal')">Сменить цель</button>
+        <button class="outline-btn" style="margin:0;flex:1;background:rgba(79,110,247,.08);" onclick="openModal('share')">📤 Поделиться</button>
+      </div>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;">Роадмап</div>
+    <div class="rm">
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot done">✅</div><div class="rm-line"></div></div>
+        <div class="rm-content">
+          <div class="rm-phase">Фаза 1 · Завершена</div><div class="rm-title">Основы веба</div>
+          <div class="rm-desc">HTML, CSS, JavaScript — пройдено!</div>
+          <div class="rm-tasks">
+            <div class="tk"><div class="tk-box done">✓</div>HTML & CSS основы</div>
+            <div class="tk"><div class="tk-box done">✓</div>JavaScript основы</div>
+            <div class="tk"><div class="tk-box done">✓</div>Первая страница на GitHub</div>
+          </div>
         </div>
       </div>
-
-      <div class="stat-row" style="margin-bottom:16px;">
-        <div class="stat">
-          <div class="stat-n">12</div>
-          <div class="stat-l">Заданий</div>
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot now">⚡</div><div class="rm-line"></div></div>
+        <div class="rm-content">
+          <div class="rm-phase">Фаза 2 · Сейчас</div><div class="rm-title">React & компоненты</div>
+          <div class="rm-desc">Компонентный подход, хуки, управление состоянием</div>
+          <div class="rm-tasks">
+            <div class="tk"><div class="tk-box done">✓</div>Компоненты и пропсы</div>
+            <div class="tk"><div class="tk-box now">→</div>useState & useEffect</div>
+            <div class="tk"><div class="tk-box">○</div>Роутинг (React Router)</div>
+            <div class="tk"><div class="tk-box">○</div>API запросы (fetch)</div>
+          </div>
+          <button class="outline-btn" onclick="openModal('start-task')">▶ Продолжить задание</button>
         </div>
-        <div class="stat">
-          <div class="stat-n">8</div>
-          <div class="stat-l">Выполнено</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot locked">🔒</div><div class="rm-line"></div></div>
+        <div class="rm-content">
+          <div class="rm-phase">Фаза 3 · Скоро</div><div class="rm-title">Продвинутый React</div>
+          <div class="rm-desc">TypeScript, Redux, тестирование</div>
+          <div class="rm-tasks">
+            <div class="tk" style="opacity:.4"><div class="tk-box">○</div>TypeScript</div>
+            <div class="tk" style="opacity:.4"><div class="tk-box">○</div>Redux / Zustand</div>
+            <div class="tk" style="opacity:.4"><div class="tk-box">○</div>Jest Testing</div>
+          </div>
         </div>
-        <div class="stat">
-          <div class="stat-n">2мес</div>
-          <div class="stat-l">До цели</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-left"><div class="rm-dot locked">🔒</div></div>
+        <div class="rm-content" style="padding-bottom:4px">
+          <div class="rm-phase">Фаза 4 · Финал</div><div class="rm-title">Portfolio + Job Ready</div>
+          <div class="rm-desc">Финальный проект, резюме, подготовка к интервью</div>
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="sh">
-        <div class="sh-title">📍 Роадмап</div>
-      </div>
-      <div class="rm">
-        <div class="rm-item">
-          <div class="rm-left">
-            <div class="rm-dot done">✓</div>
-            <div class="rm-line"></div>
-          </div>
-          <div class="rm-content">
-            <div class="rm-phase">Фаза 1</div>
-            <div class="rm-title">HTML/CSS основы</div>
-            <div class="rm-desc">Flexbox, Grid, адаптивность</div>
-            <div class="rm-tasks">
-              <div class="tk"><div class="tk-box done">✓</div>Создать лендинг</div>
-              <div class="tk"><div class="tk-box done">✓</div>Адаптивная верстка</div>
-              <div class="tk"><div class="tk-box done">✓</div>CSS анимации</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="rm-item">
-          <div class="rm-left">
-            <div class="rm-dot now">2</div>
-            <div class="rm-line"></div>
-          </div>
-          <div class="rm-content">
-            <div class="rm-phase">Фаза 2</div>
-            <div class="rm-title">JavaScript основы</div>
-            <div class="rm-desc">DOM, события, асинхронность</div>
-            <div class="rm-tasks">
-              <div class="tk"><div class="tk-box done">✓</div>Переменные и типы</div>
-              <div class="tk"><div class="tk-box done">✓</div>Функции и стрелки</div>
-              <div class="tk"><div class="tk-box now">2</div>useState & useEffect</div>
-              <div class="tk"><div class="tk-box"></div>API запросы</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="rm-item">
-          <div class="rm-left">
-            <div class="rm-dot locked">3</div>
-            <div class="rm-line inactive"></div>
-          </div>
-          <div class="rm-content">
-            <div class="rm-phase">Фаза 3</div>
-            <div class="rm-title">React основы</div>
-            <div class="rm-desc">Компоненты, стейт, хуки</div>
-            <div class="rm-tasks">
-              <div class="tk"><div class="tk-box"></div>JSX и компоненты</div>
-              <div class="tk"><div class="tk-box"></div>useState, useEffect</div>
-              <div class="tk"><div class="tk-box"></div>React Router</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="ai-verd">
+      <div class="ai-verd-h">🤖 AI рекомендация</div>
+      <div class="ai-verd-t">Ты прогрессируешь <strong>быстрее среднего на 23%</strong>. Следующий шаг: закончи задание по <strong>useEffect</strong> — это разблокирует фазу API-запросов и поднимет скор на ~6 пунктов.</div>
     </div>
-
-    <button class="go-btn" onclick="openModal('start-task')">▶️ Продолжить обучение</button>
+    <div style="height:4px"></div>
   </div>
 </div>
 
-<!-- TABBAR -->
+<!-- ══════════ RANKINGS ══════════ -->
+<div class="screen" id="screen-rankings">
+  <nav>
+    <div class="nav-logo">🏆 Рейтинги</div>
+    <div class="nav-right"><div class="nbtn" onclick="openModal('rankings-info')">ℹ️</div></div>
+  </nav>
+  <div class="scroll">
+    <div class="rankings-hero">
+      <div class="rankings-title">Соревнуйся и побеждай</div>
+      <div class="rankings-sub">Смотри на лучших и вдохновляйся</div>
+    </div>
+
+    <div class="rank-tabs">
+      <div class="rank-tab active" onclick="switchRanking('users')">👤 Ученики</div>
+      <div class="rank-tab" onclick="switchRanking('schools')">🏫 Школы</div>
+      <div class="rank-tab" onclick="switchRanking('skills')">🎯 Навыки</div>
+      <div class="rank-tab" onclick="switchRanking('competitions')">🏆 Соревнования</div>
+    </div>
+
+    <!-- Users Rankings -->
+    <div id="rankings-users" class="ranking-content">
+      <div class="ranking-list">
+        <div class="ranking-card" onclick="openUserProfile(1)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">МА</div>
+          <div class="r-info">
+            <div class="r-name">Марат Алиев</div>
+            <div class="r-school">Школа №45, Алматы</div>
+            <div class="r-skills">
+              <span class="r-skill">React</span>
+              <span class="r-skill">Node.js</span>
+              <span class="r-skill">Python</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">92.5</div>
+            <div class="r-change r-up">📈 +2</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(2)">
+          <div class="rank-num rank-2">#2</div>
+          <div class="r-avatar">АН</div>
+          <div class="r-info">
+            <div class="r-name">Алия Нурсултанова</div>
+            <div class="r-school">НИШ Физмат, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill">ML</span>
+              <span class="r-skill">Python</span>
+              <span class="r-skill">Data</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">89.2</div>
+            <div class="r-change r-down">📉 -1</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(3)">
+          <div class="rank-num rank-3">#3</div>
+          <div class="r-avatar">ДО</div>
+          <div class="r-info">
+            <div class="r-name">Данияр Омаров</div>
+            <div class="r-school">Гимназия №7, Алматы</div>
+            <div class="r-skills">
+              <span class="r-skill">React</span>
+              <span class="r-skill">TypeScript</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">87.8</div>
+            <div class="r-change r-same">➡️ 0</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(4)">
+          <div class="rank-num">#4</div>
+          <div class="r-avatar">АБ</div>
+          <div class="r-info">
+            <div class="r-name">Айсулу Бекмуратова</div>
+            <div class="r-school">НИШ ХМ, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill">Design</span>
+              <span class="r-skill">Figma</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">85.3</div>
+            <div class="r-change r-up">📈 +3</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(5)">
+          <div class="rank-num">#5</div>
+          <div class="r-avatar">ЕС</div>
+          <div class="r-info">
+            <div class="r-name">Ерлан Смагулов</div>
+            <div class="r-school">Школа №12, Шымкент</div>
+            <div class="r-skills">
+              <span class="r-skill">Python</span>
+              <span class="r-skill">Django</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">83.7</div>
+            <div class="r-change r-down">📉 -2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schools Rankings -->
+    <div id="rankings-schools" class="ranking-content" style="display:none;">
+      <div class="school-card" onclick="toast('🏫 Детальная информация о НИШ Физмат-IT')">
+        <div class="school-header">
+          <div class="school-name">НИШ Физмат-IT</div>
+          <div class="school-rank">
+            <span class="rank-num rank-1">#1</span>
+            <span style="color:var(--muted);">в Астане</span>
+          </div>
+        </div>
+        <div class="school-stats">
+          <div class="school-stat">
+            <div class="school-stat-val">78.5</div>
+            <div class="school-stat-lbl">Средняя репутация</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">234</div>
+            <div class="school-stat-lbl">Всего учеников</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">15</div>
+            <div class="school-stat-lbl">Достижений</div>
+          </div>
+        </div>
+        <div class="top-students">
+          <div class="top-student">
+            <div class="top-student-avatar">АН</div>
+            <div class="top-student-name">Алия Н.</div>
+            <div class="top-student-score">89.2</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">ТЖ</div>
+            <div class="top-student-name">Тимур Ж.</div>
+            <div class="top-student-score">82.4</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">МС</div>
+            <div class="top-student-name">Мадина С.</div>
+            <div class="top-student-score">79.8</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="school-card" onclick="toast('🏫 Детальная информация о Школе №45')">
+        <div class="school-header">
+          <div class="school-name">Школа №45</div>
+          <div class="school-rank">
+            <span class="rank-num rank-2">#2</span>
+            <span style="color:var(--muted);">в Алматы</span>
+          </div>
+        </div>
+        <div class="school-stats">
+          <div class="school-stat">
+            <div class="school-stat-val">72.3</div>
+            <div class="school-stat-lbl">Средняя репутация</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">198</div>
+            <div class="school-stat-lbl">Всего учеников</div>
+          </div>
+          <div class="school-stat">
+            <div class="school-stat-val">12</div>
+            <div class="school-stat-lbl">Достижений</div>
+          </div>
+        </div>
+        <div class="top-students">
+          <div class="top-student">
+            <div class="top-student-avatar">МА</div>
+            <div class="top-student-name">Марат А.</div>
+            <div class="top-student-score">92.5</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">ДО</div>
+            <div class="top-student-name">Данияр О.</div>
+            <div class="top-student-score">87.8</div>
+          </div>
+          <div class="top-student">
+            <div class="top-student-avatar">КА</div>
+            <div class="top-student-name">Карина А.</div>
+            <div class="top-student-score">76.2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Rankings -->
+    <div id="rankings-skills" class="ranking-content" style="display:none;">
+      <div class="ranking-list">
+        <div class="ranking-card" onclick="openUserProfile(1)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">МА</div>
+          <div class="r-info">
+            <div class="r-name">Марат Алиев</div>
+            <div class="r-school">Школа №45, Алматы</div>
+            <div class="r-skills">
+              <span class="r-skill" style="background:rgba(79,110,247,.2);color:#a0b0ff;">⚛️ React</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">95.2</div>
+            <div class="r-change r-up">📈 +1</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(2)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">АН</div>
+          <div class="r-info">
+            <div class="r-name">Алия Нурсултанова</div>
+            <div class="r-school">НИШ Физмат, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill" style="background:rgba(16,217,160,.2);color:#34d399;">🐍 Python</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">94.6</div>
+            <div class="r-change r-same">➡️ 0</div>
+          </div>
+        </div>
+
+        <div class="ranking-card" onclick="openUserProfile(2)">
+          <div class="rank-num rank-1">#1</div>
+          <div class="r-avatar">АН</div>
+          <div class="r-info">
+            <div class="r-name">Алия Нурсултанова</div>
+            <div class="r-school">НИШ Физмат, Астана</div>
+            <div class="r-skills">
+              <span class="r-skill" style="background:rgba(249,115,22,.2);color:#fb923c;">🤖 ML/AI</span>
+            </div>
+          </div>
+          <div class="r-stats">
+            <div class="r-score">96.1</div>
+            <div class="r-change r-up">📈 +2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competitions -->
+    <div id="rankings-competitions" class="ranking-content" style="display:none;">
+      <div class="comp-card" onclick="toast('🏆 Подать заявку на React Challenge 2024')">
+        <div class="comp-header">
+          <div class="comp-name">🏆 React Challenge 2024</div>
+          <div class="comp-prize">🎁 MacBook Air + стажировка</div>
+        </div>
+        <div class="comp-desc">Создай лучшее React приложение и выиграй ценные призы</div>
+        <div class="comp-stats">
+          <div class="comp-stat">
+            <div class="comp-stat-val">156</div>
+            <div class="comp-stat-lbl">Участников</div>
+          </div>
+          <div class="comp-stat">
+            <div class="comp-stat-val">12</div>
+            <div class="comp-stat-lbl">Дней до конца</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-card" onclick="toast('🤖 Подать заявку на AI Innovation Hackathon')">
+        <div class="comp-header">
+          <div class="comp-name">🤖 AI Innovation Hackathon</div>
+          <div class="comp-prize">🎁 Грант на развитие проекта</div>
+        </div>
+        <div class="comp-desc">Разработи AI решение для образования и получи поддержку</div>
+        <div class="comp-stats">
+          <div class="comp-stat">
+            <div class="comp-stat-val">89</div>
+            <div class="comp-stat-lbl">Участников</div>
+          </div>
+          <div class="comp-stat">
+            <div class="comp-stat-val">8</div>
+            <div class="comp-stat-lbl">Дней до конца</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-card" onclick="toast('🏫 Подать заявку на School Battle: IT Edition')">
+        <div class="comp-header">
+          <div class="comp-name">🏫 School Battle: IT Edition</div>
+          <div class="comp-prize">🎁 Кубок чемпиона + мерч</div>
+        </div>
+        <div class="comp-desc">Соревнование между школами Алматы за звание лучшей IT-площадки</div>
+        <div class="comp-stats">
+          <div class="comp-stat">
+            <div class="comp-stat-val">234</div>
+            <div class="comp-stat-lbl">Участников</div>
+          </div>
+          <div class="comp-stat">
+            <div class="comp-stat-val">5</div>
+            <div class="comp-stat-lbl">Дней до конца</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- ══════════ TABBAR ══════════ -->
 <div class="tabbar">
-  <div class="tab active" onclick="switchTab('profile')">
-    <div class="tab-ico">👤</div>
-    <div class="tab-lbl">Профиль</div>
-  </div>
-  <div class="tab" onclick="switchTab('skillproof')">
-    <div class="tab-ico">🔍</div>
-    <div class="tab-lbl">SkillProof</div>
-  </div>
-  <div class="tab" onclick="switchTab('talentmatch')">
-    <div class="tab-ico">🎯</div>
-    <div class="tab-lbl">TalentMatch</div>
-  </div>
-  <div class="tab" onclick="switchTab('edupath')">
-    <div class="tab-ico">🗺️</div>
-    <div class="tab-lbl">EduPath</div>
-  </div>
+  <div class="tab active" id="tab-profile" onclick="switchTab('profile')"><div class="tab-ico">👤</div><div class="tab-lbl">Профиль</div></div>
+  <div class="tab" id="tab-skillproof" onclick="switchTab('skillproof')"><div class="tab-ico">🔍</div><div class="tab-lbl">SkillProof</div></div>
+  <div class="tab" id="tab-talent" onclick="switchTab('talent')"><div class="tab-ico">💼</div><div class="tab-lbl">Матчинг</div></div>
+  <div class="tab" id="tab-rankings" onclick="switchTab('rankings')"><div class="tab-ico">🏆</div><div class="tab-lbl">Рейтинги</div></div>
+  <div class="tab" id="tab-edupath" onclick="switchTab('edupath')"><div class="tab-ico">🗺️</div><div class="tab-lbl">EduPath</div></div>
 </div>
 </div>
 
-<!-- MODAL OVERLAY -->
-<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModalOutside(event)">
   <div id="modal-box">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <h2 id="modal-title" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;"></h2>
-      <button onclick="closeModal()" style="width:32px;height:32px;border-radius:8px;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--muted2);">×</button>
-    </div>
-    <div id="modal-body" style="font-size:13px;line-height:1.6;"></div>
+    <div id="modal-content"></div>
   </div>
 </div>
-
-<!-- TOAST -->
 <div id="toast"></div>
 
-<svg width="0" height="0">
-  <defs>
-    <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4f6ef7"/>
-      <stop offset="100%" style="stop-color:#10d9a0"/>
-    </linearGradient>
-  </defs>
-</svg>
-
 <script>
-// ════════════ MODAL ════════════
+// ════════════ PROFILE DATA ════════════
+const DEFAULTS = {
+  name:'Рамина Ибраимова', grade:'10 класс', city:'Алматы, Казахстан',
+  emoji:'👩‍💻', level:7, about:'Frontend разработчица, люблю создавать продукты с нуля.',
+  tag1:'Frontend', tag2:'AI/ML', tag3:'Design'
+};
+const TAG_ICONS = {Frontend:'💻','AI/ML':'🤖',Design:'🎨',Backend:'⚙️',Data:'📊',Mobile:'📱','Game Dev':'🎮',Cybersecurity:'🔐'};
+const GRADES = ['8 класс','9 класс','10 класс','11 класс','1 курс','2 курс','3 курс','4 курс'];
+const SKILL_TAGS = ['Frontend','AI/ML','Design','Backend','Data','Mobile','Game Dev','Cybersecurity'];
+const AVATARS = ['👩‍💻','👨‍💻','🧑‍💻','👩‍🎨','👨‍🎨','🧑‍🔬','👩‍🔬','🦊','🐱','🐼','🦁','🐸','🦋','🚀','🎮','🎯'];
+
+function loadP(){try{const s=localStorage.getItem('vx_p');return s?{...DEFAULTS,...JSON.parse(s)}:{...DEFAULTS};}catch(e){return{...DEFAULTS};}}
+function saveP(d){try{localStorage.setItem('vx_p',JSON.stringify(d));}catch(e){}}
+
+function renderProfile(){
+  const p=loadP();
+  document.getElementById('avatarEmoji').textContent=p.emoji;
+  document.getElementById('levelBadge').textContent='LVL '+p.level;
+  document.getElementById('profileName').textContent=p.name;
+  document.getElementById('profileSub').textContent=p.grade+' · '+p.city;
+  const tags=[p.tag1,p.tag2,p.tag3].filter(Boolean);
+  document.getElementById('profileTags').innerHTML=tags.map((t,i)=>
+    `<span class="tag ${i<2?'h':''}">${TAG_ICONS[t]||'🔖'} ${t}</span>`
+  ).join('');
+}
+
+// ════════════ EDIT PROFILE MODAL ════════════
+let _selEmoji='';
+
+function openEditProfile(){
+  const p=loadP();
+  _selEmoji=p.emoji;
+
+  const avGrid=AVATARS.map(e=>`
+    <div id="av${e.codePointAt(0)}" onclick="pickEmoji('${e}')"
+      style="width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+      font-size:26px;cursor:pointer;touch-action:manipulation;flex-shrink:0;
+      border:2px solid ${e===p.emoji?'var(--accent)':'var(--border)'};background:var(--s2);">${e}</div>`
+  ).join('');
+
+  const grOpts=GRADES.map(g=>`<option value="${g}"${p.grade===g?' selected':''}>${g}</option>`).join('');
+  const tOpts=(cur)=>SKILL_TAGS.map(t=>`<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+
+  document.getElementById('modal-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;">Редактировать профиль ✏️</div>
+      <span onclick="closeModal()" style="cursor:pointer;font-size:26px;color:var(--muted);touch-action:manipulation;padding:4px;">×</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div>
+        <div class="lbl">Аватар</div>
+        <div style="display:flex;gap:7px;overflow-x:auto;padding:3px 0 6px;">${avGrid}</div>
+      </div>
+      <div>
+        <div class="lbl">Имя</div>
+        <input class="inp" id="e_name" value="${p.name}" placeholder="Твоё имя">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;">
+          <div class="lbl">Класс / Курс</div>
+          <select class="inp" id="e_grade">${grOpts}</select>
+        </div>
+        <div style="flex:1;">
+          <div class="lbl">Уровень (1–10)</div>
+          <input class="inp" id="e_level" type="number" min="1" max="10" value="${p.level}" inputmode="numeric">
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Город</div>
+        <input class="inp" id="e_city" value="${p.city}" placeholder="Город, Страна">
+      </div>
+      <div>
+        <div class="lbl">О себе</div>
+        <textarea class="inp" id="e_about" style="resize:none;height:68px;line-height:1.5;">${p.about}</textarea>
+      </div>
+      <div>
+        <div class="lbl">Направления (3 тега)</div>
+        <div style="display:flex;gap:6px;">
+          <select class="inp" id="e_t1" style="flex:1;">${tOpts(p.tag1)}</select>
+          <select class="inp" id="e_t2" style="flex:1;">${tOpts(p.tag2)}</select>
+          <select class="inp" id="e_t3" style="flex:1;">${tOpts(p.tag3)}</select>
+        </div>
+      </div>
+      <button class="go-btn" onclick="applyProfile()">✅ Сохранить</button>
+      <button class="outline-btn danger-btn" style="margin-top:0;" onclick="if(confirm('Сбросить к стандартному?')){localStorage.removeItem('vx_p');renderProfile();closeModal();toast('🔄 Сброшено');}">🗑 Сбросить</button>
+    </div>`;
+
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function pickEmoji(e){
+  AVATARS.forEach(a=>{
+    const el=document.getElementById('av'+a.codePointAt(0));
+    if(el)el.style.borderColor='var(--border)';
+  });
+  const el=document.getElementById('av'+e.codePointAt(0));
+  if(el)el.style.borderColor='var(--accent)';
+  _selEmoji=e;
+}
+
+function applyProfile(){
+  const p=loadP();
+  p.emoji=_selEmoji||p.emoji;
+  p.name=document.getElementById('e_name').value.trim()||p.name;
+  p.grade=document.getElementById('e_grade').value;
+  p.city=document.getElementById('e_city').value.trim()||p.city;
+  p.about=document.getElementById('e_about').value.trim();
+  p.level=Math.min(10,Math.max(1,parseInt(document.getElementById('e_level').value)||p.level));
+  p.tag1=document.getElementById('e_t1').value;
+  p.tag2=document.getElementById('e_t2').value;
+  p.tag3=document.getElementById('e_t3').value;
+  saveP(p);renderProfile();closeModal();toast('✅ Профиль сохранён!');
+}
+
+// ════════════ TABS ════════════
+function switchTab(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ════════════ TOAST ════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ════════════ MODALS ════════════
+function openModal(key){
+  if(key==='edit-profile'){openEditProfile();return;}
+  const m=MODALS[key];if(!m)return;
+  document.getElementById('modal-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${m.sub?'4px':'14px'}">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;flex:1;min-width:0;">${m.title}</div>
+      <span onclick="closeModal()" style="cursor:pointer;font-size:26px;color:var(--muted);margin-left:10px;flex-shrink:0;touch-action:manipulation;padding:4px;">×</span>
+    </div>
+    ${m.sub?`<div style="font-size:12px;color:var(--muted2);margin-bottom:14px;">${m.sub}</div>`:''}
+    ${m.body}`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+function closeModalOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
 const MODALS={
-  share:{title:'📤 Поделиться профилем',sub:'',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+  notif:{title:'Уведомления 🔔',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
+    <div class="proj"><div class="proj-ico" style="background:rgba(16,217,160,.15)">🎉</div><div style="flex:1"><div class="proj-name">Новый матч!</div><div class="proj-desc">Kolesa Group · 2ч назад</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(79,110,247,.15)">⬆️</div><div style="flex:1"><div class="proj-name">Скор вырос до 86</div><div class="proj-desc">+4 очка за неделю · 1д назад</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:rgba(249,115,22,.15)">🏆</div><div style="flex:1"><div class="proj-name">Новое достижение</div><div class="proj-desc">«Стрик 7 дней» · 2д назад</div></div></div>
+  </div>`},
+  share:{title:'Поделиться профилем 📤',sub:'Покажи навыки университетам и работодателям',body:`
+    <div style="background:var(--s2);border-radius:13px;padding:14px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Публичная ссылка</div>
+      <div style="font-size:14px;font-weight:600;color:var(--accent);">verix.app/u/ramina</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="go-btn" onclick="toast('📋 Ссылка скопирована!');closeModal()">📋 Скопировать ссылку</button>
       <button class="outline-btn" style="margin:0;" onclick="toast('📄 PDF скачан!');closeModal()">📄 Скачать PDF резюме</button>
       <button class="outline-btn" style="margin:0;" onclick="toast('📧 Отправлено!');closeModal()">📧 Отправить на email</button>
@@ -765,18 +1157,12 @@ const MODALS={
     <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Подбирает стажировки, гранты и конкурсы под твой профиль.</div>
     <div class="ai-verd"><div class="ai-verd-h">Как свайпать:</div><div class="ai-verd-t"><strong>✕</strong> — не интересно &nbsp; <strong>⭐</strong> — суперлайк &nbsp; <strong>✓</strong> — хочу матч</div></div>
   </div>`},
-  'match-kolesa':{title:'🤝 Kolesa Group',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Junior Frontend Developer</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Стажировка · Алматы · 80к/мес<br>Гибкий график, ментор</div></div>
-    <button class="go-btn" onclick="toast('📧 Заявка отправлена!');closeModal()">📧 Отправить заявку</button>
-    <button class="outline-btn" style="margin:0;" onclick="toast('💬 Чат открыт');closeModal()">💬 Написать рекрутеру</button>
-  </div>`},
-  'match-epam':{title:'🤝 EPAM Systems',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Young Talent Program</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Онлайн · 3 месяца · Сертификат</div></div>
-    <button class="go-btn" onclick="toast('📧 Заявка!');closeModal()">📧 Подать заявку</button>
-  </div>`},
-  'match-most':{title:'🤝 MOST Grant',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Грант $500 для IT-школьников</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Нужно: портфолио + письмо<br>Дедлайн: 30 апреля 2025</div></div>
-    <button class="go-btn" onclick="toast('📝 Заявка начата!');closeModal()">📝 Подать на грант</button>
+  projects:{title:'Все проекты (7)',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="proj" onclick="closeModal();toast('📱 Verix App')"><div class="proj-ico" style="background:rgba(79,110,247,.15)">📱</div><div style="flex:1"><div class="proj-name">Verix App</div><div class="proj-desc">React Native · 91/100</div></div><div class="proj-score">91</div></div>
+    <div class="proj" onclick="closeModal();toast('🤖 ML Classifier')"><div class="proj-ico" style="background:rgba(16,217,160,.15)">🤖</div><div style="flex:1"><div class="proj-name">ML Classifier</div><div class="proj-desc">Python · 84/100</div></div><div class="proj-score">84</div></div>
+    <div class="proj" onclick="closeModal();toast('🌱 EcoTrack')"><div class="proj-ico" style="background:rgba(249,115,22,.15)">🌱</div><div style="flex:1"><div class="proj-name">EcoTrack</div><div class="proj-desc">React · 78/100</div></div><div class="proj-score">78</div></div>
+    <div class="proj" onclick="closeModal();toast('🎨 Portfolio')"><div class="proj-ico" style="background:rgba(236,72,153,.15)">🎨</div><div style="flex:1"><div class="proj-name">Portfolio Site</div><div class="proj-desc">HTML/CSS · 72/100</div></div><div class="proj-score">72</div></div>
+    <button class="outline-btn" style="margin-top:4px;" onclick="closeModal();switchTab('skillproof')">+ Добавить проект</button>
   </div>`},
   'start-task':{title:'useState & useEffect ⚡',sub:'Фаза 2 · Задание 2 из 4',body:`<div style="display:flex;flex-direction:column;gap:12px;">
     <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Создай компонент таймера:<br>• Считает секунды (useState)<br>• Запускает интервал (useEffect)<br>• Кнопки Старт / Пауза / Сброс</div>
@@ -795,15 +1181,67 @@ const MODALS={
     <button class="go-btn" onclick="openModal('change-goal')">🎯 Сменить цель</button>
     <button class="outline-btn" style="margin:0;" onclick="toast('📊 Статистика');closeModal()">📊 Статистика</button>
   </div>`},
+  'skill-react':{title:'⚛️ React',sub:'Верифицирован AI · Продвинутый',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">85</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">3</div><div class="sc-l">Проекта</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">🤖 AI оценка</div><div class="ai-verd-t">Сильная архитектура. Изучи <strong>React Query</strong> и <strong>оптимизацию рендеров</strong>.</div></div>
+    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">🔄 Пересдать тест</button>
+  </div>`},
+  'skill-python':{title:'🐍 Python',sub:'Верифицирован AI · Средний',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">60</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">2</div><div class="sc-l">Проекта</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">🤖 AI оценка</div><div class="ai-verd-t">Хорошая база. Изучи <strong>pandas</strong>, <strong>numpy</strong>, <strong>sklearn</strong>.</div></div>
+    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">🔄 Улучшить</button>
+  </div>`},
+  'skill-figma':{title:'🎨 Figma',sub:'Верифицирован AI · Продвинутый',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">80</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">4</div><div class="sc-l">Проекта</div></div></div>
+    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">🔄 Пересдать</button>
+  </div>`},
+  'skill-ai':{title:'🤖 ML/AI',sub:'Верифицирован AI · Начинающий',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">35</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--orange)">1</div><div class="sc-l">Проект</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">🤖 AI оценка</div><div class="ai-verd-t">Рекомендую <strong>EduPath → Data Scientist</strong>.</div></div>
+    <button class="go-btn" onclick="switchTab('edupath');closeModal()">🗺️ EduPath</button>
+  </div>`},
+  badges:{title:'Все достижения 🏅',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🏆</div><div style="flex:1"><div class="proj-name">Хакатон 2024</div><div class="proj-desc">2 место в Almaty Hack</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🔥</div><div style="flex:1"><div class="proj-name">Стрик 7 дней</div><div class="proj-desc">7 дней подряд</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">⭐</div><div style="flex:1"><div class="proj-name">Первый проект</div><div class="proj-desc">Первый проект в портфолио</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🤝</div><div style="flex:1"><div class="proj-name">3 матча</div><div class="proj-desc">3 матча с компаниями</div></div></div>
+    <div class="proj"><div class="proj-ico" style="font-size:22px">🎯</div><div style="flex:1"><div class="proj-name">Top 12%</div><div class="proj-desc">Топ 12% школьников</div></div></div>
+    <div class="proj" style="opacity:.4"><div class="proj-ico" style="font-size:22px">🔒</div><div style="flex:1"><div class="proj-name">Top 5%</div><div class="proj-desc">Войди в топ 5%</div></div></div>
+  </div>`},
+  'badge-hack':{title:'🏆 Хакатон 2024',sub:'15 ноября 2024',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🏆</div><div style="margin-top:10px;font-size:13px;color:var(--muted2);line-height:1.6;">2 место на Almaty Hack 2024.<br>Команда из 4 человек, проект EcoTrack.<br>+15 к репутационному скору.</div></div>`},
+  'badge-fire':{title:'🔥 Стрик 7 дней',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🔥</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">7 дней активности подряд. +5 к скору.</div></div>`},
+  'badge-star':{title:'⭐ Первый проект',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">⭐</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">Добавила первый проект!</div></div>`},
+  'badge-match':{title:'🤝 3 матча',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🤝</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">3 матча с компаниями!</div></div>`},
+  'badge-top':{title:'🎯 Top 12%',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="font-size:60px">🎯</div><div style="margin-top:10px;font-size:13px;color:var(--muted2)">Топ 12% школьников на платформе!</div></div>`},
+  'match-kolesa':{title:'🤝 Kolesa Group',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Junior Frontend Developer</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Стажировка · Алматы · 80к/мес<br>Гибкий график, ментор</div></div>
+    <button class="go-btn" onclick="toast('📧 Заявка отправлена!');closeModal()">📧 Отправить заявку</button>
+    <button class="outline-btn" style="margin:0;" onclick="toast('💬 Чат открыт');closeModal()">💬 Написать рекрутеру</button>
+  </div>`},
+  'match-epam':{title:'🤝 EPAM Systems',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Young Talent Program</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Онлайн · 3 месяца · Сертификат</div></div>
+    <button class="go-btn" onclick="toast('📧 Заявка!');closeModal()">📧 Подать заявку</button>
+  </div>`},
+  'match-most':{title:'🤝 MOST Grant',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Грант $500 для IT-школьников</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Нужно: портфолио + письмо<br>Дедлайн: 30 апреля 2025</div></div>
+    <button class="go-btn" onclick="toast('📝 Заявка начата!');closeModal()">📝 Подать на грант</button>
+  </div>`},
+  'proj-verix':{title:'📱 Verix App',sub:'AI Score: 91/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">91</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">88</div><div class="sc-l">Оригинальность</div></div></div>
+    <div style="font-size:12px;color:var(--muted2);">React Native · TypeScript · Expo</div>
+    <button class="go-btn" onclick="toast('🔗 GitHub!');closeModal()">🔗 GitHub</button>
+  </div>`},
+  'proj-ml':{title:'🤖 ML Classifier',sub:'AI Score: 84/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">84</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">79</div><div class="sc-l">Сложность</div></div></div>
+    <div style="font-size:12px;color:var(--muted2);">Python · TensorFlow · 94% точность</div>
+    <button class="go-btn" onclick="toast('🔗 GitHub!');closeModal()">🔗 GitHub</button>
+  </div>`},
+  'proj-eco':{title:'🌱 EcoTrack',sub:'AI Score: 78/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">78</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--orange)">72</div><div class="sc-l">Сложность</div></div></div>
+    <div style="font-size:12px;color:var(--muted2);">React · Chart.js · Almaty Hack 2024, 2 место</div>
+    <button class="go-btn" onclick="toast('🔗 GitHub!');closeModal()">🔗 GitHub</button>
+  </div>`},
 };
-
-function openModal(key){
-  const m=MODALS[key];if(!m)return;
-  document.getElementById('modal-title').textContent=m.title;
-  document.getElementById('modal-body').innerHTML=m.body;
-  document.getElementById('modal-overlay').classList.add('show');
-}
-function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
 
 // ════════════ SKILLPROOF ════════════
 let selSkillName='';
@@ -876,7 +1314,7 @@ function swipe(dir){
   }
   setTimeout(()=>{oppIdx++;renderOpp();},420);
 }
-function applyCurrentOpp(){toast(`📝 "${OPPS[oppIdx%OPPS.length].title}"`);}
+function openCurrentOpp(){toast(`📝 "${OPPS[oppIdx%OPPS.length].title}"`);}
 
 // ════════════ LOGIN ════════════
 function checkLogin(){
@@ -909,32 +1347,414 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('passwordInput').addEventListener('keypress',handleLoginKey);
 });
 
-// ════════════ UTILS ════════════
-function switchTab(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+// ════════════ RANKINGS ════════════
+function switchRanking(type) {
+  // Hide all ranking contents
+  document.querySelectorAll('.ranking-content').forEach(content => {
+    content.style.display = 'none';
+  });
+  
+  // Remove active class from all tabs
+  document.querySelectorAll('.rank-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Show selected content
+  document.getElementById('rankings-' + type).style.display = 'block';
+  
+  // Add active class to clicked tab
+  event.target.classList.add('active');
+  
+  // Show toast notification
+  const messages = {
+    users: '👤 Рейтинг учеников',
+    schools: '🏫 Рейтинг школ', 
+    skills: '🎯 Топ по навыкам',
+    competitions: '🏆 Соревнования'
+  };
+  toast(messages[type] || '📊 Рейтинги');
+}
+
+// Mock data for rankings (in real app, this would come from API)
+const rankingsData = {
+  users: [
+    { 
+      rank: 1, 
+      name: 'Марат Алиев', 
+      school: 'Школа №45, Алматы', 
+      avatar: 'МА', 
+      score: 92.5, 
+      change: 2, 
+      skills: ['React', 'Node.js', 'Python'],
+      bio: 'Frontend разработчик, увлекаюсь React и созданием современных веб-приложений. Люблю решать сложные задачи и учиться новому.',
+      projects: [
+        { name: 'Verix App', desc: 'React Native · Digital Reputation Platform', score: 91, icon: '📱' },
+        { name: 'EcoTracker', desc: 'React · Трекер углеродного следа', score: 85, icon: '🌱' },
+        { name: 'Task Manager', desc: 'React + TypeScript · Управление задачами', score: 88, icon: '📋' }
+      ],
+      stats: { projects: 12, skills: 8, matches: 5 },
+      level: 8,
+      isOnline: true
+    },
+    { 
+      rank: 2, 
+      name: 'Алия Нурсултанова', 
+      school: 'НИШ Физмат, Астана', 
+      avatar: 'АН', 
+      score: 89.2, 
+      change: -1, 
+      skills: ['ML', 'Python', 'Data'],
+      bio: 'Data Scientist в будущем. Изучаю машинное обучение и анализ данных. Участница хакатонов и грантов.',
+      projects: [
+        { name: 'ML Classifier', desc: 'Python · Классификатор изображений', score: 94, icon: '🤖' },
+        { name: 'Data Visualizer', desc: 'Python · Визуализация данных', score: 87, icon: '📊' },
+        { name: 'ChatBot AI', desc: 'Python · NLP чат-бот', score: 89, icon: '💬' }
+      ],
+      stats: { projects: 9, skills: 6, matches: 3 },
+      level: 7,
+      isOnline: true
+    },
+    { 
+      rank: 3, 
+      name: 'Данияр Омаров', 
+      school: 'Гимназия №7, Алматы', 
+      avatar: 'ДО', 
+      score: 87.8, 
+      change: 0, 
+      skills: ['React', 'TypeScript'],
+      bio: 'Full-stack разработчик. Специализируюсь на React и Node.js. Создаю масштабируемые приложения.',
+      projects: [
+        { name: 'Social Network', desc: 'React + Node.js · Социальная сеть', score: 86, icon: '🌐' },
+        { name: 'E-commerce Platform', desc: 'React + TypeScript · Интернет-магазин', score: 90, icon: '🛒' },
+        { name: 'API Gateway', desc: 'Node.js · Микросервисы', score: 84, icon: '⚙️' }
+      ],
+      stats: { projects: 11, skills: 7, matches: 4 },
+      level: 7,
+      isOnline: false
+    },
+    { 
+      rank: 4, 
+      name: 'Айсулу Бекмуратова', 
+      school: 'НИШ ХМ, Астана', 
+      avatar: 'АБ', 
+      score: 85.3, 
+      change: 3, 
+      skills: ['Design', 'Figma'],
+      bio: 'UI/UX дизайнер. Создаю красивые и функциональные интерфейсы. Любую работу с пользователями.',
+      projects: [
+        { name: 'Banking App UI', desc: 'Figma · Мобильный банкинг', score: 92, icon: '🏦' },
+        { name: 'E-commerce Design', desc: 'Figma · Дизайн магазина', score: 88, icon: '🛍️' },
+        { name: 'Social Media UI', desc: 'Figma · Соцсеть дизайн', score: 85, icon: '📱' }
+      ],
+      stats: { projects: 15, skills: 5, matches: 6 },
+      level: 6,
+      isOnline: true
+    },
+    { 
+      rank: 5, 
+      name: 'Ерлан Смагулов', 
+      school: 'Школа №12, Шымкент', 
+      avatar: 'ЕС', 
+      score: 83.7, 
+      change: -2, 
+      skills: ['Python', 'Django'],
+      bio: 'Backend разработчик. Работаю с Python и Django. Создаю надежные и быстрые API.',
+      projects: [
+        { name: 'Blog Platform', desc: 'Django · Блоговая платформа', score: 87, icon: '📝' },
+        { name: 'REST API', desc: 'Django REST · API сервис', score: 82, icon: '🔌' },
+        { name: 'Task Scheduler', desc: 'Python · Планировщик задач', score: 79, icon: '⏰' }
+      ],
+      stats: { projects: 8, skills: 4, matches: 2 },
+      level: 5,
+      isOnline: false
+    }
+  ],
+  schools: [
+    { rank: 1, name: 'НИШ Физмат-IT', city: 'Астана', avgReputation: 78.5, totalStudents: 234, achievements: 15, topStudents: [
+      { name: 'Алия Нурсултанова', avatar: 'АН', score: 89.2 },
+      { name: 'Тимур Жумабек', avatar: 'ТЖ', score: 82.4 },
+      { name: 'Мадина Сулейменова', avatar: 'МС', score: 79.8 }
+    ]},
+    { rank: 2, name: 'Школа №45', city: 'Алматы', avgReputation: 72.3, totalStudents: 198, achievements: 12, topStudents: [
+      { name: 'Марат Алиев', avatar: 'МА', score: 92.5 },
+      { name: 'Данияр Омаров', avatar: 'ДО', score: 87.8 },
+      { name: 'Карина Абдуллаева', avatar: 'КА', score: 76.2 }
+    ]}
+  ],
+  skills: {
+    react: [
+      { rank: 1, name: 'Марат Алиев', school: 'Школа №45, Алматы', avatar: 'МА', score: 95.2, change: 1 },
+      { rank: 2, name: 'Данияр Омаров', school: 'Гимназия №7, Алматы', avatar: 'ДО', score: 91.8, change: -1 },
+      { rank: 3, name: 'Айнур Касымов', school: 'Гимназия №7', avatar: 'АК', score: 88.4, change: 0 }
+    ],
+    python: [
+      { rank: 1, name: 'Алия Нурсултанова', school: 'НИШ', avatar: 'АН', score: 94.6, change: 0 },
+      { rank: 2, name: 'Ерлан Смагулов', school: 'Школа №12', avatar: 'ЕС', score: 90.3, change: 2 },
+      { rank: 3, name: 'Марат Алиев', school: 'Школа №45', avatar: 'МА', score: 87.9, change: -1 }
+    ],
+    ml: [
+      { rank: 1, name: 'Алия Нурсултанова', school: 'НИШ', avatar: 'АН', score: 96.1, change: 2 },
+      { rank: 2, name: 'Тимур Жумабек', school: 'НИШ', avatar: 'ТЖ', score: 89.7, change: -1 },
+      { rank: 3, name: 'Мадина Сулейменова', school: 'НИШ', avatar: 'МС', score: 85.2, change: 0 }
+    ]
+  },
+  competitions: [
+    { name: 'React Challenge 2024', prize: 'MacBook Air + стажировка', participants: 156, daysLeft: 12, description: 'Создай лучшее React приложение и выиграй ценные призы' },
+    { name: 'AI Innovation Hackathon', prize: 'Грант на развитие проекта', participants: 89, daysLeft: 8, description: 'Разработи AI решение для образования и получи поддержку' },
+    { name: 'School Battle: IT Edition', prize: 'Кубок чемпиона + мерч', participants: 234, daysLeft: 5, description: 'Соревнование между школами Алматы за звание лучшей IT-площадки' }
+  ]
+};
+
+// Simulate real-time updates
+function simulateRankingUpdates() {
+  setInterval(() => {
+    // Random user position change
+    const randomUser = rankingsData.users[Math.floor(Math.random() * rankingsData.users.length)];
+    const change = Math.random() > 0.5 ? 1 : -1;
+    randomUser.rank = Math.max(1, randomUser.rank + change);
+    randomUser.change = change;
+    
+    // Update UI if rankings tab is active
+    if (document.getElementById('screen-rankings').classList.contains('active')) {
+      renderUserRankings();
+      toast('🔄 Рейтинги обновлены!');
+    }
+  }, 30000); // Update every 30 seconds
+}
+
+// ════════════ USER PROFILES & MESSENGER ════════════
+let currentChatUser = null;
+let chatMessages = {};
+
+// Initialize chat storage
+function initializeChats() {
+  rankingsData.users.forEach(user => {
+    chatMessages[user.name] = [
+      {
+        text: 'Привет! Рад пообщаться с тобой 😊',
+        time: '10:30',
+        sent: false
+      }
+    ];
+  });
+}
+
+// Open user profile modal
+function openUserProfile(userId) {
+  const user = rankingsData.users.find(u => u.rank === userId);
+  if (!user) return;
+  
+  const modal = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  
+  const skillsHtml = user.skills.map(skill => 
+    `<span class="user-profile-skill-tag">${skill}</span>`
+  ).join('');
+  
+  const projectsHtml = user.projects.map(project => `
+    <div class="user-profile-project">
+      <div class="user-profile-project-ico" style="background:rgba(79,110,247,.15)">${project.icon}</div>
+      <div class="user-profile-project-info">
+        <div class="user-profile-project-name">${project.name}</div>
+        <div class="user-profile-project-desc">${project.desc}</div>
+      </div>
+      <div class="user-profile-project-score">${project.score}</div>
+    </div>
+  `).join('');
+  
+  content.innerHTML = `
+    <div class="user-profile-modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">Профиль ученика</div>
+        <span onclick="closeModal()" style="cursor:pointer;font-size:24px;color:var(--muted);padding:4px;">×</span>
+      </div>
+      
+      <div class="user-profile-header">
+        <div class="user-profile-avatar">${user.avatar}</div>
+        <div class="user-profile-info">
+          <div class="user-profile-name">${user.name}</div>
+          <div class="user-profile-school">${user.school}</div>
+          <div class="user-profile-bio">${user.bio}</div>
+        </div>
+      </div>
+      
+      <div class="user-profile-stats">
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-val">${user.stats.projects}</div>
+          <div class="user-profile-stat-lbl">Проектов</div>
+        </div>
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-val">${user.stats.skills}</div>
+          <div class="user-profile-stat-lbl">Навыков</div>
+        </div>
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-val">${user.stats.matches}</div>
+          <div class="user-profile-stat-lbl">Матчей</div>
+        </div>
+      </div>
+      
+      <div class="user-profile-skills">
+        <div class="user-profile-skills-title">🎯 Навыки</div>
+        <div class="user-profile-skill-tags">${skillsHtml}</div>
+      </div>
+      
+      <div class="user-profile-projects">
+        <div class="user-profile-projects-title">🚀 Топ проекты</div>
+        ${projectsHtml}
+      </div>
+      
+      <div class="user-profile-actions">
+        <button class="contact-btn" onclick="openMessenger('${user.name}')">
+          💬 Написать сообщение
+        </button>
+        <button class="contact-btn secondary" onclick="viewFullProfile('${user.name}')">
+          👤 Полный профиль
+        </button>
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('show');
+}
+
+// Open messenger
+function openMessenger(userName) {
+  const user = rankingsData.users.find(u => u.name === userName);
+  if (!user) return;
+  
+  currentChatUser = userName;
+  const modal = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  
+  const messages = chatMessages[userName] || [];
+  const messagesHtml = messages.map(msg => `
+    <div class="messenger-message ${msg.sent ? 'message-sent' : 'message-received'}">
+      <div class="message-avatar">${msg.sent ? 'Я' : user.avatar}</div>
+      <div class="message-content">
+        <div class="message-text">${msg.text}</div>
+        <div class="message-time">${msg.time}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  content.innerHTML = `
+    <div class="messenger-modal">
+      <div class="messenger-header">
+        <div class="messenger-avatar">${user.avatar}</div>
+        <div class="messenger-info">
+          <div class="messenger-name">${user.name}</div>
+          <div class="messenger-status">${user.isOnline ? '🟢 В сети' : '🔴 Не в сети'}</div>
+        </div>
+        <div class="messenger-close" onclick="closeModal()">×</div>
+      </div>
+      
+      <div class="messenger-messages" id="chatMessages">
+        ${messagesHtml}
+      </div>
+      
+      <div class="messenger-input">
+        <input type="text" id="messageInput" placeholder="Напиши сообщение..." onkeypress="handleMessageKeypress(event)">
+        <button onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('show');
+  
+  // Focus input and scroll to bottom
+  setTimeout(() => {
+    document.getElementById('messageInput').focus();
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }, 100);
+}
+
+// Send message
+function sendMessage() {
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+  
+  if (!text || !currentChatUser) return;
+  
+  const now = new Date();
+  const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  
+  // Add message to chat
+  if (!chatMessages[currentChatUser]) {
+    chatMessages[currentChatUser] = [];
+  }
+  
+  chatMessages[currentChatUser].push({
+    text: text,
+    time: time,
+    sent: true
+  });
+  
+  // Clear input
+  input.value = '';
+  
+  // Re-render messages
+  openMessenger(currentChatUser);
+  
+  // Simulate response after 2 seconds
+  setTimeout(() => {
+    if (chatMessages[currentChatUser]) {
+      const responses = [
+        'Спасибо за сообщение! 👍',
+        'Интересно! Расскажи подробнее.',
+        'Круто! Давай обсудим это.',
+        'Согласен! Отличная идея.',
+        'Я тоже думаю об этом. 🤔'
+      ];
+      
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      const responseTime = new Date();
+      const responseTimeStr = `${responseTime.getHours().toString().padStart(2, '0')}:${responseTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      chatMessages[currentChatUser].push({
+        text: randomResponse,
+        time: responseTimeStr,
+        sent: false
+      });
+      
+      // Update if still in chat
+      if (currentChatUser === rankingsData.users.find(u => u.name === currentChatUser)?.name) {
+        openMessenger(currentChatUser);
+        toast('📨 Новое сообщение!');
+      }
+    }
+  }, 2000);
+  
+  toast('📤 Сообщение отправлено!');
+}
+
+// Handle enter key in message input
+function handleMessageKeypress(event) {
+  if (event.key === 'Enter') {
+    sendMessage();
+  }
+}
+
+// View full profile (placeholder)
+function viewFullProfile(userName) {
+  toast(`👤 Открыт полный профиль: ${userName}`);
   closeModal();
+  // In real app, this would navigate to full profile page
 }
-function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg;
-  el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),3000);
-}
-function renderProfile(){
-  // Profile data already in HTML
-}
-function applyCurrentOpp(){
-  const o=OPPS[oppIdx%OPPS.length];
-  toast(`📝 Заявка на "${o.title}" отправлена!`);
-  setTimeout(()=>{oppIdx++;renderOpp();},1000);
+
+// Render functions (used for dynamic updates)
+function renderUserRankings() {
+  // This would be called when data updates
+  // For now, the HTML is static, but in real app this would be dynamic
+  console.log('User rankings updated');
 }
 
 // ════════════ INIT ════════════
 renderProfile();
 renderOpp();
+initializeChats();
+simulateRankingUpdates();
 </script>
 </body>
 </html>
+
