@@ -121,7 +121,11 @@ verix/
 
 #### Netlify (Рекомендуется)
 1. Откройте [Netlify Drop](https://app.netlify.com/drop)
+<<<<<<< HEAD
 2. Перетащите `index.html`
+=======
+2. Перетащите [index.html](cci:7://file:///c:/Users/marat/OneDrive/Desktop/verix/index.html:0:0-0:0)
+>>>>>>> 5060cd2bd2b72ce01cd52691e1e38222bc396350
 3. Получите готовую ссылку
 
 #### Vercel
@@ -297,4 +301,8 @@ const AI_CONFIG = {
 
 *Сделано с ❤️ для следующего поколения IT-талантов*
 
+<<<<<<< HEAD
 </div>
+=======
+</div>сплатные!
+>>>>>>> 5060cd2bd2b72ce01cd52691e1e38222bc396350
