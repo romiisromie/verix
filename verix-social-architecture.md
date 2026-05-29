@@ -1,6 +1,6 @@
-# 🏗️ Verix Social - Техническая архитектура
+# 🏗️ Verix Social - Technical Architecture
 
-## 📋 Обзор системы
+## 📋 System Overview
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Mobile App    │    │   Web Client    │    │   Admin Panel   │
@@ -140,21 +140,21 @@
 ```javascript
 class UserService {
   async createUser(userData) {
-    // Создание нового пользователя
-    // Расчет начального репутационного скора
-    // Привязка к школе
+    // Create new user
+    // Calculate initial reputation score
+    // Link to school
   }
   
   async updateUserStats(userId, newProject) {
-    // Обновление статистики после нового проекта
-    // Перерасчет рейтингов
-    // Уведомление об изменении позиции
+    // Update stats after a new project
+    // Recalculate rankings
+    // Notify of position change
   }
   
   async getUserRankings(userId) {
-    // Получение всех рейтингов пользователя
-    // Глобальный, школьный, городской
-    // По навыкам
+    // Get all user rankings
+    // Global, school, city
+    // By skills
   }
 }
 ```
@@ -163,23 +163,23 @@ class UserService {
 ```javascript
 class RatingService {
   async calculateUserScore(userId) {
-    // Алгоритм расчета репутационного скора:
-    // - Верифицированные проекты (40%)
-    // - Навыки и их уровень (25%)
-    // - Активность в сообществе (20%)
-    // - Менторство и помощь другим (15%)
+    // Reputation score calculation algorithm:
+    // - Verified projects (40%)
+    // - Skills and their levels (25%)
+    // - Community activity (20%)
+    // - Mentorship and helping others (15%)
   }
   
   async updateRankings() {
-    // Ежедневное обновление всех рейтингов
-    // Расчет позиций в разных категориях
-    // Сохранение истории изменений
+    // Daily update of all rankings
+    // Calculate positions across categories
+    // Save change history
   }
   
   async getLeaderboard(type, filters) {
-    // Получение топ-листов
-    // Пагинация и фильтрация
-    // Кэширование результатов
+    // Get top lists
+    // Pagination and filtering
+    // Cache results
   }
 }
 ```
@@ -188,21 +188,21 @@ class RatingService {
 ```javascript
 class SchoolService {
   async calculateSchoolStats(schoolId) {
-    // Расчет средней репутации учеников
-    // Активность и вовлеченность
-    // Достижения и награды
+    // Calculate average student reputation
+    // Activity and engagement
+    // Achievements and awards
   }
   
   async getSchoolRankings() {
-    // Рейтинг школ по городам
-    // Рейтинг по направлениям
-    // Динамика изменений
+    // School rankings by city
+    // Rankings by specialization
+    // Change dynamics
   }
   
   async generateSchoolReport(schoolId, period) {
-    // Аналитический отчет для школы
-    // Статистика по ученикам
-    // Рекомендации по улучшению
+    // Analytical report for the school
+    // Student statistics
+    // Improvement recommendations
   }
 }
 ```
@@ -218,7 +218,7 @@ const Leaderboard = ({ type, filters }) => {
   return (
     <div className="leaderboard">
       <div className="leaderboard-header">
-        <h2>🏆 Рейтинг {type === 'global' ? 'учеников' : 'школ'}</h2>
+        <h2>🏆 {type === 'global' ? 'Student' : 'School'} Rankings</h2>
         <FilterPanel filters={filters} />
       </div>
       
@@ -245,19 +245,19 @@ const ProfileStats = ({ userId }) => {
     <div className="profile-stats">
       <StatCard 
         icon="🏆"
-        label="Глобальный рейтинг"
+        label="Global Rank"
         value={`#${user.globalRank}`}
         change={user.globalRankChange}
       />
       <StatCard 
         icon="🎓"
-        label="Рейтинг в школе"
+        label="School Rank"
         value={`#${user.schoolRank}`}
         change={user.schoolRankChange}
       />
       <StatCard 
         icon="⭐"
-        label="Репутация"
+        label="Reputation"
         value={user.reputationScore}
         change={user.reputationChange}
       />
@@ -274,7 +274,7 @@ const SchoolDashboard = ({ schoolId }) => {
       <div className="school-header">
         <h1>{school.name}</h1>
         <div className="school-rank">
-          🏆 #{school.cityRank} в {school.city}
+          🏆 #{school.cityRank} in {school.city}
         </div>
       </div>
       
@@ -285,7 +285,7 @@ const SchoolDashboard = ({ schoolId }) => {
       </div>
       
       <div className="school-competitions">
-        <h2>🎯 Соревнования</h2>
+        <h2>🎯 Competitions</h2>
         <CompetitionList competitions={activeCompetitions} />
       </div>
     </div>
@@ -299,19 +299,19 @@ const SchoolDashboard = ({ schoolId }) => {
 // WebSocket Events
 const socket = io('wss://api.verix.social');
 
-// Подписка на обновления рейтингов
+// Subscribe to ranking updates
 socket.emit('subscribe', { 
   type: 'rankings', 
   filters: { school: 'school123' } 
 });
 
-// Получение обновлений в реальном времени
+// Receive real-time updates
 socket.on('ranking_update', (data) => {
   updateRankingDisplay(data);
-  showNotification('🎉 Новый рейтинг доступен!');
+  showNotification('🎉 New ranking is available!');
 });
 
-// Подписка на достижения
+// Subscribe to achievements
 socket.emit('subscribe', { type: 'achievements', userId: 'user456' });
 
 socket.on('achievement_unlocked', (achievement) => {
@@ -357,20 +357,20 @@ GET /api/schools/:schoolId/competitions
 ```javascript
 const achievements = {
   'first_project': {
-    name: '🚀 Первый шаг',
-    description: 'Загрузил первый проект',
+    name: '🚀 First Step',
+    description: 'Uploaded first project',
     icon: '🚀',
     points: 10
   },
   'top_10': {
-    name: '🏆 Топ-10',
-    description: 'Вошел в топ-10 рейтинга',
+    name: '🏆 Top 10',
+    description: 'Entered top 10 rankings',
     icon: '🏆',
     points: 100
   },
   'mentor': {
-    name: '🤝 Ментор',
-    description: 'Помог 5 ученикам',
+    name: '🤝 Mentor',
+    description: 'Helped 5 students',
     icon: '🤝',
     points: 50
   }
@@ -381,21 +381,21 @@ const achievements = {
 ```javascript
 class CompetitionEngine {
   async createCompetition(config) {
-    // Создание соревнования между школами
-    // Настройка правил и призов
-    // Уведомление участников
+    // Create competition between schools
+    // Set rules and prizes
+    // Notify participants
   }
   
   async trackProgress(competitionId) {
-    // Отслеживание прогресса в реальном времени
-    // Расчет промежуточных результатов
-    // Генерация событий
+    // Track progress in real time
+    // Calculate intermediate results
+    // Generate events
   }
   
   async finalizeCompetition(competitionId) {
-    // Подведение итогов
-    // Награждение победителей
-    // Обновление рейтингов
+    // Finalize results
+    // Award winners
+    // Update rankings
   }
 }
 ```
@@ -403,23 +403,23 @@ class CompetitionEngine {
 ## 🔒 Security & Performance
 
 ### Security Measures
-- JWT аутентификация
-- Rate limiting для API
-- Валидация данных
-- Protection от cheating в рейтингах
+- JWT authentication
+- API rate limiting
+- Data validation
+- Cheating protection in rankings
 - GDPR compliance
 
 ### Performance Optimization
-- Redis кэширование рейтингов
-- CDN для статических ресурсов
-- Lazy loading для списков
-- Background jobs для расчетов
+- Redis ranking cache
+- CDN for static assets
+- Lazy loading for lists
+- Background jobs for calculations
 - Database indexing
 
 ## 📈 Monitoring & Analytics
 
 ```javascript
-// Метрики для отслеживания
+// Tracking metrics
 const metrics = {
   userEngagement: {
     dailyActiveUsers: Number,
@@ -464,3 +464,4 @@ const metrics = {
     │ Database  │
     │ (MongoDB) │
     └───────────┘
+```
