@@ -1,3 +1,6 @@
+Here's the English translation of your README:
+
+---
 
 <div align="center">
 
@@ -9,99 +12,99 @@
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://romiisromie.github.io/verix/)
 [![Netlify](https://img.shields.io/netlify/00c7b7?logo=netlify)](https://verix-app.netlify.app)
 
-**Платформа цифровой репутации для школьников в IT-индустрии**
+**A digital reputation platform for school students in the IT industry**
 
-Верифицируй реальные навыки через AI, находи стажировки и строй карьеру с персональным роадмапом.
+Verify real skills through AI, find internships and build a career with a personalized roadmap.
 
 ---
 
-## 📱 Демонстрация
+## 📱 Demo
 
 🌍 **Live Demo:** [https://romiisromie.github.io/verix/](https://romiisromie.github.io/verix/)
 
-🔐 **Демо доступ:**
+🔐 **Demo Access:**
 - Email: `romiisromie@email.com`
-- Пароль: `verix2026`
+- Password: `verix2026`
 
 ---
 
-## ✨ Возможности
+## ✨ Features
 
-### 👤 **Профиль с репутационным скором**
-- AI-анализ навыков и проектов
-- Визуализация прогресса
-- Достижения и статистика
-- Персональная репутация
+### 👤 **Profile with Reputation Score**
+- AI analysis of skills and projects
+- Progress visualization
+- Achievements and statistics
+- Personal reputation
 
 ### 🔍 **SkillProof AI**
-- Верификация навыков через искусственный интеллект
-- Анализ сложности и оригинальности проектов
-- Объективная оценка от 0 до 100
-- Поддержка 6+ IT-направлений
+- Skill verification through artificial intelligence
+- Analysis of project complexity and originality
+- Objective scoring from 0 to 100
+- Support for 6+ IT domains
 
 ### 🎯 **TalentMatch**
-- Подбор стажировок, грантов и конкурсов
-- Свайп-интерфейс для быстрого выбора
-- Матчи с топ-компаниями
-- Прямая подача заявок
+- Matching internships, grants, and competitions
+- Swipe interface for quick selection
+- Matches with top companies
+- Direct application submission
 
 ### 🗺️ **EduPath**
-- Персональный роадмап развития
-- AI-адаптация под уровень и цели
-- Пошаговые задания и менторство
-- Отслеживание прогресса
+- Personalized development roadmap
+- AI adaptation to level and goals
+- Step-by-step tasks and mentorship
+- Progress tracking
 
 ---
 
-## 🛠️ Технологии
+## 🛠️ Technologies
 
 ### Frontend
-- **HTML5** - Семантическая разметка
-- **CSS3** - Современные стили с CSS Grid/Flexbox
-- **Vanilla JavaScript** - Чистый JS без зависимостей
+- **HTML5** - Semantic markup
+- **CSS3** - Modern styles with CSS Grid/Flexbox
+- **Vanilla JavaScript** - Clean JS with no dependencies
 - **Web APIs** - LocalStorage, SessionStorage, Fetch API
 
 ### AI Integration
-- **Anthropic Claude API** - Анализ и оценка навыков
-- **NLP Processing** - Обработка естественного языка
-- **Scoring Algorithms** - Алгоритмы оценки сложности
+- **Anthropic Claude API** - Skill analysis and evaluation
+- **NLP Processing** - Natural language processing
+- **Scoring Algorithms** - Complexity assessment algorithms
 
 ### Design System
-- **Mobile-First** - Адаптивный дизайн
-- **Dark Theme** - Современное темное оформление
-- **Micro-interactions** - Анимации и переходы
-- **PWA Ready** - Progressive Web App возможности
+- **Mobile-First** - Responsive design
+- **Dark Theme** - Modern dark theme
+- **Micro-interactions** - Animations and transitions
+- **PWA Ready** - Progressive Web App capabilities
 
 ---
 
-## 📊 Архитектура
+## 📊 Architecture
 
 ```
 verix/
-├── index.html          # Основное приложение (SPA)
-├── README.md          # Документация
-└── README_DEPLOY.md   # Инструкция по развертыванию
+├── index.html          # Main application (SPA)
+├── README.md          # Documentation
+└── README_DEPLOY.md   # Deployment guide
 ```
 
-### Структура приложения
-- **Single Page Application** - Всё в одном HTML файле
-- **Component-based** - Модульная архитектура
+### Application Structure
+- **Single Page Application** - Everything in one HTML file
+- **Component-based** - Modular architecture
 - **State Management** - SessionStorage/LocalStorage
-- **API Integration** - RESTful запросы к AI сервисам
+- **API Integration** - RESTful requests to AI services
 
 ---
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### Локальная разработка
+### Local Development
 
-1. **Клонируйте репозиторий**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/romiisromie/verix.git
    cd verix
    ```
 
-2. **Запустите локальный сервер**
+2. **Start a local server**
    ```bash
    # Python 3
    python -m http.server 8000
@@ -113,49 +116,49 @@ verix/
    php -S localhost:8000
    ```
 
-3. **Откройте в браузере**
+3. **Open in browser**
    ```
    http://localhost:8000
    ```
 
-### Развертывание
+### Deployment
 
-#### Netlify (Рекомендуется)
-1. Откройте [Netlify Drop](https://app.netlify.com/drop)
-2. Перетащите [index.html](cci:7://file:///c:/Users/marat/OneDrive/Desktop/verix/index.html:0:0-0:0)
-3. Получите готовую ссылку
+#### Netlify (Recommended)
+1. Go to [Netlify Drop](https://app.netlify.com/drop)
+2. Drag and drop [index.html](cci:7://file:///c:/Users/marat/OneDrive/Desktop/verix/index.html:0:0-0:0)
+3. Get your ready-to-use link
 
 #### Vercel
-1. Импортируйте репозиторий в [Vercel](https://vercel.com)
-2. Автоматический деплой
+1. Import the repository to [Vercel](https://vercel.com)
+2. Automatic deployment
 
 #### GitHub Pages
-1. Включите Pages в настройках репозитория
-2. Выберите источник `gh-pages`
-3. Готово через 1-2 минуты
+1. Enable Pages in repository settings
+2. Select `gh-pages` as the source
+3. Ready in 1-2 minutes
 
 ---
 
-## 🎯 Использование
+## 🎯 Usage
 
-### 1. Вход в систему
-- Используйте демо-аккаунт или зарегистрируйтесь
-- Заполните профиль информацией
+### 1. Login
+- Use the demo account or sign up
+- Fill in your profile information
 
-### 2. Верификация навыков
-- Выберите навык из списка
-- Опишите свой проект
-- Получите AI-оценку
+### 2. Skill Verification
+- Select a skill from the list
+- Describe your project
+- Receive an AI score
 
-### 3. Поиск возможностей
-- Свайпайте карточки стажировок
-- Откликайтесь на интересные предложения
-- Отслеживайте заявки
+### 3. Finding Opportunities
+- Swipe internship cards
+- Apply to interesting offers
+- Track your applications
 
-### 4. Развитие
-- Следуйте персональному роадмапу
-- Выполняйте задания
-- Растите репутационный скор
+### 4. Development
+- Follow your personalized roadmap
+- Complete tasks
+- Grow your reputation score
 
 ---
 
@@ -163,47 +166,47 @@ verix/
 
 ### SkillProof Algorithm
 ```javascript
-// Пример оценки навыка
+// Skill evaluation example
 const skillAnalysis = {
-  overall_score: 85,      // Общий балл
-  originality: 88,        // Оригинальность
-  complexity: 82,         // Сложность
-  level_name: "Продвинутый",
-  verdict: "Сильная архитектура..."
+  overall_score: 85,      // Overall score
+  originality: 88,        // Originality
+  complexity: 82,         // Complexity
+  level_name: "Advanced",
+  verdict: "Strong architecture..."
 };
 ```
 
-### Поддерживаемые навыки
-- ⚛️ **React** - Frontend разработка
-- 🐍 **Python** - Backend и Data Science
-- 🤖 **ML/AI** - Машинное обучение
-- 🎨 **Design** - UI/UX дизайн
-- 📊 **Data** - Анализ данных
-- 🌐 **Web** - Веб-разработка
+### Supported Skills
+- ⚛️ **React** - Frontend development
+- 🐍 **Python** - Backend and Data Science
+- 🤖 **ML/AI** - Machine learning
+- 🎨 **Design** - UI/UX design
+- 📊 **Data** - Data analysis
+- 🌐 **Web** - Web development
 
 ---
 
 ## 📱 Mobile Experience
 
-### Оптимизации
-- **Touch-friendly** - Интерфейс для сенсорных экранов
-- **Performance** - Быстрая загрузка и плавная анимация
-- **Responsive** - Адаптация под любые экраны
-- **PWA Features** - Установка на главный экран
+### Optimizations
+- **Touch-friendly** - Interface for touch screens
+- **Performance** - Fast loading and smooth animations
+- **Responsive** - Adaptation to any screen
+- **PWA Features** - Add to home screen
 
-### Поддерживаемые устройства
+### Supported Devices
 - 📱 iOS Safari 12+
 - 🤖 Android Chrome 80+
 - 💻 Desktop browsers
-- 📟 Планшеты и гибридные устройства
+- 📟 Tablets and hybrid devices
 
 ---
 
-## 🔧 Конфигурация
+## 🔧 Configuration
 
 ### Environment Variables
 ```javascript
-// AI API настройки
+// AI API settings
 const AI_CONFIG = {
   model: "claude-sonnet-4-20250514",
   max_tokens: 1000,
@@ -212,90 +215,90 @@ const AI_CONFIG = {
 ```
 
 ### Customization
-- **Темы оформления** - CSS переменные в `:root`
-- **Языковые настройки** - Русский/English
-- **Брендинг** - Логотип и цвета
-- **API ключи** - Для AI сервисов
+- **Themes** - CSS variables in `:root`
+- **Language settings** - Russian/English
+- **Branding** - Logo and colors
+- **API Keys** - For AI services
 
 ---
 
-## 🤝 Вклад в проект
+## 🤝 Contributing
 
-### Как внести вклад
-1. Fork репозитория
-2. Создайте feature-branch
-3. Внесите изменения
-4. Отправьте Pull Request
+### How to Contribute
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a Pull Request
 
-### Правила разработки
-- Следуйте Mobile-first подходу
-- Используйте семантический HTML5
-- Пишите чистый, читаемый код
-- Тестируйте на разных устройствах
+### Development Guidelines
+- Follow the Mobile-first approach
+- Use semantic HTML5
+- Write clean, readable code
+- Test on different devices
 
-### Идеи для развития
-- [ ] Мультиязычность
-- [ ] Push-уведомления
-- [ ] Интеграция с LinkedIn
-- [ ] Система рейтингов
-- [ ] Менторская программа
+### Ideas for Development
+- [ ] Multilingual support
+- [ ] Push notifications
+- [ ] LinkedIn integration
+- [ ] Rating system
+- [ ] Mentorship program
 
 ---
 
-## 📈 Статистика проекта
+## 📈 Project Statistics
 
-### Метрики
+### Metrics
 - 📱 **100% Mobile Optimized**
 - ⚡ **< 2s Load Time**
 - 🎯 **95 Lighthouse Score**
 - 🌍 **Multi-region Deploy**
 - 🔒 **Privacy First**
 
-### Аудитория
-- 🎓 Школьники 9-11 классов
-- 👨‍💻 Начинающие разработчики
-- 🏢 IT-компании (рекрутеры)
-- 🎓 Образовательные учреждения
+### Audience
+- 🎓 School students grades 9-11
+- 👨‍💻 Beginner developers
+- 🏢 IT companies (recruiters)
+- 🎓 Educational institutions
 
 ---
 
-## 📄 Лицензия
+## 📄 License
 
-Этот проект лицензирован под **MIT License** - см. файл [LICENSE](LICENSE) для деталей.
-
----
-
-## 🙏 Благодарности
-
-### AI сервисы
-- **Anthropic** - Claude API для анализа навыков
-- **GitHub** - Хостинг и CI/CD
-- **Netlify** - CDN и деплоймент
-
-### Инспирация
-- Digital Identity концепции
-- EdTech инновации
-- Talent Acquisition технологии
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📞 Контакты
+## 🙏 Acknowledgments
 
-### Автор
+### AI Services
+- **Anthropic** - Claude API for skill analysis
+- **GitHub** - Hosting and CI/CD
+- **Netlify** - CDN and deployment
+
+### Inspiration
+- Digital Identity concepts
+- EdTech innovations
+- Talent Acquisition technologies
+
+---
+
+## 📞 Contact
+
+### Author
 - **GitHub:** [@romiisromie](https://github.com/romiisromie)
 - **Email:** romiisromie@email.com
 
-### Поддержка
-- 📋 [Issues](https://github.com/romiisromie/verix/issues) - Баги и предложения
-- 🚀 [Discussions](https://github.com/romiisromie/verix/discussions) - Обсуждения
-- ⭐ [Star](https://github.com/romiisromie/verix) - Поддержите проект
+### Support
+- 📋 [Issues](https://github.com/romiisromie/verix/issues) - Bugs and suggestions
+- 🚀 [Discussions](https://github.com/romiisromie/verix/discussions) - Discussions
+- ⭐ [Star](https://github.com/romiisromie/verix) - Support the project
 
 ---
 
 <div align="center">
 
-**[🚀 Попробовать демо](https://romiisromie.github.io/verix/)** • **[⭐ Звезда](https://github.com/romiisromie/verix)** • **[🍴 Fork](https://github.com/romiisromie/verix/fork)**
+**[🚀 Try the Demo](https://romiisromie.github.io/verix/)** • **[⭐ Star](https://github.com/romiisromie/verix)** • **[🍴 Fork](https://github.com/romiisromie/verix/fork)**
 
-*Сделано с ❤️ для следующего поколения IT-талантов*
+*Made with ❤️ for the next generation of IT talent*
 
 </div>
