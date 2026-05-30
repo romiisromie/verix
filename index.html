@@ -364,38 +364,116 @@ textarea.ai-ta:focus{border-color:var(--accent);}
 <div class="blob blob2"></div>
 
 <!-- LOGIN SCREEN -->
-<div id="loginScreen" style="display:flex;position:fixed;inset:0;z-index:10;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:20px;">
-  <div style="text-align:center;margin-bottom:30px;">
-    <div style="font-size:48px;margin-bottom:12px;">🚀</div>
-    <h1 style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Verix</h1>
-    <p style="color:var(--muted2);font-size:14px;">Digital Reputation Platform</p>
-  </div>
+<div id="loginScreen" style="display:flex;position:fixed;inset:0;z-index:10;background:var(--bg);flex-direction:column;align-items:center;padding:20px 20px 32px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px;padding-top:max(24px,env(safe-area-inset-top));">
 
-  <div style="background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:360px;margin-bottom:20px;">
-    <div style="margin-bottom:20px;">
-      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">Email</label>
-      <input type="email" id="emailInput" class="inp" placeholder="romiisromie@email.com" style="width:100%;">
+    <!-- Logo & brand -->
+    <div style="text-align:center;margin-bottom:4px;">
+      <div style="display:flex;justify-content:center;margin-bottom:12px;">
+        <svg width="76" height="82" viewBox="0 0 80 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lgc" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stop-color="#4f6ef7"/>
+              <stop offset="55%" stop-color="#f97316"/>
+              <stop offset="100%" stop-color="#f97316"/>
+            </linearGradient>
+            <filter id="gd" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="1.8" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Top face -->
+          <polygon points="40,3 75,21 40,39 5,21" stroke="#4f9ef8" stroke-width="1.5" fill="rgba(79,158,248,0.05)"/>
+          <!-- Left face -->
+          <polygon points="5,21 5,63 40,81 40,39" stroke="#3a7fd4" stroke-width="1.5" fill="rgba(58,127,212,0.04)"/>
+          <!-- Right face -->
+          <polygon points="75,21 75,63 40,81 40,39" stroke="#3a7fd4" stroke-width="1.5" fill="rgba(58,127,212,0.04)"/>
+          <!-- Grid top -->
+          <line x1="40" y1="3" x2="40" y2="39" stroke="#4f9ef8" stroke-width="0.7" opacity="0.35"/>
+          <line x1="22" y1="12" x2="57" y2="30" stroke="#4f9ef8" stroke-width="0.7" opacity="0.32"/>
+          <line x1="57" y1="12" x2="22" y2="30" stroke="#4f9ef8" stroke-width="0.7" opacity="0.32"/>
+          <!-- Grid left -->
+          <line x1="5" y1="42" x2="40" y2="60" stroke="#3a7fd4" stroke-width="0.7" opacity="0.28"/>
+          <line x1="5" y1="60" x2="40" y2="42" stroke="#3a7fd4" stroke-width="0.7" opacity="0.28"/>
+          <!-- Grid right -->
+          <line x1="40" y1="60" x2="75" y2="42" stroke="#3a7fd4" stroke-width="0.7" opacity="0.28"/>
+          <line x1="40" y1="42" x2="75" y2="60" stroke="#3a7fd4" stroke-width="0.7" opacity="0.28"/>
+          <!-- V checkmark -->
+          <polyline points="18,50 35,68 62,28" stroke="url(#lgc)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Glowing dots -->
+          <circle cx="5" cy="21" r="3.8" fill="#f97316" filter="url(#gd)"/>
+          <circle cx="40" cy="3" r="3" fill="#f97316" filter="url(#gd)" opacity="0.88"/>
+          <circle cx="75" cy="21" r="3" fill="white" filter="url(#gd)" opacity="0.72"/>
+          <circle cx="75" cy="63" r="3" fill="white" filter="url(#gd)" opacity="0.65"/>
+          <circle cx="40" cy="39" r="2.5" fill="#4f9ef8" filter="url(#gd)" opacity="0.6"/>
+        </svg>
+      </div>
+      <h1 style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,#4f6ef7,#10d9a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Verix</h1>
+      <p style="color:var(--muted2);font-size:13px;letter-spacing:.2px;">Digital reputation for students</p>
     </div>
-    <div style="margin-bottom:20px;">
-      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">Пароль</label>
-      <input type="password" id="passwordInput" class="inp" placeholder="verix2026" style="width:100;">
-    </div>
-    <button onclick="checkLogin()" class="go-btn" style="width:100%;margin-bottom:12px;">Войти в Verix</button>
-    <div style="text-align:center;">
-      <span style="color:var(--muted2);font-size:12px;">Ещё нет аккаунта?</span>
-      <span onclick="showRegister()" style="color:var(--accent);font-size:12px;cursor:pointer;margin-left:4px;">Зарегистрироваться</span>
-    </div>
-  </div>
 
-  <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:16px;width:100%;max-width:360px;">
-    <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;">📋 Инструкция</h3>
-    <div style="font-size:12px;color:var(--muted2);line-height:1.6;">
-      <div style="margin-bottom:8px;">🔹 <strong>Вход:</strong> используйте email <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">romiisromie@email.com</code> и пароль <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">verix2026</code></div>
-      <div style="margin-bottom:8px;">🔹 <strong>Профиль:</strong> заполните информацию о себе и навыках</div>
-      <div style="margin-bottom:8px;">🔹 <strong>SkillProof:</strong> верифицируйте навыки через AI</div>
-      <div style="margin-bottom:8px;">🔹 <strong>TalentMatch:</strong> находите стажировки и гранты</div>
-      <div>🔹 <strong>EduPath:</strong> индивидуальный план развития</div>
+    <!-- Login form -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:22px;">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">Логин</label>
+        <input type="text" id="usernameInput" class="inp" placeholder="romiisromie" autocomplete="username" style="width:100%;">
+      </div>
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">Пароль</label>
+        <input type="password" id="passwordInput" class="inp" placeholder="••••••••" autocomplete="current-password" style="width:100%;">
+      </div>
+      <button onclick="checkLogin()" class="go-btn" style="width:100%;margin-bottom:12px;">Войти в Verix</button>
+      <div style="text-align:center;">
+        <span style="color:var(--muted2);font-size:12px;">Ещё нет аккаунта?</span>
+        <span onclick="showRegister()" style="color:var(--accent);font-size:12px;cursor:pointer;margin-left:4px;touch-action:manipulation;">Зарегистрироваться</span>
+      </div>
     </div>
+
+    <!-- Test credentials -->
+    <div style="background:rgba(79,110,247,.08);border:1px solid rgba(79,110,247,.25);border-radius:16px;padding:14px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">🔑 Тестовый доступ</div>
+        <button onclick="fillTestCredentials()" style="background:var(--accent);border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;touch-action:manipulation;">Заполнить</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:8px 12px;">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px;">Логин</span>
+          <code style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:.5px;">romiisromie</code>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:8px 12px;">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px;">Пароль</span>
+          <code style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:.5px;">Verix2026</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to use -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:13px;color:var(--text);">📱 Как пользоваться приложением</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:26px;height:26px;border-radius:8px;background:rgba(79,110,247,.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">👤</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">Профиль</div><div style="font-size:11px;color:var(--muted2);line-height:1.5;">Заполните информацию о себе: имя, класс, город и направления (Frontend, ML, Design и др.).</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:26px;height:26px;border-radius:8px;background:rgba(16,217,160,.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🔍</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">SkillProof</div><div style="font-size:11px;color:var(--muted2);line-height:1.5;">Подтвердите навыки через AI — выберите технологию, опишите проект и получите объективный скор.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:26px;height:26px;border-radius:8px;background:rgba(249,115,22,.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">💼</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">TalentMatch</div><div style="font-size:11px;color:var(--muted2);line-height:1.5;">Свайпайте стажировки, гранты и хакатоны, подобранные под ваш профиль.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:26px;height:26px;border-radius:8px;background:rgba(255,215,0,.12);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🏆</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">Рейтинги</div><div style="font-size:11px;color:var(--muted2);line-height:1.5;">Отслеживайте позиции среди учеников, школ и навыков, участвуйте в соревнованиях.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:26px;height:26px;border-radius:8px;background:rgba(236,72,153,.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🗺️</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">EduPath</div><div style="font-size:11px;color:var(--muted2);line-height:1.5;">Следуйте персональному роадмапу от текущего уровня до выбранной карьерной цели.</div></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <div id="app">
@@ -584,10 +662,38 @@ textarea.ai-ta:focus{border-color:var(--accent);}
 <!-- ══════════ EDUPATH ══════════ -->
 <div class="screen" id="screen-edupath">
   <nav>
-    <div class="nav-logo">EduPath</div>
+    <div class="nav-logo">EduPath <span style="font-size:10px;color:var(--green);background:rgba(16,217,160,.13);padding:2px 7px;border-radius:5px;-webkit-text-fill-color:var(--green);">AI</span></div>
     <div class="nav-right"><div class="nbtn" onclick="openModal('path-goals')">🎯</div></div>
   </nav>
   <div class="scroll">
+
+    <!-- About Verix card -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(79,110,247,.11),rgba(16,217,160,.07));border-color:rgba(79,110,247,.28);padding:18px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">О VERIX</div>
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;line-height:1.45;margin-bottom:10px;">Ты делаешь проект — Verix фиксирует его в портфолио и повышает твой рейтинг. <span style="color:var(--green)">Никаких потерянных достижений.</span></div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.65;">Verix — это цифровая репутация для школьников. Добавляй проекты, подтверждай навыки через AI и получай объективный рейтинг, который видят университеты и работодатели. Это как LinkedIn, но для 14–18 лет — с геймификацией, рейтингом и понятным интерфейсом.</div>
+    </div>
+
+    <!-- Goal & Idea cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="card" style="padding:14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Цель проекта</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:6px;">Дать каждому школьнику <strong>цифровое портфолио</strong>, которое реально работает.</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.55;">Не просто аттестат — а доказательство твоих навыков: проекты, рейтинг, репутация.</div>
+      </div>
+      <div class="card" style="padding:14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Идея проекта</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:6px;">Оценки в школе — не главное. Главное — <strong>что ты умеешь</strong> и что ты сделал.</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.55;">Verix показывает это в понятном и достоверном формате для вузов и компаний.</div>
+      </div>
+    </div>
+
+    <!-- Mission banner -->
+    <div style="background:rgba(16,217,160,.07);border:1px solid rgba(16,217,160,.18);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:24px;flex-shrink:0;">🌍</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.6;">Мы хотим, чтобы <strong style="color:var(--text)">возможности находили учеников</strong>, а не наоборот. Verix — мост между школьными достижениями и реальным миром. Станем стандартом школьного портфолио в Казахстане.</div>
+    </div>
+
     <div class="card glow">
       <div style="text-align:center;">
         <div style="font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;">ТВОЯ ЦЕЛЬ</div>
@@ -1259,16 +1365,16 @@ async function runAnalysis(){
   try {
     // Simulate AI analysis for demo purposes
     await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
-    
+
     // Generate mock scores based on description length and skill
     const descLength = desc.length;
     const baseScore = Math.min(95, Math.max(60, 60 + Math.floor(descLength / 10)));
     const originality = Math.min(98, Math.max(50, baseScore + Math.floor(Math.random() * 20 - 10)));
     const complexity = Math.min(92, Math.max(55, baseScore + Math.floor(Math.random() * 15 - 7)));
-    
+
     const levels = ["Новичок", "Средний", "Продвинутый", "Эксперт"];
     const levelIndex = baseScore > 85 ? 3 : baseScore > 75 ? 2 : baseScore > 65 ? 1 : 0;
-    
+
     const r = {
       overall_score: baseScore,
       originality: originality,
@@ -1328,21 +1434,31 @@ function swipe(dir){
 function openCurrentOpp(){toast(`📝 "${OPPS[oppIdx%OPPS.length].title}"`);}
 
 // ════════════ LOGIN ════════════
+function fillTestCredentials(){
+  document.getElementById('usernameInput').value='romiisromie';
+  document.getElementById('passwordInput').value='Verix2026';
+  document.getElementById('usernameInput').style.borderColor='var(--green)';
+  document.getElementById('passwordInput').style.borderColor='var(--green)';
+  setTimeout(()=>{
+    document.getElementById('usernameInput').style.borderColor='';
+    document.getElementById('passwordInput').style.borderColor='';
+  },1500);
+}
 function checkLogin(){
-  const email=document.getElementById('emailInput').value;
+  const username=document.getElementById('usernameInput').value.trim();
   const password=document.getElementById('passwordInput').value;
-  if(email==='romiisromie@email.com'&&password==='verix2026'){
+  if(username==='romiisromie'&&password==='Verix2026'){
     sessionStorage.setItem('verixAuthenticated','true');
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='flex';
     toast('🎉 Добро пожаловать в Verix!');
   }else{
-    document.getElementById('passwordInput').style.borderColor='var(--accent)';
-    document.getElementById('emailInput').style.borderColor='var(--accent)';
-    toast('❌ Неверный email или пароль');
+    document.getElementById('passwordInput').style.borderColor='#ef4444';
+    document.getElementById('usernameInput').style.borderColor='#ef4444';
+    toast('❌ Неверный логин или пароль');
     setTimeout(()=>{
       document.getElementById('passwordInput').style.borderColor='';
-      document.getElementById('emailInput').style.borderColor='';
+      document.getElementById('usernameInput').style.borderColor='';
     },2000);
   }
 }
@@ -1354,7 +1470,7 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='flex';
   }
-  document.getElementById('emailInput').addEventListener('keypress',handleLoginKey);
+  document.getElementById('usernameInput').addEventListener('keypress',handleLoginKey);
   document.getElementById('passwordInput').addEventListener('keypress',handleLoginKey);
 });
 
@@ -1364,22 +1480,22 @@ function switchRanking(type) {
   document.querySelectorAll('.ranking-content').forEach(content => {
     content.style.display = 'none';
   });
-  
+
   // Remove active class from all tabs
   document.querySelectorAll('.rank-tab').forEach(tab => {
     tab.classList.remove('active');
   });
-  
+
   // Show selected content
   document.getElementById('rankings-' + type).style.display = 'block';
-  
+
   // Add active class to clicked tab
   event.target.classList.add('active');
-  
+
   // Show toast notification
   const messages = {
     users: '👤 Рейтинг учеников',
-    schools: '🏫 Рейтинг школ', 
+    schools: '🏫 Рейтинг школ',
     skills: '🎯 Топ по навыкам',
     competitions: '🏆 Соревнования'
   };
@@ -1389,13 +1505,13 @@ function switchRanking(type) {
 // Mock data for rankings (in real app, this would come from API)
 const rankingsData = {
   users: [
-    { 
-      rank: 1, 
-      name: 'Марат Алиев', 
-      school: 'Школа №45, Алматы', 
-      avatar: 'МА', 
-      score: 92.5, 
-      change: 2, 
+    {
+      rank: 1,
+      name: 'Марат Алиев',
+      school: 'Школа №45, Алматы',
+      avatar: 'МА',
+      score: 92.5,
+      change: 2,
       skills: ['React', 'Node.js', 'Python'],
       bio: 'Frontend разработчик, увлекаюсь React и созданием современных веб-приложений. Люблю решать сложные задачи и учиться новому.',
       projects: [
@@ -1407,13 +1523,13 @@ const rankingsData = {
       level: 8,
       isOnline: true
     },
-    { 
-      rank: 2, 
-      name: 'Алия Нурсултанова', 
-      school: 'НИШ Физмат, Астана', 
-      avatar: 'АН', 
-      score: 89.2, 
-      change: -1, 
+    {
+      rank: 2,
+      name: 'Алия Нурсултанова',
+      school: 'НИШ Физмат, Астана',
+      avatar: 'АН',
+      score: 89.2,
+      change: -1,
       skills: ['ML', 'Python', 'Data'],
       bio: 'Data Scientist в будущем. Изучаю машинное обучение и анализ данных. Участница хакатонов и грантов.',
       projects: [
@@ -1425,13 +1541,13 @@ const rankingsData = {
       level: 7,
       isOnline: true
     },
-    { 
-      rank: 3, 
-      name: 'Данияр Омаров', 
-      school: 'Гимназия №7, Алматы', 
-      avatar: 'ДО', 
-      score: 87.8, 
-      change: 0, 
+    {
+      rank: 3,
+      name: 'Данияр Омаров',
+      school: 'Гимназия №7, Алматы',
+      avatar: 'ДО',
+      score: 87.8,
+      change: 0,
       skills: ['React', 'TypeScript'],
       bio: 'Full-stack разработчик. Специализируюсь на React и Node.js. Создаю масштабируемые приложения.',
       projects: [
@@ -1443,13 +1559,13 @@ const rankingsData = {
       level: 7,
       isOnline: false
     },
-    { 
-      rank: 4, 
-      name: 'Айсулу Бекмуратова', 
-      school: 'НИШ ХМ, Астана', 
-      avatar: 'АБ', 
-      score: 85.3, 
-      change: 3, 
+    {
+      rank: 4,
+      name: 'Айсулу Бекмуратова',
+      school: 'НИШ ХМ, Астана',
+      avatar: 'АБ',
+      score: 85.3,
+      change: 3,
       skills: ['Design', 'Figma'],
       bio: 'UI/UX дизайнер. Создаю красивые и функциональные интерфейсы. Любую работу с пользователями.',
       projects: [
@@ -1461,13 +1577,13 @@ const rankingsData = {
       level: 6,
       isOnline: true
     },
-    { 
-      rank: 5, 
-      name: 'Ерлан Смагулов', 
-      school: 'Школа №12, Шымкент', 
-      avatar: 'ЕС', 
-      score: 83.7, 
-      change: -2, 
+    {
+      rank: 5,
+      name: 'Ерлан Смагулов',
+      school: 'Школа №12, Шымкент',
+      avatar: 'ЕС',
+      score: 83.7,
+      change: -2,
       skills: ['Python', 'Django'],
       bio: 'Backend разработчик. Работаю с Python и Django. Создаю надежные и быстрые API.',
       projects: [
@@ -1524,7 +1640,7 @@ function simulateRankingUpdates() {
     const change = Math.random() > 0.5 ? 1 : -1;
     randomUser.rank = Math.max(1, randomUser.rank + change);
     randomUser.change = change;
-    
+
     // Update UI if rankings tab is active
     if (document.getElementById('screen-rankings').classList.contains('active')) {
       renderUserRankings();
@@ -1554,14 +1670,14 @@ function initializeChats() {
 function openUserProfile(userId) {
   const user = rankingsData.users.find(u => u.rank === userId);
   if (!user) return;
-  
+
   const modal = document.getElementById('modal-overlay');
   const content = document.getElementById('modal-content');
-  
-  const skillsHtml = user.skills.map(skill => 
+
+  const skillsHtml = user.skills.map(skill =>
     `<span class="user-profile-skill-tag">${skill}</span>`
   ).join('');
-  
+
   const projectsHtml = user.projects.map(project => `
     <div class="user-profile-project">
       <div class="user-profile-project-ico" style="background:rgba(79,110,247,.15)">${project.icon}</div>
@@ -1572,14 +1688,14 @@ function openUserProfile(userId) {
       <div class="user-profile-project-score">${project.score}</div>
     </div>
   `).join('');
-  
+
   content.innerHTML = `
     <div class="user-profile-modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
         <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">Профиль ученика</div>
         <span onclick="closeModal()" style="cursor:pointer;font-size:24px;color:var(--muted);padding:4px;">×</span>
       </div>
-      
+
       <div class="user-profile-header">
         <div class="user-profile-avatar">${user.avatar}</div>
         <div class="user-profile-info">
@@ -1588,7 +1704,7 @@ function openUserProfile(userId) {
           <div class="user-profile-bio">${user.bio}</div>
         </div>
       </div>
-      
+
       <div class="user-profile-stats">
         <div class="user-profile-stat">
           <div class="user-profile-stat-val">${user.stats.projects}</div>
@@ -1603,17 +1719,17 @@ function openUserProfile(userId) {
           <div class="user-profile-stat-lbl">Матчей</div>
         </div>
       </div>
-      
+
       <div class="user-profile-skills">
         <div class="user-profile-skills-title">🎯 Навыки</div>
         <div class="user-profile-skill-tags">${skillsHtml}</div>
       </div>
-      
+
       <div class="user-profile-projects">
         <div class="user-profile-projects-title">🚀 Топ проекты</div>
         ${projectsHtml}
       </div>
-      
+
       <div class="user-profile-actions">
         <button class="contact-btn" onclick="openMessenger('${user.name}')">
           💬 Написать сообщение
@@ -1624,7 +1740,7 @@ function openUserProfile(userId) {
       </div>
     </div>
   `;
-  
+
   modal.classList.add('show');
 }
 
@@ -1632,11 +1748,11 @@ function openUserProfile(userId) {
 function openMessenger(userName) {
   const user = rankingsData.users.find(u => u.name === userName);
   if (!user) return;
-  
+
   currentChatUser = userName;
   const modal = document.getElementById('modal-overlay');
   const content = document.getElementById('modal-content');
-  
+
   const messages = chatMessages[userName] || [];
   const messagesHtml = messages.map(msg => `
     <div class="messenger-message ${msg.sent ? 'message-sent' : 'message-received'}">
@@ -1647,7 +1763,7 @@ function openMessenger(userName) {
       </div>
     </div>
   `).join('');
-  
+
   content.innerHTML = `
     <div class="messenger-modal">
       <div class="messenger-header">
@@ -1658,20 +1774,20 @@ function openMessenger(userName) {
         </div>
         <div class="messenger-close" onclick="closeModal()">×</div>
       </div>
-      
+
       <div class="messenger-messages" id="chatMessages">
         ${messagesHtml}
       </div>
-      
+
       <div class="messenger-input">
         <input type="text" id="messageInput" placeholder="Напиши сообщение..." onkeypress="handleMessageKeypress(event)">
         <button onclick="sendMessage()">➤</button>
       </div>
     </div>
   `;
-  
+
   modal.classList.add('show');
-  
+
   // Focus input and scroll to bottom
   setTimeout(() => {
     document.getElementById('messageInput').focus();
@@ -1684,29 +1800,29 @@ function openMessenger(userName) {
 function sendMessage() {
   const input = document.getElementById('messageInput');
   const text = input.value.trim();
-  
+
   if (!text || !currentChatUser) return;
-  
+
   const now = new Date();
   const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  
+
   // Add message to chat
   if (!chatMessages[currentChatUser]) {
     chatMessages[currentChatUser] = [];
   }
-  
+
   chatMessages[currentChatUser].push({
     text: text,
     time: time,
     sent: true
   });
-  
+
   // Clear input
   input.value = '';
-  
+
   // Re-render messages
   openMessenger(currentChatUser);
-  
+
   // Simulate response after 2 seconds
   setTimeout(() => {
     if (chatMessages[currentChatUser]) {
@@ -1717,17 +1833,17 @@ function sendMessage() {
         'Согласен! Отличная идея.',
         'Я тоже думаю об этом. 🤔'
       ];
-      
+
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
       const responseTime = new Date();
       const responseTimeStr = `${responseTime.getHours().toString().padStart(2, '0')}:${responseTime.getMinutes().toString().padStart(2, '0')}`;
-      
+
       chatMessages[currentChatUser].push({
         text: randomResponse,
         time: responseTimeStr,
         sent: false
       });
-      
+
       // Update if still in chat
       if (currentChatUser === rankingsData.users.find(u => u.name === currentChatUser)?.name) {
         openMessenger(currentChatUser);
@@ -1735,7 +1851,7 @@ function sendMessage() {
       }
     }
   }, 2000);
-  
+
   toast('📤 Сообщение отправлено!');
 }
 
