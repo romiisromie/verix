@@ -1,7 +1,3 @@
-Here's the English translation of your README:
-
----
-
 <div align="center">
 
 # 🚀 Verix - Digital Reputation Platform
@@ -20,11 +16,11 @@ Verify real skills through AI, find internships and build a career with a person
 
 ## 📱 Demo
 
-🌍 **Live Demo:** [https://romiisromie.github.io/verix/](https://romiisromie.github.io/verix/)
+🌍 **Live Demo:** [https://romiisromie.github.io/verix/](https://verix-khaki.vercel.app/)
 
 🔐 **Demo Access:**
-- Email: `romiisromie@email.com`
-- Password: `verix2026`
+- Email: `romiisromie`
+- Password: `Verix2026`
 
 ---
 
@@ -286,7 +282,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ### Author
 - **GitHub:** [@romiisromie](https://github.com/romiisromie)
-- **Email:** romiisromie@email.com
+- **Email:** romiisromie@gmail.com
 
 ### Support
 - 📋 [Issues](https://github.com/romiisromie/verix/issues) - Bugs and suggestions
