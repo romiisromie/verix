@@ -140,21 +140,21 @@
 ```javascript
 class UserService {
   async createUser(userData) {
-    // Create new user
+    // Create a new user
     // Calculate initial reputation score
     // Link to school
   }
   
   async updateUserStats(userId, newProject) {
-    // Update stats after a new project
+    // Update statistics after a new project
     // Recalculate rankings
-    // Notify of position change
+    // Notify about position changes
   }
   
   async getUserRankings(userId) {
-    // Get all user rankings
+    // Retrieve all user rankings
     // Global, school, city
-    // By skills
+    // By skill
   }
 }
 ```
@@ -165,21 +165,21 @@ class RatingService {
   async calculateUserScore(userId) {
     // Reputation score calculation algorithm:
     // - Verified projects (40%)
-    // - Skills and their levels (25%)
+    // - Skills and their level (25%)
     // - Community activity (20%)
     // - Mentorship and helping others (15%)
   }
   
   async updateRankings() {
     // Daily update of all rankings
-    // Calculate positions across categories
+    // Calculate positions across different categories
     // Save change history
   }
   
   async getLeaderboard(type, filters) {
-    // Get top lists
+    // Retrieve leaderboards
     // Pagination and filtering
-    // Cache results
+    // Result caching
   }
 }
 ```
@@ -257,7 +257,7 @@ const ProfileStats = ({ userId }) => {
       />
       <StatCard 
         icon="⭐"
-        label="Reputation"
+        label="Reputation Score"
         value={user.reputationScore}
         change={user.reputationChange}
       />
@@ -308,7 +308,7 @@ socket.emit('subscribe', {
 // Receive real-time updates
 socket.on('ranking_update', (data) => {
   updateRankingDisplay(data);
-  showNotification('🎉 New ranking is available!');
+  showNotification('🎉 New rankings available!');
 });
 
 // Subscribe to achievements
@@ -358,13 +358,13 @@ GET /api/schools/:schoolId/competitions
 const achievements = {
   'first_project': {
     name: '🚀 First Step',
-    description: 'Uploaded first project',
+    description: 'Uploaded the first project',
     icon: '🚀',
     points: 10
   },
   'top_10': {
-    name: '🏆 Top 10',
-    description: 'Entered top 10 rankings',
+    name: '🏆 Top-10',
+    description: 'Entered the top 10 of the ranking',
     icon: '🏆',
     points: 100
   },
@@ -381,8 +381,8 @@ const achievements = {
 ```javascript
 class CompetitionEngine {
   async createCompetition(config) {
-    // Create competition between schools
-    // Set rules and prizes
+    // Create a competition between schools
+    // Configure rules and prizes
     // Notify participants
   }
   
@@ -393,7 +393,7 @@ class CompetitionEngine {
   }
   
   async finalizeCompetition(competitionId) {
-    // Finalize results
+    // Summarize results
     // Award winners
     // Update rankings
   }
@@ -410,7 +410,7 @@ class CompetitionEngine {
 - GDPR compliance
 
 ### Performance Optimization
-- Redis ranking cache
+- Redis caching for rankings
 - CDN for static assets
 - Lazy loading for lists
 - Background jobs for calculations
@@ -419,7 +419,7 @@ class CompetitionEngine {
 ## 📈 Monitoring & Analytics
 
 ```javascript
-// Tracking metrics
+// Metrics for tracking
 const metrics = {
   userEngagement: {
     dailyActiveUsers: Number,
