@@ -8,45 +8,45 @@
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://romiisromie.github.io/verix/)
 [![Netlify](https://img.shields.io/netlify/00c7b7?logo=netlify)](https://verix-app.netlify.app)
 
-**A digital reputation platform for school students in the IT industry**
+**A Digital Reputation Platform for School Students in the IT Industry**
 
-Verify real skills through AI, find internships and build a career with a personalized roadmap.
+Verify your real skills with AI, find internships, and build your career with a personalized roadmap.
 
 ---
 
 ## 📱 Demo
 
-🌍 **Live Demo:** [https://romiisromie.github.io/verix/](https://verix-khaki.vercel.app/)
+🌍 **Live Demo:** [https://romiisromie.github.io/verix/](https://romiisromie.github.io/verix/)
 
 🔐 **Demo Access:**
-- Email: `romiisromie`
-- Password: `Verix2026`
+- Email: `romiisromie@email.com`
+- Password: `verix2026`
 
 ---
 
 ## ✨ Features
 
-### 👤 **Profile with Reputation Score**
-- AI analysis of skills and projects
+### 👤 **Reputation Score Profile**
+- AI-powered skill and project analysis
 - Progress visualization
 - Achievements and statistics
-- Personal reputation
+- Personalized reputation
 
 ### 🔍 **SkillProof AI**
-- Skill verification through artificial intelligence
+- AI-driven skill verification
 - Analysis of project complexity and originality
 - Objective scoring from 0 to 100
 - Support for 6+ IT domains
 
 ### 🎯 **TalentMatch**
-- Matching internships, grants, and competitions
+- Curated internships, grants, and competitions
 - Swipe interface for quick selection
-- Matches with top companies
+- Matching with top companies
 - Direct application submission
 
 ### 🗺️ **EduPath**
 - Personalized development roadmap
-- AI adaptation to level and goals
+- AI adaptation to skill level and goals
 - Step-by-step tasks and mentorship
 - Progress tracking
 
@@ -56,18 +56,18 @@ Verify real skills through AI, find internships and build a career with a person
 
 ### Frontend
 - **HTML5** - Semantic markup
-- **CSS3** - Modern styles with CSS Grid/Flexbox
-- **Vanilla JavaScript** - Clean JS with no dependencies
+- **CSS3** - Modern styling with CSS Grid/Flexbox
+- **Vanilla JavaScript** - Pure JS with no dependencies
 - **Web APIs** - LocalStorage, SessionStorage, Fetch API
 
 ### AI Integration
-- **Anthropic Claude API** - Skill analysis and evaluation
+- **Anthropic Claude API** - Skill analysis and assessment
 - **NLP Processing** - Natural language processing
-- **Scoring Algorithms** - Complexity assessment algorithms
+- **Scoring Algorithms** - Complexity evaluation algorithms
 
 ### Design System
 - **Mobile-First** - Responsive design
-- **Dark Theme** - Modern dark theme
+- **Dark Theme** - Modern dark UI
 - **Micro-interactions** - Animations and transitions
 - **PWA Ready** - Progressive Web App capabilities
 
@@ -79,7 +79,7 @@ Verify real skills through AI, find internships and build a career with a person
 verix/
 ├── index.html          # Main application (SPA)
 ├── README.md          # Documentation
-└── README_DEPLOY.md   # Deployment guide
+└── README_DEPLOY.md   # Deployment instructions
 ```
 
 ### Application Structure
@@ -112,7 +112,7 @@ verix/
    php -S localhost:8000
    ```
 
-3. **Open in browser**
+3. **Open in your browser**
    ```
    http://localhost:8000
    ```
@@ -120,9 +120,9 @@ verix/
 ### Deployment
 
 #### Netlify (Recommended)
-1. Go to [Netlify Drop](https://app.netlify.com/drop)
-2. Drag and drop [index.html](cci:7://file:///c:/Users/marat/OneDrive/Desktop/verix/index.html:0:0-0:0)
-3. Get your ready-to-use link
+1. Open [Netlify Drop](https://app.netlify.com/drop)
+2. Drag and drop your `index.html` file
+3. Get your live URL
 
 #### Vercel
 1. Import the repository to [Vercel](https://vercel.com)
@@ -138,17 +138,17 @@ verix/
 ## 🎯 Usage
 
 ### 1. Login
-- Use the demo account or sign up
-- Fill in your profile information
+- Use the demo account or register
+- Complete your profile information
 
 ### 2. Skill Verification
 - Select a skill from the list
 - Describe your project
-- Receive an AI score
+- Receive an AI-generated assessment
 
-### 3. Finding Opportunities
-- Swipe internship cards
-- Apply to interesting offers
+### 3. Opportunity Search
+- Swipe through internship cards
+- Apply to interesting opportunities
 - Track your applications
 
 ### 4. Development
@@ -162,7 +162,7 @@ verix/
 
 ### SkillProof Algorithm
 ```javascript
-// Skill evaluation example
+// Example skill assessment
 const skillAnalysis = {
   overall_score: 85,      // Overall score
   originality: 88,        // Originality
@@ -173,22 +173,22 @@ const skillAnalysis = {
 ```
 
 ### Supported Skills
-- ⚛️ **React** - Frontend development
-- 🐍 **Python** - Backend and Data Science
-- 🤖 **ML/AI** - Machine learning
-- 🎨 **Design** - UI/UX design
-- 📊 **Data** - Data analysis
-- 🌐 **Web** - Web development
+- ⚛️ **React** - Frontend Development
+- 🐍 **Python** - Backend & Data Science
+- 🤖 **ML/AI** - Machine Learning
+- 🎨 **Design** - UI/UX Design
+- 📊 **Data** - Data Analysis
+- 🌐 **Web** - Web Development
 
 ---
 
 ## 📱 Mobile Experience
 
 ### Optimizations
-- **Touch-friendly** - Interface for touch screens
+- **Touch-friendly** - Interface designed for touch screens
 - **Performance** - Fast loading and smooth animations
-- **Responsive** - Adaptation to any screen
-- **PWA Features** - Add to home screen
+- **Responsive** - Adapts to any screen size
+- **PWA Features** - Installable on home screen
 
 ### Supported Devices
 - 📱 iOS Safari 12+
@@ -214,7 +214,7 @@ const AI_CONFIG = {
 - **Themes** - CSS variables in `:root`
 - **Language settings** - Russian/English
 - **Branding** - Logo and colors
-- **API Keys** - For AI services
+- **API keys** - For AI services
 
 ---
 
@@ -227,16 +227,16 @@ const AI_CONFIG = {
 4. Submit a Pull Request
 
 ### Development Guidelines
-- Follow the Mobile-first approach
+- Follow the mobile-first approach
 - Use semantic HTML5
 - Write clean, readable code
 - Test on different devices
 
 ### Ideas for Development
-- [ ] Multilingual support
+- [ ] Multi-language support
 - [ ] Push notifications
 - [ ] LinkedIn integration
-- [ ] Rating system
+- [ ] Leaderboard system
 - [ ] Mentorship program
 
 ---
@@ -250,9 +250,9 @@ const AI_CONFIG = {
 - 🌍 **Multi-region Deploy**
 - 🔒 **Privacy First**
 
-### Audience
-- 🎓 School students grades 9-11
-- 👨‍💻 Beginner developers
+### Target Audience
+- 🎓 High school students (grades 9-11)
+- 👨‍💻 Junior developers
 - 🏢 IT companies (recruiters)
 - 🎓 Educational institutions
 
@@ -260,7 +260,7 @@ const AI_CONFIG = {
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -282,18 +282,18 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ### Author
 - **GitHub:** [@romiisromie](https://github.com/romiisromie)
-- **Email:** romiisromie@gmail.com
+- **Email:** romiisromie@email.com
 
 ### Support
 - 📋 [Issues](https://github.com/romiisromie/verix/issues) - Bugs and suggestions
-- 🚀 [Discussions](https://github.com/romiisromie/verix/discussions) - Discussions
+- 🚀 [Discussions](https://github.com/romiisromie/verix/discussions) - Community discussions
 - ⭐ [Star](https://github.com/romiisromie/verix) - Support the project
 
 ---
 
 <div align="center">
 
-**[🚀 Try the Demo](https://romiisromie.github.io/verix/)** • **[⭐ Star](https://github.com/romiisromie/verix)** • **[🍴 Fork](https://github.com/romiisromie/verix/fork)**
+**[🚀 Try the demo](https://romiisromie.github.io/verix/)** • **[⭐ Star](https://github.com/romiisromie/verix)** • **[🍴 Fork](https://github.com/romiisromie/verix/fork)**
 
 *Made with ❤️ for the next generation of IT talent*
 
