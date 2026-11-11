@@ -1,8 +1,8 @@
-// Общая логика SkillProof: оценивает описание проекта через Claude API.
-// Используется функциями Netlify (netlify/functions) и Vercel (api/).
-import Anthropic from "@anthropic-ai/sdk";
+// Общая логика SkillProof: оценивает описание проекта через Groq API (бесплатный тариф).
+// Используется функциями Vercel (api/) и Netlify (netlify/functions).
 
-const MODEL = "claude-opus-5-5";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 const SKILLS = ["React", "Python", "ML/AI", "Design", "Data", "Web"];
 const LEVELS = ["Новичок", "Средний", "Продвинутый", "Эксперт"];
 const MAX_DESC = 2000;
@@ -30,7 +30,6 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
-let client;
 const hits = new Map(); // простой лимит на тёплый экземпляр функции
 
 export class HttpError extends Error {
@@ -58,26 +57,44 @@ export function validate(body) {
 }
 
 export async function scoreProject({ skill, description }) {
-  if (!process.env.ANTHROPIC_API_KEY) throw new HttpError(501, "AI не настроен на сервере");
-  client ??= new Anthropic({ timeout: 40_000, maxRetries: 1 });
+  const key = process.env.GROQ_API_KEY;
+  if (!key) throw new HttpError(501, "AI не настроен на сервере");
 
-  const response = await client.beta.messages.create({
-    model: MODEL,
-    max_tokens: 4000,
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-    system: SYSTEM,
-    messages: [{
-      role: "user",
-      content: `Skill: ${skill}\n\n<project_description>\n${description}\n</project_description>`,
-    }],
-  });
+  let res;
+  try {
+    res = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(30_000),
+      body: JSON.stringify({
+        model: MODEL,
+        max_completion_tokens: 2000,
+        reasoning_effort: "low",
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: `Skill: ${skill}\n\n<project_description>\n${description}\n</project_description>` },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: { name: "skill_score", strict: true, schema: SCHEMA },
+        },
+      }),
+    });
+  } catch (err) {
+    console.error("Groq connection error", err);
+    throw new HttpError(503, "Нет связи с AI. Попробуй позже.");
+  }
 
-  if (response.stop_reason === "refusal") throw new HttpError(422, "AI не смог оценить это описание. Перепиши его.");
-  if (response.stop_reason === "max_tokens") throw new HttpError(502, "AI не успел ответить. Попробуй ещё раз.");
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    console.error("Groq API error", res.status, detail.slice(0, 500));
+    if (res.status === 429) throw new HttpError(429, "Лимит бесплатного AI исчерпан. Попробуй через минуту.");
+    if (res.status === 401 || res.status === 403) throw new HttpError(502, "Неверный ключ AI на сервере");
+    throw new HttpError(502, "Ошибка AI-сервиса");
+  }
 
-  const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  const payload = await res.json();
+  const text = payload?.choices?.[0]?.message?.content || "";
   let data;
   try { data = JSON.parse(text); } catch { throw new HttpError(502, "AI вернул неверный ответ"); }
 
@@ -90,7 +107,7 @@ export async function scoreProject({ skill, description }) {
   };
 }
 
-// Универсальный обработчик на Web Request/Response (Netlify Functions v2 и Vercel)
+// Универсальный обработчик на Web Request/Response (Vercel и Netlify Functions v2)
 export async function handle(request, ip = "unknown") {
   const json = (status, obj) => new Response(JSON.stringify(obj), {
     status,
@@ -106,9 +123,6 @@ export async function handle(request, ip = "unknown") {
     return json(200, await scoreProject(validate(body)));
   } catch (err) {
     if (err instanceof HttpError) return json(err.status, { error: err.message });
-    if (err instanceof Anthropic.RateLimitError) return json(429, { error: "AI перегружен. Попробуй через минуту." });
-    if (err instanceof Anthropic.APIConnectionError) return json(503, { error: "Нет связи с AI. Попробуй позже." });
-    if (err instanceof Anthropic.APIError) { console.error("Anthropic API error", err.status, err.message); return json(502, { error: "Ошибка AI-сервиса" }); }
     console.error(err);
     return json(500, { error: "Внутренняя ошибка" });
   }
