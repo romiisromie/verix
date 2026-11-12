@@ -8,14 +8,14 @@
 <meta name="theme-color" content="#fffaf0">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="index,follow">
-<link rel="canonical" href="https://romiisromie.github.io/verix/">
+<link rel="canonical" href="https://verix-khaki.vercel.app/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:site_name" content="Verix">
 <meta property="og:title" content="Verix — цифровая репутация школьников в IT">
 <meta property="og:description" content="Докажи навыки с AI, находи стажировки и гранты, прокачивайся по личному роадмапу.">
-<meta property="og:url" content="https://romiisromie.github.io/verix/">
-<meta property="og:image" content="https://romiisromie.github.io/verix/icons/og-image.png">
+<meta property="og:url" content="https://verix-khaki.vercel.app/">
+<meta property="og:image" content="https://verix-khaki.vercel.app/icons/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -30,7 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Rubik:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Verix","url":"https://romiisromie.github.io/verix/","applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","description":"Платформа цифровой репутации для школьников в IT: проверка навыков с AI, стажировки и гранты, личный план развития.","offers":{"@type":"Offer","price":"0","priceCurrency":"KZT"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Verix","url":"https://verix-khaki.vercel.app/","applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","description":"Платформа цифровой репутации для школьников в IT: проверка навыков с AI, стажировки и гранты, личный план развития.","offers":{"@type":"Offer","price":"0","priceCurrency":"KZT"}}
 </script>
 </head>
 <body>
@@ -95,6 +95,10 @@
           <div class="tags" id="profileTags"></div>
         </div>
       </div>
+      <div class="xp-row">
+        <div class="xp-top"><span id="xpLabel">0 XP</span><span class="streak" id="streakChip">Серия: 1 день</span></div>
+        <div class="bar"><div class="bf bf-b" id="xpFill" style="width:0%"></div></div>
+      </div>
       <div style="margin-top:14px;display:flex;gap:8px;">
         <button class="go-btn" style="flex:1;font-size:12px;padding:10px;" onclick="openModal('edit-profile')">Редактировать</button>
         <button class="go-btn save-btn" style="flex:1;font-size:12px;padding:10px;" onclick="openModal('share')">Поделиться</button>
@@ -129,6 +133,11 @@
       <div class="stat" onclick="openModal('projects')"><div class="stat-n" style="color:var(--accent)">7</div><div class="stat-l">Проектов</div></div>
       <div class="stat" onclick="switchTab('skillproof')"><div class="stat-n" style="color:var(--green)">12</div><div class="stat-l">Навыков</div></div>
       <div class="stat" onclick="switchTab('talent')"><div class="stat-n" style="color:var(--orange)">3</div><div class="stat-l">Матча</div></div>
+    </div>
+
+    <div class="card ch-card">
+      <div class="sh"><div class="sh-title">Челленджи недели</div><div class="sh-btn" id="chDays"></div></div>
+      <div id="chList" class="ch-list"></div>
     </div>
 
     <div>
@@ -186,9 +195,14 @@
         <div class="sk-sel" onclick="selSkill(this,'Web')"><div class="i"></div>Web</div>
       </div>
     </div>
+    <div class="card repo-card">
+      <label class="lbl" for="projRepo" style="display:block">Ссылка на GitHub <span class="lbl-note">точнее всего</span></label>
+      <input class="inp" id="projRepo" type="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://github.com/ты/проект">
+      <div class="hint">AI посмотрит код, README и историю коммитов. Репозиторий должен быть публичным.</div>
+    </div>
     <div class="card">
-      <div class="lbl">Опиши проект</div>
-      <textarea class="ai-ta" id="projDesc" placeholder="Например: Сделала сайт на React с авторизацией, тёмной темой, API подключением. Использовала хуки useState, useEffect, Context API. Деплой на Vercel..."></textarea>
+      <label class="lbl" for="projDesc" style="display:block">Опиши проект <span class="lbl-note" id="descNote">от 20 символов</span></label>
+      <textarea class="ai-ta" id="projDesc" maxlength="2000" placeholder="Например: Сделала сайт на React с авторизацией, тёмной темой, API подключением. Использовала хуки useState, useEffect, Context API. Деплой на Vercel..."></textarea>
     </div>
     <button class="go-btn" id="analyzeBtn" onclick="runAnalysis()">Анализировать с AI</button>
     <div class="ai-result" id="aiResult">
@@ -201,6 +215,7 @@
           <div class="sc-box"><div class="sc-n" style="color:var(--pink)" id="r-lvl">—</div><div class="sc-l">Уровень</div></div>
         </div>
       </div>
+      <div class="card repo-proof" id="repoProof" hidden></div>
       <div class="ai-verd"><div class="ai-verd-h" id="aiVerdHead">Вердикт AI</div><div class="ai-verd-t" id="aiVerdText">...</div></div>
       <button class="go-btn save-btn" onclick="saveSkill()">Добавить в профиль</button>
     </div>
@@ -217,8 +232,9 @@
   <div class="scroll">
     <div style="padding:4px 0 6px;">
       <div style="font-size:12px;color:var(--muted2)">Подобрано под твой профиль</div>
-      <div style="font-size:20px;font-weight:600;">Свайп → матч</div>
+      <div style="font-size:20px;font-weight:600;">Свайп → матч <span class="opp-count" id="oppCount"></span></div>
     </div>
+    <div id="oppFilters" class="opp-filters"></div>
     <div>
       <div class="lbl">Твои матчи (3)</div>
       <div class="matches-row">
@@ -228,6 +244,11 @@
       </div>
     </div>
     <div>
+      <div class="card opp-empty" id="oppEmpty" hidden>
+        <div class="empty-t">Загружаем возможности...</div>
+        <div class="hint">Поменяй фильтры или начни колоду заново.</div>
+        <button class="outline-btn" onclick="resetSwipes()">Показать пропущенные снова</button>
+      </div>
       <div class="opp-card" id="swipeCard">
         <div class="nope-badge" id="nopeBadge">Пропуск</div>
         <div class="liked-badge" id="likedBadge">Матч</div>
@@ -266,66 +287,20 @@
     <div class="card glow">
       <div style="text-align:center;">
         <div style="font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;">ТВОЯ ЦЕЛЬ</div>
-        <div style="font-size:18px;font-weight:600;">Стать <span style="">Frontend Engineer</span></div>
-        <div style="font-size:11px;color:var(--muted2);margin-top:4px;">8 месяцев · Прогресс 35%</div>
-        <div class="path-bar"><div class="path-fill" style="width:35%"></div></div>
+        <div style="font-size:18px;font-weight:600;">Стать <span id="rmGoal">Frontend Engineer</span></div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:4px;" id="rmMeta">8 месяцев · Прогресс 35%</div>
+        <div class="path-bar"><div class="path-fill" id="rmFill" style="width:35%"></div></div>
       </div>
       <div style="display:flex;gap:7px;margin-top:12px;">
-        <button class="outline-btn" style="margin:0;flex:1;" onclick="openModal('change-goal')">Сменить цель</button>
+        <button class="outline-btn" style="margin:0;flex:1;" onclick="openGoalPicker()">Сменить цель</button>
         <button class="outline-btn" style="margin:0;flex:1;background:var(--s3);" onclick="openModal('share')">Поделиться</button>
       </div>
     </div>
-    <div style="font-size:14px;font-weight:700;">Роадмап</div>
-    <div class="rm">
-      <div class="rm-item">
-        <div class="rm-left"><div class="rm-dot done">1</div><div class="rm-line"></div></div>
-        <div class="rm-content">
-          <div class="rm-phase">Фаза 1 · Завершена</div><div class="rm-title">Основы веба</div>
-          <div class="rm-desc">HTML, CSS, JavaScript — пройдено!</div>
-          <div class="rm-tasks">
-            <div class="tk"><div class="tk-box done">✓</div>HTML & CSS основы</div>
-            <div class="tk"><div class="tk-box done">✓</div>JavaScript основы</div>
-            <div class="tk"><div class="tk-box done">✓</div>Первая страница на GitHub</div>
-          </div>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-left"><div class="rm-dot now">2</div><div class="rm-line"></div></div>
-        <div class="rm-content">
-          <div class="rm-phase">Фаза 2 · Сейчас</div><div class="rm-title">React & компоненты</div>
-          <div class="rm-desc">Компонентный подход, хуки, управление состоянием</div>
-          <div class="rm-tasks">
-            <div class="tk"><div class="tk-box done">✓</div>Компоненты и пропсы</div>
-            <div class="tk"><div class="tk-box now">→</div>useState & useEffect</div>
-            <div class="tk"><div class="tk-box"></div>Роутинг (React Router)</div>
-            <div class="tk"><div class="tk-box"></div>API запросы (fetch)</div>
-          </div>
-          <button class="outline-btn" onclick="openModal('start-task')">Продолжить задание</button>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-left"><div class="rm-dot locked">3</div><div class="rm-line"></div></div>
-        <div class="rm-content">
-          <div class="rm-phase">Фаза 3 · Скоро</div><div class="rm-title">Продвинутый React</div>
-          <div class="rm-desc">TypeScript, Redux, тестирование</div>
-          <div class="rm-tasks">
-            <div class="tk" style="opacity:.4"><div class="tk-box"></div>TypeScript</div>
-            <div class="tk" style="opacity:.4"><div class="tk-box"></div>Redux / Zustand</div>
-            <div class="tk" style="opacity:.4"><div class="tk-box"></div>Jest Testing</div>
-          </div>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-left"><div class="rm-dot locked">4</div></div>
-        <div class="rm-content" style="padding-bottom:4px">
-          <div class="rm-phase">Фаза 4 · Финал</div><div class="rm-title">Portfolio + Job Ready</div>
-          <div class="rm-desc">Финальный проект, резюме, подготовка к интервью</div>
-        </div>
-      </div>
-    </div>
+    <div class="sh"><div class="sh-title">Роадмап</div><div class="sh-btn" onclick="openGoalPicker()">AI-план</div></div>
+    <div class="rm" id="rmList" aria-live="polite"></div>
     <div class="ai-verd">
-      <div class="ai-verd-h">AI рекомендация</div>
-      <div class="ai-verd-t">Ты прогрессируешь <strong>быстрее среднего на 23%</strong>. Следующий шаг: закончи задание по <strong>useEffect</strong> — это разблокирует фазу API-запросов и поднимет скор на ~6 пунктов.</div>
+      <div class="ai-verd-h" id="rmAdviceHead">AI рекомендация</div>
+      <div class="ai-verd-t" id="rmAdvice"></div>
     </div>
     <div style="height:4px"></div>
   </div>
@@ -661,6 +636,8 @@
 
 <script src="js/app.js"></script>
 <script src="js/fx.js"></script>
+<script src="js/edupath.js"></script>
+<script src="js/game.js"></script>
 <script src="js/enhance.js"></script>
 </body>
 </html>
