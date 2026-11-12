@@ -1,7 +1,8 @@
 // Verix service worker: офлайн-режим и быстрая загрузка
-const VERSION = 'verix-v1';
+const VERSION = 'verix-v2';
 const SHELL = [
-  './', 'index.html', 'css/styles.css', 'js/app.js', 'js/fx.js', 'js/enhance.js',
+  './', 'index.html', 'css/styles.css', 'js/app.js', 'js/fx.js', 'js/edupath.js', 'js/game.js', 'js/enhance.js',
+  'data/opportunities.json',
   'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'
 ];
 
@@ -43,7 +44,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.pathname.includes('/api/')) return; // AI-запросы не кэшируем
-  if (req.mode === 'navigate') return event.respondWith(networkFirst(req));
+  if (req.mode === 'navigate' || url.pathname.endsWith('.json')) return event.respondWith(networkFirst(req));
   if (url.origin === location.origin || /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) {
     event.respondWith(staleWhileRevalidate(req));
   }

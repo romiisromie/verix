@@ -24,7 +24,7 @@ function saveP(d){store.set('p',d);}
 function renderProfile(){
   const p=loadP();
   document.getElementById('avatarEmoji').textContent=p.name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
-  document.getElementById('levelBadge').textContent='LVL '+p.level;
+  document.getElementById('levelBadge').textContent='LVL '+(window.vxLevel?vxLevel():1);
   document.getElementById('profileName').textContent=p.name;
   document.getElementById('profileSub').textContent=p.grade+' · '+p.city;
   const tags=[p.tag1,p.tag2,p.tag3].filter(Boolean);
@@ -49,15 +49,9 @@ function openEditProfile(){
         <label class="lbl" for="e_name" style="display:block">Имя</label>
         <input class="inp" id="e_name" value="${esc(p.name)}" maxlength="60" autocomplete="name" placeholder="Твоё имя">
       </div>
-      <div style="display:flex;gap:8px;">
-        <div style="flex:1;">
-          <label class="lbl" for="e_grade" style="display:block">Класс / Курс</label>
-          <select class="inp" id="e_grade">${grOpts}</select>
-        </div>
-        <div style="flex:1;">
-          <label class="lbl" for="e_level" style="display:block">Уровень (1–10)</label>
-          <input class="inp" id="e_level" type="number" min="1" max="10" value="${p.level}" inputmode="numeric">
-        </div>
+      <div>
+        <label class="lbl" for="e_grade" style="display:block">Класс / Курс</label>
+        <select class="inp" id="e_grade">${grOpts}</select>
       </div>
       <div>
         <label class="lbl" for="e_city" style="display:block">Город</label>
@@ -89,11 +83,11 @@ function applyProfile(){
   p.grade=document.getElementById('e_grade').value;
   p.city=document.getElementById('e_city').value.trim()||p.city;
   p.about=document.getElementById('e_about').value.trim();
-  p.level=Math.min(10,Math.max(1,parseInt(document.getElementById('e_level').value)||p.level));
   p.tag1=document.getElementById('e_t1').value;
   p.tag2=document.getElementById('e_t2').value;
   p.tag3=document.getElementById('e_t3').value;
   saveP(p);renderProfile();closeModal();toast('Профиль сохранён!');
+  if(window.loadOpps&&oppsLoaded){buildDeck();renderOpp();}
 }
 
 // ════════════ TABS ════════════
@@ -115,6 +109,7 @@ function toast(msg){
 // ════════════ MODALS ════════════
 function openModal(key){
   if(key==='edit-profile'){openEditProfile();return;}
+  if(key==='change-goal'&&window.openGoalPicker){openGoalPicker();return;}
   const m=MODALS[key];if(!m)return;
   document.getElementById('modal-content').innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${m.sub?'4px':'14px'}">
@@ -261,38 +256,64 @@ function localScore(skill,desc){
   return {overall_score:base,originality,complexity,level_name:level,verdict:`Предварительная оценка без AI (сервер недоступен). **${tips}**`,source:'local'};
 }
 
-async function fetchScore(skill,desc){
-  const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),45000);
+const REPO_RE=/^https?:\/\/(www\.)?github\.com\/[A-Za-z0-9-]{1,39}\/[A-Za-z0-9._-]{1,100}\/?([#?].*)?$/;
+
+async function postJSON(url,body,timeout){
+  const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),timeout||45000);
   try{
-    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skill,description:desc}),signal:ctrl.signal});
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctrl.signal});
     const data=await res.json().catch(()=>null);
-    if(res.ok&&data&&typeof data.overall_score==='number')return {...data,source:'ai'};
-    if(data&&data.error&&res.status!==404&&res.status!==501)throw new Error(data.error);
-    return null; // сервера нет — используем локальную оценку
+    if(res.ok&&data)return data;
+    if(data&&data.error&&res.status!==404&&res.status!==501&&res.status!==405)throw new Error(data.error);
+    return null; // сервера нет — используем локальный вариант
   }catch(e){
     if(e.name==='AbortError'||e instanceof TypeError)return null;
     throw e;
   }finally{clearTimeout(t);}
 }
+async function fetchScore(skill,desc,repo){
+  const data=await postJSON(AI_ENDPOINT,{skill,description:desc,repo},60000);
+  return data&&typeof data.overall_score==='number'?{...data,source:data.repo?'github':'ai'}:null;
+}
+
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
+function renderRepoProof(r){
+  const box=document.getElementById('repoProof');
+  if(!r.repo){box.hidden=true;box.innerHTML='';return;}
+  const m=r.repo;
+  box.hidden=false;
+  box.innerHTML=`<div class="lbl">Проверено по коду</div>
+    <a class="repo-link" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.full_name)}</a>${m.fork?' <span class="tag">форк</span>':''}
+    <div class="repo-facts">
+      <span><b>${esc(m.commits)}</b> коммитов</span><span><b>${esc(m.files)}</b> файлов</span><span><b>${esc(m.authors)}</b> авт.</span>${m.stars?`<span><b>${esc(m.stars)}</b> ★</span>`:''}
+    </div>
+    ${m.languages&&m.languages.length?`<div class="repo-langs">${m.languages.map(l=>`<span class="tag">${esc(l)}</span>`).join('')}</div>`:''}
+    ${m.first_commit?`<div class="hint">Работа над проектом: ${esc(fmtDate(m.first_commit))} — ${esc(fmtDate(m.last_commit))}</div>`:''}
+    ${r.code_findings?`<div class="repo-find">${esc(r.code_findings)}</div>`:''}`;
+}
 
 async function runAnalysis(){
   const desc=document.getElementById('projDesc').value.trim();
+  const repo=document.getElementById('projRepo').value.trim();
   if(!selSkillName){toast('Выбери навык');return;}
-  if(desc.length<20){toast('Опиши проект подробнее (от 20 символов)');document.getElementById('projDesc').focus();return;}
+  if(repo&&!REPO_RE.test(repo)){toast('Ссылка должна быть вида https://github.com/user/repo');document.getElementById('projRepo').focus();return;}
+  if(!repo&&desc.length<20){toast('Опиши проект подробнее (от 20 символов) или дай ссылку на GitHub');document.getElementById('projDesc').focus();return;}
   const btn=document.getElementById('analyzeBtn');
-  btn.disabled=true;btn.textContent='AI думает...';btn.setAttribute('aria-busy','true');
+  btn.disabled=true;btn.textContent=repo?'AI читает код...':'AI думает...';btn.setAttribute('aria-busy','true');
   document.getElementById('aiResult').classList.remove('show');
   try{
-    let r=await fetchScore(selSkillName,desc);
-    if(!r)r=localScore(selSkillName,desc);
+    let r=await fetchScore(selSkillName,desc,repo);
+    if(!r)r=localScore(selSkillName,desc||repo);
     lastResult={skill:selSkillName,...r};
     document.getElementById('r-overall').textContent=r.overall_score;
     document.getElementById('r-orig').textContent=r.originality;
     document.getElementById('r-comp').textContent=r.complexity;
     document.getElementById('r-lvl').textContent=r.level_name;
-    document.getElementById('aiVerdHead').textContent=r.source==='ai'?'Вердикт AI':'Предварительная оценка';
+    document.getElementById('aiVerdHead').textContent=r.source==='github'?'Вердикт AI по коду':r.source==='ai'?'Вердикт AI':'Предварительная оценка';
     document.getElementById('aiVerdText').innerHTML=esc(r.verdict).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    renderRepoProof(r);
     const res2=document.getElementById('aiResult');res2.classList.add('show');
+    if(window.vxGain)vxGain(r.source==='github'?'github':'analyze');
     setTimeout(()=>res2.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
   }catch(e){toast('Не получилось: '+e.message);console.error(e);}
   btn.disabled=false;btn.textContent='Анализировать снова';btn.removeAttribute('aria-busy');
@@ -301,22 +322,39 @@ async function runAnalysis(){
 function saveSkill(){
   if(!lastResult)return;
   const skills=store.get('skills',[]).filter(x=>x.skill!==lastResult.skill);
-  skills.unshift({skill:lastResult.skill,score:lastResult.overall_score,level:lastResult.level_name,source:lastResult.source,date:Date.now()});
+  skills.unshift({skill:lastResult.skill,score:lastResult.overall_score,level:lastResult.level_name,source:lastResult.source,repo:lastResult.repo?lastResult.repo.url:null,date:Date.now()});
   store.set('skills',skills.slice(0,20));
   renderSavedSkills();
+  if(window.vxGain)vxGain('save');
   toast('Навык добавлен в профиль!');
   setTimeout(()=>switchTab('profile'),800);
+}
+
+function openSavedSkill(i){
+  const s=store.get('skills',[])[i];if(!s)return;
+  const src=s.source==='github'?'Проверено AI по коду':s.source==='ai'?'Оценено AI по описанию':'Предварительная оценка';
+  document.getElementById('modal-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 style="font-family:var(--display);font-size:17px;">${esc(s.skill)} · ${esc(s.score)}/100</h2>
+      <button class="nbtn" onclick="closeModal()" aria-label="Закрыть">×</button>
+    </div>
+    <div class="proj-desc" style="margin-bottom:10px;">${esc(s.level)} · ${esc(src)} · ${esc(fmtDate(s.date))}</div>
+    ${s.repo?`<a class="repo-link" href="${esc(s.repo)}" target="_blank" rel="noopener noreferrer">${esc(s.repo.replace(/^https?:\/\/(www\.)?github\.com\//,''))}</a>`:''}
+    <button class="outline-btn" onclick="switchTab('skillproof');closeModal()">Проверить заново</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
 }
 
 function renderSavedSkills(){
   const grid=document.querySelector('#screen-profile .skills-grid');if(!grid)return;
   grid.querySelectorAll('.skc[data-saved]').forEach(el=>el.remove());
   const skills=store.get('skills',[]);
-  skills.slice().reverse().forEach(s=>{
+  skills.slice().reverse().forEach((s,ri)=>{
+    const i=skills.length-1-ri;
     const el=document.createElement('div');
-    el.className='skc';el.dataset.saved='1';el.dataset.score=s.score;
-    el.setAttribute('onclick',"toast('Оценка: '+this.dataset.score+'/100')");
-    el.innerHTML=`<div class="skc-name">${esc(s.skill)}</div><div class="skc-lv">${esc(s.level)}${s.source==='ai'?' · AI':''}</div><div class="skc-bar"><div class="skc-fill" style="width:${Math.max(0,Math.min(100,+s.score||0))}%"></div></div>`;
+    el.className='skc';el.dataset.saved='1';
+    el.setAttribute('onclick',`openSavedSkill(${i})`);
+    const mark=s.source==='github'?' · код ✓':s.source==='ai'?' · AI':'';
+    el.innerHTML=`<div class="skc-name">${esc(s.skill)}</div><div class="skc-lv">${esc(s.level)}${mark}</div><div class="skc-bar"><div class="skc-fill" style="width:${Math.max(0,Math.min(100,+s.score||0))}%"></div></div>`;
     grid.prepend(el);
   });
   const n=document.querySelector('#screen-profile .stat:nth-child(2) .stat-n');
@@ -325,63 +363,133 @@ function renderSavedSkills(){
 }
 
 // ════════════ TALENT ════════════
-const OPPS=[
-  {type:'Стажировка',org:'Kolesa Group · Алматы',title:'Junior Frontend Developer',tags:['React','JS','80к/мес'],match:94,desc:'Реальный проект. Ментор, 80к/мес, гибкий график.'},
-  {type:'Грант',org:'MOST Business School',title:'Грант для IT-школьников',tags:['$500','Portfolio'],match:87,desc:'$500 на развитие проекта. Нужно портфолио + письмо.'},
-  {type:'Хакатон',org:'EPAM Systems · KZ',title:'Young Talent Hackathon',tags:['48ч','300к приз'],match:91,desc:'48ч, команды 3-4 чел., приз 300 000 ₸.'},
-  {type:'Программа',org:'Nazarbayev University',title:'Summer AI School 2025',tags:['Лето','Бесплатно'],match:79,desc:'2 недели AI для школьников 9-11 класса. Бесплатно.'},
-  {type:'Конкурс',org:'Digital Almaty',title:'Best Youth App Award',tags:['Менторы','Приз'],match:83,desc:'Городской конкурс. Победители получают менторов.'},
-];
-let oppIdx=0;
+// Возможности лежат в data/opportunities.json. Совпадение считается по профилю и навыкам.
+let OPPS=[];let oppIdx=0;let deck=[];let oppsLoaded=false;
+const OPP_TYPES=[['all','Все'],['Стажировка','Стажировки'],['Грант','Гранты'],['Хакатон','Хакатоны'],['Программа','Программы'],['Конкурс','Конкурсы']];
+const SKILL_MAP={React:'Frontend',Web:'Frontend',Python:'Backend','ML/AI':'AI/ML',Design:'Design',Data:'Data'};
+function gradeNum(g){const n=parseInt(g,10)||10;return /курс/.test(g)?11+n:n;}
+function oppFilter(){return {type:'all',city:'all',mine:true,...store.get('opp_filter',{})};}
+
+function matchScore(o){
+  const p=loadP();
+  const mine=new Set([p.tag1,p.tag2,p.tag3].filter(Boolean));
+  const skills=store.get('skills',[]);
+  skills.forEach(s=>{mine.add(s.skill);if(SKILL_MAP[s.skill])mine.add(SKILL_MAP[s.skill]);});
+  const overlap=(o.skills||[]).filter(s=>mine.has(s)).length;
+  const g=gradeNum(p.grade),[lo,hi]=o.grades||[8,12];
+  let score=48+Math.min(3,overlap)*14+(g>=lo&&g<=hi?6:-22);
+  const proven=skills.filter(s=>(o.skills||[]).some(k=>k===s.skill||k===SKILL_MAP[s.skill]));
+  if(proven.length)score+=Math.round(proven.reduce((a,s)=>a+(+s.score||0),0)/proven.length/12);
+  return Math.max(20,Math.min(99,score));
+}
+function daysLeft(d){if(!d)return null;return Math.ceil((new Date(d+'T23:59:59')-Date.now())/864e5);}
+function fmtDeadline(d){
+  const n=daysLeft(d);if(n===null)return 'без дедлайна';
+  if(n<=0)return 'сегодня последний день';
+  if(n<=14)return `осталось ${n} дн.`;
+  return 'до '+new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+}
+
+function buildDeck(){
+  const f=oppFilter(),seen=new Set(store.get('swiped',[])),g=gradeNum(loadP().grade);
+  deck=OPPS.filter(o=>{
+    if(seen.has(o.id))return false;
+    const dl=daysLeft(o.deadline);if(dl!==null&&dl<0)return false;
+    if(f.type!=='all'&&o.type!==f.type)return false;
+    if(f.city!=='all'&&o.city!==f.city&&o.city!=='Онлайн')return false;
+    if(f.mine){const [lo,hi]=o.grades||[8,12];if(g<lo||g>hi)return false;}
+    return true;
+  }).map(o=>({...o,match:matchScore(o)})).sort((a,b)=>b.match-a.match);
+  oppIdx=0;
+}
+function renderOppFilters(){
+  const box=document.getElementById('oppFilters');if(!box)return;
+  const f=oppFilter();
+  const cities=['all',...new Set(OPPS.map(o=>o.city).filter(c=>c!=='Онлайн'))];
+  box.innerHTML=`<div class="chip-row" role="group" aria-label="Тип">${OPP_TYPES.map(([v,l])=>`<button type="button" class="f-chip${f.type===v?' on':''}" aria-pressed="${f.type===v}" onclick="setOppFilter('type','${v}')">${l}</button>`).join('')}</div>
+    <div class="f-row">
+      <label class="sr-only" for="oppCity">Город</label>
+      <select class="inp f-sel" id="oppCity" onchange="setOppFilter('city',this.value)">${cities.map(c=>`<option value="${esc(c)}"${f.city===c?' selected':''}>${c==='all'?'Любой город':esc(c)+' + онлайн'}</option>`).join('')}</select>
+      <label class="f-check"><input type="checkbox" ${f.mine?'checked':''} onchange="setOppFilter('mine',this.checked)"> Мой класс</label>
+    </div>`;
+}
+function setOppFilter(k,v){const f=oppFilter();f[k]=v;store.set('opp_filter',f);renderOppFilters();buildDeck();renderOpp();}
+
 function renderOpp(){
-  const o=OPPS[oppIdx%OPPS.length];
+  const card=document.getElementById('swipeCard'),empty=document.getElementById('oppEmpty'),acts=document.querySelector('.sw-actions');
+  const o=deck[oppIdx];
+  const cnt=document.getElementById('oppCount');
+  if(cnt)cnt.textContent=oppsLoaded?(deck.length-oppIdx>0?`${deck.length-oppIdx} в колоде`:''):'';
+  if(!o){
+    card.hidden=true;acts.hidden=true;empty.hidden=false;
+    empty.querySelector('.empty-t').textContent=oppsLoaded?(OPPS.length?'Ты посмотрел всё по этим фильтрам':'Пока нет возможностей'):'Загружаем возможности...';
+    return;
+  }
+  card.hidden=false;acts.hidden=false;empty.hidden=true;
   document.getElementById('cardType').textContent=o.type;
   document.getElementById('cardOrg').textContent=o.org;
   document.getElementById('cardTitle').textContent=o.title;
   document.getElementById('cardDesc').textContent=o.desc;
   document.getElementById('matchBar').style.width=o.match+'%';
   document.getElementById('matchPct').textContent=o.match+'%';
-  document.getElementById('cardTags').innerHTML=o.tags.map(t=>`<span class="opp-tag">${t}</span>`).join('');
+  const dl=daysLeft(o.deadline);
+  document.getElementById('cardTags').innerHTML=[o.city,...(o.tags||[])].map(t=>`<span class="opp-tag">${esc(t)}</span>`).join('')+
+    `<span class="opp-tag${dl!==null&&dl<=14?' urgent':''}">${esc(fmtDeadline(o.deadline))}</span>`;
   document.getElementById('nopeBadge').style.opacity=0;
   document.getElementById('likedBadge').style.opacity=0;
-  document.getElementById('swipeCard').style.transform='';
+  card.style.transform='';
 }
 function swipe(dir){
+  const o=deck[oppIdx];if(!o)return;
   const card=document.getElementById('swipeCard');
-  const o=OPPS[oppIdx%OPPS.length];
   if(dir==='yes'||dir==='super'){
     document.getElementById('likedBadge').style.opacity=1;
     card.style.transform='translateX(45px) rotate(4deg)';
     toast(dir==='super'?`Суперлайк → ${o.org}!`:`Матч с ${o.org}!`);
     const m=store.get('matches',[]);
-    if(!m.some(x=>x.title===o.title))m.push({org:o.org,title:o.title,type:o.type,super:dir==='super'});
+    if(!m.some(x=>x.title===o.title))m.push({id:o.id,org:o.org,title:o.title,type:o.type,super:dir==='super'});
     store.set('matches',m);renderMatches();
+    if(window.vxGain)vxGain('like');
   }else{
     document.getElementById('nopeBadge').style.opacity=1;
     card.style.transform='translateX(-45px) rotate(-4deg)';
-    toast('✕ Пропущено');
+    toast('Пропущено');
   }
+  const seen=store.get('swiped',[]);if(!seen.includes(o.id)){seen.push(o.id);store.set('swiped',seen);}
   setTimeout(()=>{oppIdx++;renderOpp();},420);
 }
+function resetSwipes(){store.del('swiped');buildDeck();renderOpp();toast('Колода обновлена');}
 function openCurrentOpp(){
-  const o=OPPS[oppIdx%OPPS.length];
+  const o=deck[oppIdx];if(!o)return;
   document.getElementById('modal-content').innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h2 style="font-family:var(--display);font-size:17px;">${esc(o.title)}</h2>
       <button class="nbtn" onclick="closeModal()" aria-label="Закрыть">×</button>
     </div>
-    <div class="proj-desc" style="margin-bottom:12px;">${esc(o.org)} · ${esc(o.type)}</div>
-    <label class="lbl" for="applyText" style="display:block">Сопроводительное письмо</label>
-    <textarea class="ai-ta" id="applyText" maxlength="1000" placeholder="Почему ты подходишь на эту позицию?"></textarea>
-    <button class="go-btn" style="margin-top:12px;" onclick="submitApplication()">Отправить заявку</button>`;
+    <div class="proj-desc" style="margin-bottom:6px;">${esc(o.org)} · ${esc(o.type)} · ${esc(o.city)}</div>
+    <div class="proj-desc" style="margin-bottom:12px;">${esc(fmtDeadline(o.deadline))} · совпадение ${o.match}%</div>
+    ${o.url?`<a class="repo-link" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer">Сайт организатора</a>`:''}
+    <label class="lbl" for="applyText" style="display:block;margin-top:10px;">Сопроводительное письмо</label>
+    <textarea class="ai-ta" id="applyText" maxlength="1000" placeholder="Почему ты подходишь? Упомяни проекты из профиля."></textarea>
+    <button class="go-btn" style="margin-top:12px;" onclick="submitApplication()">Сохранить заявку</button>`;
   document.getElementById('modal-overlay').classList.add('show');
 }
 function submitApplication(){
-  const o=OPPS[oppIdx%OPPS.length];const text=document.getElementById('applyText').value.trim();
+  const o=deck[oppIdx];if(!o)return;
+  const text=document.getElementById('applyText').value.trim();
   if(text.length<20){toast('Напиши хотя бы пару предложений');return;}
-  const apps=store.get('applications',[]);apps.push({title:o.title,org:o.org,text,date:Date.now()});store.set('applications',apps);
+  const apps=store.get('applications',[]);apps.push({id:o.id,title:o.title,org:o.org,text,date:Date.now()});store.set('applications',apps);
   closeModal();toast('Заявка сохранена: '+o.org);
-  const m=store.get('matches',[]);if(!m.some(x=>x.title===o.title)){m.push({org:o.org,title:o.title,type:o.type});store.set('matches',m);renderMatches();}
+  if(window.vxGain)vxGain('apply');
+  const m=store.get('matches',[]);if(!m.some(x=>x.title===o.title)){m.push({id:o.id,org:o.org,title:o.title,type:o.type});store.set('matches',m);renderMatches();}
+}
+async function loadOpps(){
+  try{
+    const res=await fetch('data/opportunities.json',{cache:'no-cache'});
+    const data=await res.json();
+    OPPS=(Array.isArray(data.items)?data.items:[]).filter(o=>o&&o.id&&o.title);
+  }catch(e){console.warn('opportunities:',e);OPPS=[];}
+  oppsLoaded=true;renderOppFilters();buildDeck();renderOpp();
 }
 function renderMatches(){
   const row=document.querySelector('.matches-row');if(!row)return;
@@ -863,5 +971,5 @@ function emailProfile(){
 renderProfile();
 renderSavedSkills();
 renderMatches();
-renderOpp();
+renderOpp();loadOpps();
 initializeChats();

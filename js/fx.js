@@ -15,7 +15,8 @@
       document.body.appendChild(d);setTimeout(()=>d.remove(),1200);
     }
   }
-  function burstAt(el,n){const r=el.getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height/2,n);}
+  function burstAt(el,n){if(!el)return;const r=el.getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height/2,n);}
+  window.vxBurst=burstAt;
 
   function countUp(el){
     const t=el.firstChild;if(!t||t.nodeType!==3)return;

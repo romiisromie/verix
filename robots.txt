@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://romiisromie.github.io/verix/sitemap.xml
+Sitemap: https://verix-khaki.vercel.app/sitemap.xml
