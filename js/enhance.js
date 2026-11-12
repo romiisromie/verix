@@ -77,6 +77,9 @@
   // PWA: service worker + кнопка установки
   if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
     addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(err=>console.warn('SW:',err)));
+    // Новая версия сайта: один раз перезагружаем страницу, чтобы не смешивать старый и новый код
+    const hadController=!!navigator.serviceWorker.controller;let reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController&&!reloaded){reloaded=true;location.reload();}});
   }
   let deferred=null;
   addEventListener('beforeinstallprompt',e=>{
