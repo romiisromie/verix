@@ -10,7 +10,7 @@ function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0'
 
 // ════════════ PROFILE DATA ════════════
 const DEFAULTS = {
-  name:'Рамина Ибраимова', grade:'10 класс', city:'Алматы, Казахстан',
+  name:'Рамина Ибраимова', grade:'11 класс', city:'Алматы, Казахстан',
   emoji:'', level:7, about:'Frontend разработчица, люблю создавать продукты с нуля.',
   tag1:'Frontend', tag2:'AI/ML', tag3:'Design'
 };

@@ -4,8 +4,9 @@
 // Исходный русский текст запоминается, поэтому язык можно переключать в любой момент.
 (function () {
   "use strict";
-  const LANGS = ["ru", "kk", "en"];
+  const LANGS = ["kk", "ru", "en"]; // порядок кнопок: казахский, русский, английский
   const LABEL = { ru: "RU", kk: "KZ", en: "EN" };
+  const COL = { kk: 1, en: 2 }; // столбец перевода в словаре
   const HTML_LANG = { ru: "ru", kk: "kk", en: "en" };
 
   // [русский, қазақша, English]
@@ -64,6 +65,7 @@
     ["Python · Классификатор изображений", "Python · Сурет классификаторы", "Python · Image classifier"],
     ["React · Трекер углеродного следа", "React · Көміртек ізі трекері", "React · Carbon footprint tracker"],
     ["10 класс · Алматы, Казахстан", "10-сынып · Алматы, Қазақстан", "Grade 10 · Almaty, Kazakhstan"],
+    ["11 класс · Алматы, Казахстан", "11-сынып · Алматы, Қазақстан", "Grade 11 · Almaty, Kazakhstan"],
     ["Алматы, Казахстан", "Алматы, Қазақстан", "Almaty, Kazakhstan"],
     ["8 класс", "8-сынып", "Grade 8"], ["9 класс", "9-сынып", "Grade 9"], ["10 класс", "10-сынып", "Grade 10"], ["11 класс", "11-сынып", "Grade 11"],
     ["1 курс", "1-курс", "Year 1"], ["2 курс", "2-курс", "Year 2"], ["3 курс", "3-курс", "Year 3"], ["4 курс", "4-курс", "Year 4"],
@@ -561,7 +563,7 @@
 
   const DICT = new Map(PAIRS.map((p) => [p[0], p]));
 
-  let lang = "ru";
+  let lang = "ru"; // по умолчанию — язык браузера (kk / en), иначе русский
   try {
     const saved = localStorage.getItem("vx_lang");
     if (LANGS.includes(saved)) lang = saved;
@@ -602,7 +604,7 @@
       rec = { ru: node.data, out: node.data };
       textOrig.set(node, rec);
     }
-    const next = lang === "ru" ? rec.ru : tr(rec.ru, LANGS.indexOf(lang));
+    const next = lang === "ru" ? rec.ru : tr(rec.ru, COL[lang]);
     if (next !== node.data) node.data = next;
     rec.out = next;
   }
@@ -619,7 +621,7 @@
         r = { ru: cur, out: cur };
         rec[a] = r;
       }
-      const next = lang === "ru" ? r.ru : tr(r.ru, LANGS.indexOf(lang));
+      const next = lang === "ru" ? r.ru : tr(r.ru, COL[lang]);
       if (next !== cur) el.setAttribute(a, next);
       r.out = next;
     }
@@ -672,7 +674,7 @@
   window.vxLang = () => lang;
   window.vxSetLang = setLang;
   window.vxCycleLang = () => setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]);
-  window.vxT = (s) => (lang === "ru" ? s : tr(s, LANGS.indexOf(lang)));
+  window.vxT = (s) => (lang === "ru" ? s : tr(s, COL[lang]));
 
   function start() {
     apply();
