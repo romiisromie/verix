@@ -170,7 +170,7 @@
     const btn=document.getElementById('rmBuildBtn');btn.disabled=true;btn.textContent='AI составляет план...';btn.setAttribute('aria-busy','true');
     try{
       const skills=store.get('skills',[]).map(s=>({skill:s.skill,score:s.score,level:s.level}));
-      const data=await postJSON(ENDPOINT,{goal,grade:loadP().grade,hours,skills},60000);
+      const data=await postJSON(ENDPOINT,{goal,grade:loadP().grade,hours,skills,lang:window.vxLang?vxLang():'ru'},60000);
       if(!data||!Array.isArray(data.phases)){
         save(fromTemplate(goal));render();closeModal();toast('AI недоступен — взяли шаблон');return;
       }

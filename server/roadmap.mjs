@@ -1,5 +1,5 @@
 // EduPath: строит личный роадмап через Groq по цели, классу, времени и проверенным навыкам.
-import { HttpError, clamp, str, groqJSON, makeHandler } from "./groq.mjs";
+import { HttpError, clamp, str, groqJSON, makeHandler, LANG_NOTE, lang as pickLang } from "./groq.mjs";
 
 const SYSTEM = `You are EduPath, the learning-path planner of Verix, a platform for school students (grades 8-11) who want a career in IT.
 Build a realistic personal roadmap toward the student's goal, calibrated to their grade, weekly hours, and the skills they have already proven (with scores 0-100).
@@ -44,18 +44,18 @@ function validate(body) {
   const skills = (Array.isArray(body.skills) ? body.skills : []).slice(0, 10).map((s) => ({
     skill: str(s?.skill, 30), score: clamp(s?.score), level: str(s?.level, 20),
   })).filter((s) => s.skill);
-  return { goal, grade, hours, skills };
+  return { goal, grade, hours, skills, lang: pickLang(body.lang) };
 }
 
 export async function roadmap(body) {
-  const { goal, grade, hours, skills } = validate(body);
+  const { goal, grade, hours, skills, lang } = validate(body);
   const user = `<student>
 Goal: ${goal}
 Grade: ${grade}
 Hours per week: ${hours}
 Proven skills: ${skills.length ? skills.map((s) => `${s.skill} ${s.score}/100 (${s.level})`).join("; ") : "none yet"}
 </student>`;
-  const { data } = await groqJSON({ system: SYSTEM, user, schema: SCHEMA, name: "roadmap", maxTokens: 2500 });
+  const { data } = await groqJSON({ system: lang === "ru" ? SYSTEM : SYSTEM + LANG_NOTE[lang](null), user, schema: SCHEMA, name: "roadmap", maxTokens: 2500 });
   const phases = (Array.isArray(data.phases) ? data.phases : []).slice(0, 4).map((p) => ({
     title: str(p.title, 40),
     desc: str(p.desc, 160),

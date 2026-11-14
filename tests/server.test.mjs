@@ -32,7 +32,7 @@ test("validate отклоняет неизвестный навык, пусто�
   assert.throws(() => validate({ skill: "Cobol", description: "x".repeat(50) }), /навык/);
   assert.throws(() => validate({ skill: "Web", description: "коротко" }), /подробнее/);
   assert.throws(() => validate({ skill: "Web", description: "x".repeat(2001) }), /длиннее/);
-  assert.deepEqual(validate({ skill: "Web", repo: "https://github.com/u/r" }), { skill: "Web", description: "", repo: "https://github.com/u/r", strict: false });
+  assert.deepEqual(validate({ skill: "Web", repo: "https://github.com/u/r" }), { skill: "Web", description: "", repo: "https://github.com/u/r", strict: false, lang: "ru" });
 });
 
 test("rateLimit пропускает лимит запросов и блокирует следующий", () => {
@@ -135,6 +135,32 @@ test("ответ, не прошедший JSON-схему, повторяетс�
     const r = await groqJSON({ system: "s", user: "u", schema: {}, name: "n", strict: true });
     assert.deepEqual(r.data, { ok: 1 });
     assert.equal(calls, 2);
+  } finally {
+    if (saved.key) process.env.GROQ_API_KEY = saved.key; else delete process.env.GROQ_API_KEY;
+    globalThis.fetch = saved.fetch;
+  }
+});
+
+test("язык ответа: русский промпт не меняется, для kk/en добавляется инструкция", async () => {
+  const saved = { key: process.env.GROQ_API_KEY, fetch: globalThis.fetch };
+  process.env.GROQ_API_KEY = "test";
+  const systems = [];
+  globalThis.fetch = async (_u, init) => {
+    systems.push(JSON.parse(init.body).messages[0].content);
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({
+      overall_score: 50, originality: 50, complexity: 50, level_name: "Средний", code_findings: "-", verdict: "-",
+    }) } }] }), { status: 200 });
+  };
+  try {
+    const body = { skill: "Web", description: "Сайт-визитка на HTML и CSS с адаптивной вёрсткой" };
+    await skillproof(body);
+    await skillproof({ ...body, lang: "kk" });
+    await skillproof({ ...body, lang: "en" });
+    await skillproof({ ...body, lang: "xx" });
+    assert.ok(!systems[0].includes("Language override"));
+    assert.ok(systems[1].includes("Kazakh") && systems[1].includes("Код тексерілмеді"));
+    assert.ok(systems[2].includes("in English"));
+    assert.equal(systems[3], systems[0]);
   } finally {
     if (saved.key) process.env.GROQ_API_KEY = saved.key; else delete process.env.GROQ_API_KEY;
     globalThis.fetch = saved.fetch;

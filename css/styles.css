@@ -437,3 +437,7 @@ body.is-offline .offline-badge{display:block;}
 }
 
 .demo-note{margin:10px 0 4px;padding:10px 12px;border:1.5px dashed var(--accent);border-radius:12px;font-size:13px;line-height:1.4;opacity:.9;}
+.lang-switch{display:inline-flex;gap:6px;margin-top:14px;}
+.lang-opt{min-width:44px;height:32px;padding:0 10px;border-radius:999px;border:2px solid var(--ink);background:var(--s1);color:var(--ink);font-weight:700;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink);}
+.lang-opt.on{background:var(--yellow);}
+.lang-opt:focus-visible,.lang-cycle:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}

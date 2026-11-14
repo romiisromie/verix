@@ -42,6 +42,7 @@
   <div style="text-align:center;margin-bottom:30px;">
     <h1 style="font-size:28px;font-weight:600;margin-bottom:8px;">Verix</h1>
     <p style="color:var(--muted2);font-size:14px;">учись · прокачивайся · побеждай</p>
+    <div class="lang-switch" role="group" aria-label="Язык" data-no-i18n><button type="button" class="lang-opt" data-lang="ru" onclick="vxSetLang('ru')">RU</button><button type="button" class="lang-opt" data-lang="kk" onclick="vxSetLang('kk')">KZ</button><button type="button" class="lang-opt" data-lang="en" onclick="vxSetLang('en')">EN</button></div>
   </div>
 
   <div style="background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:24px;width:100%;max-width:360px;margin-bottom:20px;">
@@ -83,6 +84,7 @@
     <div class="nav-right">
       <div class="nbtn" onclick="openModal('share')">Поделиться</div>
       <div class="nbtn" onclick="openModal('notif')">Уведомления</div>
+      <div class="nbtn lang-cycle" role="button" tabindex="0" aria-label="Язык" title="Язык" data-no-i18n onclick="vxCycleLang()">RU</div>
     </div>
   </nav>
   <div class="scroll">
@@ -635,6 +637,7 @@
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script src="js/i18n.js"></script>
 <script src="js/app.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/edupath.js"></script>
