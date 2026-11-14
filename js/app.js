@@ -272,11 +272,12 @@ async function postJSON(url,body,timeout){
   }finally{clearTimeout(t);}
 }
 async function fetchScore(skill,desc,repo){
-  const data=await postJSON(AI_ENDPOINT,{skill,description:desc,repo},60000);
+  const data=await postJSON(AI_ENDPOINT,{skill,description:desc,repo,lang:window.vxLang?vxLang():'ru'},60000);
   return data&&typeof data.overall_score==='number'?{...data,source:data.repo?'github':'ai'}:null;
 }
 
-function fmtDate(iso){try{return new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
+const vxLocale=()=>({kk:'kk-KZ',en:'en-GB'}[window.vxLang?vxLang():'ru']||'ru-RU');
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString(vxLocale(),{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
 function renderRepoProof(r){
   const box=document.getElementById('repoProof');
   if(!r.repo){box.hidden=true;box.innerHTML='';return;}
@@ -387,7 +388,7 @@ function fmtDeadline(d){
   const n=daysLeft(d);if(n===null)return 'без дедлайна';
   if(n<=0)return 'сегодня последний день';
   if(n<=14)return `осталось ${n} дн.`;
-  return 'до '+new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+  return 'до '+new Date(d).toLocaleDateString(vxLocale(),{day:'numeric',month:'short'});
 }
 
 function buildDeck(){
@@ -973,3 +974,6 @@ renderSavedSkills();
 renderMatches();
 renderOpp();loadOpps();
 initializeChats();
+
+// Смена языка: перерисовываем части, где даты и числа формируются в коде
+window.addEventListener('vx:lang',()=>{try{renderOpp();renderSavedSkills();if(lastResult)renderRepoProof(lastResult);}catch(e){console.warn(e);}});

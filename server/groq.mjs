@@ -6,6 +6,16 @@ export const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 // Пустая строка в GROQ_FALLBACK_MODEL отключает запасной вариант.
 export const FALLBACK_MODEL = process.env.GROQ_FALLBACK_MODEL ?? "openai/gpt-oss-20b";
 
+// Язык ответа для ученика. Для русского промпт не меняется (на нём проведены замеры),
+// для казахского и английского добавляется одна инструкция в конце.
+export const LANG_NOTE = {
+  kk: (noRepo) => `
+Language override: write every text field meant for the student in Kazakh (қазақ тілі) instead of Russian, addressing the student informally ("сен").${noRepo ? ` If no repository was provided, code_findings must be exactly "${noRepo.kk}".` : ""}`,
+  en: (noRepo) => `
+Language override: write every text field meant for the student in English instead of Russian, addressing the student informally ("you").${noRepo ? ` If no repository was provided, code_findings must be exactly "${noRepo.en}".` : ""}`,
+};
+export const lang = (v) => (v === "kk" || v === "en" ? v : "ru");
+
 export class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
