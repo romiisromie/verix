@@ -41,14 +41,15 @@ export function validate(body) {
   const skill = str(body.skill, 40);
   const description = String(body.description || "").trim();
   const repo = str(body.repo, 300);
+  const strict = body.strict_model === true; // только основная модель (для воспроизводимых замеров)
   if (!SKILLS.includes(skill)) throw new HttpError(400, "Неизвестный навык");
   if (!repo && description.length < 20) throw new HttpError(400, "Опиши проект подробнее (от 20 символов) или дай ссылку на GitHub");
   if (description.length > MAX_DESC) throw new HttpError(400, `Описание длиннее ${MAX_DESC} символов`);
-  return { skill, description, repo };
+  return { skill, description, repo, strict };
 }
 
 export async function skillproof(body) {
-  const { skill, description, repo } = validate(body);
+  const { skill, description, repo, strict } = validate(body);
   if (!process.env.GROQ_API_KEY) throw new HttpError(501, "AI не настроен на сервере");
   const evidence = repo ? await repoEvidence(repo) : null;
 
@@ -58,7 +59,7 @@ export async function skillproof(body) {
     evidence ? `<repository>\n${evidence.prompt}\n</repository>` : "No repository provided.",
   ].join("\n\n");
 
-  const data = await groqJSON({ system: SYSTEM, user, schema: SCHEMA, name: "skill_score" });
+  const { data, model } = await groqJSON({ system: SYSTEM, user, schema: SCHEMA, name: "skill_score", strict });
   return {
     overall_score: clamp(data.overall_score),
     originality: clamp(data.originality),
@@ -67,6 +68,7 @@ export async function skillproof(body) {
     code_findings: str(data.code_findings, 400),
     verdict: str(data.verdict, 600),
     repo: evidence ? evidence.meta : null,
+    model,
   };
 }
 
