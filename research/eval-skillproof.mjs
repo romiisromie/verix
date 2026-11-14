@@ -33,7 +33,7 @@ const todo = jobs.filter((j) => !done.has(j.id));
 console.log(`Всего заданий: ${jobs.length}, осталось: ${todo.length}, сервер: ${BASE}`);
 
 for (const [i, j] of todo.entries()) {
-  const body = { skill: skillFor(j.r.language), repo: j.r.url, description: j.description, strict_model: true }; // только основная модель — иначе оценки несравнимы
+  const body = { skill: skillFor(j.r.language), repo: j.r.url, description: j.description, strict_model: true, protocol: "v1" }; // исходный протокол оценки, на нём начат замер // только основная модель — иначе оценки несравнимы
   let t0 = performance.now();
   let status = 0, data = null;
   for (let attempt = 0; attempt < 200; attempt++) { // суточный лимит может держаться до 24 ч
@@ -50,7 +50,7 @@ for (const [i, j] of todo.entries()) {
     t0 = performance.now();
   }
   const ms = Math.round(performance.now() - t0);
-  const rec = { id: j.id, exp: j.exp, cond: j.cond, run: j.run, repo: j.r.repo, stratum: j.r.stratum, skill: body.skill, status, ms, at: new Date().toISOString(), ...(status === 200 ? { overall: data.overall_score, originality: data.originality, complexity: data.complexity, level: data.level_name, findings: data.code_findings, verdict: data.verdict, model: data.model, meta: data.repo } : { error: data?.error || "нет ответа" }) };
+  const rec = { id: j.id, exp: j.exp, cond: j.cond, run: j.run, repo: j.r.repo, stratum: j.r.stratum, skill: body.skill, status, ms, at: new Date().toISOString(), ...(status === 200 ? { overall: data.overall_score, originality: data.originality, complexity: data.complexity, level: data.level_name, findings: data.code_findings, verdict: data.verdict, model: data.model, protocol: data.protocol, meta: data.repo } : { error: data?.error || "нет ответа" }) };
   appendFileSync(OUT, JSON.stringify(rec) + "\n");
   console.log(`[${i + 1}/${todo.length}] ${j.id} → ${status} ${rec.overall ?? rec.error} (${ms} мс)`);
   await new Promise((r) => setTimeout(r, GAP_MS));

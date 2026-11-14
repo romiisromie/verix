@@ -6,6 +6,15 @@ import { repoEvidence } from "./github.mjs";
 const SKILLS = ["React", "Python", "ML/AI", "Design", "Data", "Web"];
 const LEVELS = ["Новичок", "Средний", "Продвинутый", "Эксперт"];
 const MAX_DESC = 2000;
+const NO_CODE_CAP = 60; // без кода навык нельзя подтвердить выше этого балла
+const NO_CODE_LEVELS = ["Новичок", "Средний"];
+// Признаки попытки управлять оценкой через описание (prompt injection), ru / kk / en
+const INJECTION_RE = /(игнорир|ignore\s+(all|any|the|previous|above|your)|disregard|забудь\s+(все|предыдущ|правила)|ұмыт|елеме|поставь\s*(мне\s*)?\d{2,3}|дай\s*(мне\s*)?\d{2,3}|\d{2,3}\s*балл\s*(қой|бер)|give\s*(me\s*)?(a\s*)?\d{2,3}|score\s*(of\s*)?100|overall_score|level_name|system\s*(prompt|override)|you\s+are\s+now|теперь\s+ты|ты\s+теперь|new\s+instructions|новые\s+инструкции)/i;
+// Версия протокола оценки:
+//   v1 — исходная: описание всегда передаётся модели (на ней проведены замеры апробации);
+//   v2 — после эксперимента B: при ссылке на GitHub балл ставится только по коду,
+//        без ссылки — проверка на инъекцию и потолок 60 баллов.
+export const PROTOCOL = "v2";
 
 const SYSTEM = `You are SkillProof, the skill assessor of Verix, a platform where school students (grades 8-11) prove their IT skills.
 You receive a skill name, the student's own description of a project, and sometimes evidence collected from the project's public GitHub repository (file tree, languages, commits, README, excerpts of source files).
@@ -43,34 +52,46 @@ export function validate(body) {
   const repo = str(body.repo, 300);
   const strict = body.strict_model === true; // только основная модель (для воспроизводимых замеров)
   const lang = pickLang(body.lang);
+  const protocol = body.protocol === "v1" ? "v1" : PROTOCOL;
   if (!SKILLS.includes(skill)) throw new HttpError(400, "Неизвестный навык");
   if (!repo && description.length < 20) throw new HttpError(400, "Опиши проект подробнее (от 20 символов) или дай ссылку на GitHub");
   if (description.length > MAX_DESC) throw new HttpError(400, `Описание длиннее ${MAX_DESC} символов`);
-  return { skill, description, repo, strict, lang };
+  if (protocol === "v2" && !repo && INJECTION_RE.test(description)) {
+    throw new HttpError(422, "Описание похоже на попытку повлиять на оценку. Опиши, что ты сделал, или дай ссылку на GitHub — тогда оценка будет только по коду.");
+  }
+  return { skill, description, repo, strict, lang, protocol };
 }
 
 export async function skillproof(body) {
-  const { skill, description, repo, strict, lang } = validate(body);
+  const { skill, description, repo, strict, lang, protocol } = validate(body);
   if (!process.env.GROQ_API_KEY) throw new HttpError(501, "AI не настроен на сервере");
   const evidence = repo ? await repoEvidence(repo) : null;
+  // v2: при ссылке на репозиторий описание модели не передаётся — запрос точно такой же, как при одной ссылке
+  const shownDescription = (protocol === "v2" && evidence) || !description ? "(the student gave only a repository link)" : description;
 
   const user = [
     `Skill: ${skill}`,
-    `<project_description>\n${description || "(the student gave only a repository link)"}\n</project_description>`,
+    `<project_description>\n${shownDescription}\n</project_description>`,
     evidence ? `<repository>\n${evidence.prompt}\n</repository>` : "No repository provided.",
   ].join("\n\n");
 
   const system = lang === "ru" ? SYSTEM : SYSTEM + LANG_NOTE[lang]({ kk: "Код тексерілмеді — баға сипаттама бойынша.", en: "Code was not checked — rated from the description." });
   const { data, model } = await groqJSON({ system, user, schema: SCHEMA, name: "skill_score", strict });
+  const capped = protocol === "v2" && !evidence; // без кода — только предварительная оценка
+  const cap = (n) => (capped ? Math.min(NO_CODE_CAP, clamp(n)) : clamp(n));
+  let level = LEVELS.includes(data.level_name) ? data.level_name : LEVELS[1];
+  if (capped && !NO_CODE_LEVELS.includes(level)) level = NO_CODE_LEVELS[NO_CODE_LEVELS.length - 1];
   return {
-    overall_score: clamp(data.overall_score),
-    originality: clamp(data.originality),
-    complexity: clamp(data.complexity),
-    level_name: LEVELS.includes(data.level_name) ? data.level_name : LEVELS[1],
+    overall_score: cap(data.overall_score),
+    originality: cap(data.originality),
+    complexity: cap(data.complexity),
+    level_name: level,
     code_findings: str(data.code_findings, 400),
     verdict: str(data.verdict, 600),
     repo: evidence ? evidence.meta : null,
     model,
+    protocol,
+    scored_by: evidence ? "code" : "description",
   };
 }
 
