@@ -164,3 +164,13 @@ def numbered_section(doc, start=3):
             it = OxmlElement("w:instrText"); it.text = txt; r._r.append(it)
     r.font.size = Pt(12)
     return sec
+
+
+def figure_row(doc, paths, caption, width_cm=5.1):
+    """Несколько скриншотов в ряд (таблица без рамок) с общей подписью."""
+    t = doc.add_table(rows=1, cols=len(paths))
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for c, path in zip(t.rows[0].cells, paths):
+        p = c.paragraphs[0]; p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run().add_picture(str(path), width=Cm(width_cm))
+    para(doc, caption, align="center", indent=False, size=12, space_after=6)
