@@ -310,7 +310,7 @@ async function runAnalysis(){
     document.getElementById('r-orig').textContent=r.originality;
     document.getElementById('r-comp').textContent=r.complexity;
     document.getElementById('r-lvl').textContent=r.level_name;
-    document.getElementById('aiVerdHead').textContent=r.source==='github'?'Вердикт AI по коду':r.source==='ai'?'Вердикт AI':'Предварительная оценка';
+    document.getElementById('aiVerdHead').textContent=r.source==='github'?'Вердикт AI по коду':r.source==='ai'?'Вердикт AI по описанию (без кода — до 60)':'Предварительная оценка';
     document.getElementById('aiVerdText').innerHTML=esc(r.verdict).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
     renderRepoProof(r);
     const res2=document.getElementById('aiResult');res2.classList.add('show');

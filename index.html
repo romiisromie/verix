@@ -205,6 +205,7 @@
     <div class="card">
       <label class="lbl" for="projDesc" style="display:block">Опиши проект <span class="lbl-note" id="descNote">от 20 символов</span></label>
       <textarea class="ai-ta" id="projDesc" maxlength="2000" placeholder="Например: Сделала сайт на React с авторизацией, тёмной темой, API подключением. Использовала хуки useState, useEffect, Context API. Деплой на Vercel..."></textarea>
+      <div class="hint">Честная оценка: если есть ссылка на GitHub, балл ставится только по коду. Без кода — предварительная оценка, не выше 60.</div>
     </div>
     <button class="go-btn" id="analyzeBtn" onclick="runAnalysis()">Анализировать с AI</button>
     <div class="ai-result" id="aiResult">

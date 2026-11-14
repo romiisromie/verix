@@ -404,6 +404,9 @@
     ["Репозиторий пустой", "Репозиторий бос", "The repository is empty"],
     ["Ошибка AI-сервиса", "AI-сервис қатесі", "AI service error"],
     ["AI вернул неверный ответ", "AI қате жауап қайтарды", "AI returned an invalid answer"],
+    ["Описание похоже на попытку повлиять на оценку. Опиши, что ты сделал, или дай ссылку на GitHub — тогда оценка будет только по коду.", "Сипаттама бағаға әсер етуге тырысуға ұқсайды. Не жасағаныңды сипатта немесе GitHub сілтемесін бер — сонда баға тек код бойынша қойылады.", "The description looks like an attempt to influence the score. Describe what you built or add a GitHub link — then the score is based only on the code."],
+    ["Честная оценка: если есть ссылка на GitHub, балл ставится только по коду. Без кода — предварительная оценка, не выше 60.", "Әділ баға: GitHub сілтемесі болса, балл тек код бойынша қойылады. Кодсыз — алдын ала баға, 60-тан аспайды.", "Fair scoring: with a GitHub link the score is based only on the code. Without code it is a preliminary score of at most 60."],
+    ["Вердикт AI по описанию (без кода — до 60)", "Сипаттама бойынша AI қорытындысы (кодсыз — 60-қа дейін)", "AI verdict from the description (no code — up to 60)"],
     // --- профиль: тексты по умолчанию и модальные окна ---
     ["Frontend разработчица, люблю создавать продукты с нуля.", "Frontend әзірлеуші, өнімдерді нөлден жасағанды ұнатамын.", "Frontend developer, I love building products from scratch."],
     ["Создай компонент таймера:", "Таймер компонентін жаса:", "Build a timer component:"],
