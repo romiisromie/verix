@@ -41,20 +41,23 @@ async function search(q) {
 function metrics(fullName) {
   const dir = mkdtempSync(join(tmpdir(), "vx-"));
   try {
-    git(["clone", "--quiet", "--bare", "--filter=blob:none", `https://github.com/${fullName}.git`, "r"], dir);
-    const cwd = join(dir, "r");
-    const files = git(["ls-tree", "-r", "-l", "HEAD"], cwd).trim().split("\n").filter(Boolean).map((line) => {
+    const url = `https://github.com/${fullName}.git`;
+    // текущее состояние кода: поверхностный клон (размеры файлов)
+    git(["clone", "--quiet", "--depth=1", "--no-checkout", url, "head"], dir);
+    const files = git(["ls-tree", "-r", "-l", "HEAD"], join(dir, "head")).trim().split("\n").filter(Boolean).map((line) => {
       const [meta, path] = line.split("\t");
       return { path, size: Number(meta.trim().split(/\s+/)[3]) || 0 };
     });
+    // история: клон без содержимого файлов (только коммиты)
+    git(["clone", "--quiet", "--bare", "--filter=tree:0", url, "hist"], dir);
+    const log = git(["log", "--format=%ae|%cI"], join(dir, "hist")).trim().split("\n").filter(Boolean).map((l) => l.split("|"));
     const code = files.filter((f) => CODE_EXT.test(f.path) && !SKIP.test(f.path));
-    const authors = git(["log", "--format=%ae"], cwd).trim().split("\n").filter(Boolean);
-    const dates = git(["log", "--format=%cI"], cwd).trim().split("\n").filter(Boolean);
+    const dates = log.map((l) => l[1]);
     return {
       code_files: code.length,
       code_kb: Math.round(code.reduce((a, f) => a + f.size, 0) / 1024),
-      commits: authors.length,
-      contributors: new Set(authors).size,
+      commits: log.length,
+      contributors: new Set(log.map((l) => l[0])).size,
       test_files: files.filter((f) => TEST_RE.test(f.path) && !SKIP.test(f.path)).length,
       ci: files.some((f) => CI_RE.test(f.path)),
       active_days: dates.length ? Math.round((Date.parse(dates[0]) - Date.parse(dates[dates.length - 1])) / 864e5) : 0,
@@ -72,12 +75,13 @@ for (const [id, s] of Object.entries(STRATA)) {
     let taken = 0;
     for (const it of items) {
       if (taken >= PER_QUERY) break;
-      if (seen.has(it.full_name) || it.archived || it.size === 0) continue;
+      const owner = it.owner?.login?.toLowerCase();
+      if (seen.has(owner) || it.archived || it.size === 0) continue; // не больше одного репозитория на автора
       process.stdout.write(`${id} ${it.full_name} … `);
       try {
         const m = metrics(it.full_name);
         if (m.code_files === 0) { console.log("нет кода, пропуск"); continue; }
-        seen.add(it.full_name);
+        seen.add(owner);
         sample.push({ stratum: id, stratum_name: s.name, query: q, repo: it.full_name, url: it.html_url, language: it.language, stars: it.stargazers_count, ...m });
         taken++;
         console.log(`${m.code_files} файлов, ${m.commits} коммитов`);
