@@ -55,7 +55,7 @@ Grade: ${grade}
 Hours per week: ${hours}
 Proven skills: ${skills.length ? skills.map((s) => `${s.skill} ${s.score}/100 (${s.level})`).join("; ") : "none yet"}
 </student>`;
-  const data = await groqJSON({ system: SYSTEM, user, schema: SCHEMA, name: "roadmap", maxTokens: 2500 });
+  const { data } = await groqJSON({ system: SYSTEM, user, schema: SCHEMA, name: "roadmap", maxTokens: 2500 });
   const phases = (Array.isArray(data.phases) ? data.phases : []).slice(0, 4).map((p) => ({
     title: str(p.title, 40),
     desc: str(p.desc, 160),

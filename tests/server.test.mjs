@@ -32,7 +32,7 @@ test("validate отклоняет неизвестный навык, пусто�
   assert.throws(() => validate({ skill: "Cobol", description: "x".repeat(50) }), /навык/);
   assert.throws(() => validate({ skill: "Web", description: "коротко" }), /подробнее/);
   assert.throws(() => validate({ skill: "Web", description: "x".repeat(2001) }), /длиннее/);
-  assert.deepEqual(validate({ skill: "Web", repo: "https://github.com/u/r" }), { skill: "Web", description: "", repo: "https://github.com/u/r" });
+  assert.deepEqual(validate({ skill: "Web", repo: "https://github.com/u/r" }), { skill: "Web", description: "", repo: "https://github.com/u/r", strict: false });
 });
 
 test("rateLimit пропускает лимит запросов и блокирует следующий", () => {
@@ -88,10 +88,53 @@ test("groqJSON переводит ошибки Groq в понятные коды
   try {
     for (const [status, expected] of [[429, 429], [401, 502], [500, 502]]) {
       globalThis.fetch = async () => new Response("err", { status });
-      await assert.rejects(groqJSON({ system: "s", user: "u", schema: {}, name: "n" }), (e) => e.status === expected);
+      await assert.rejects(groqJSON({ system: "s", user: "u", schema: {}, name: "n", strict: true }), (e) => e.status === expected);
     }
     globalThis.fetch = async () => new Response(JSON.stringify({ choices: [{ message: { content: "не json" } }] }), { status: 200 });
     await assert.rejects(groqJSON({ system: "s", user: "u", schema: {}, name: "n" }), /неверный ответ/);
+  } finally {
+    if (saved.key) process.env.GROQ_API_KEY = saved.key; else delete process.env.GROQ_API_KEY;
+    globalThis.fetch = saved.fetch;
+  }
+});
+
+test("при лимите основной модели SkillProof переключается на запасную, а strict_model — нет", async () => {
+  const saved = { key: process.env.GROQ_API_KEY, fetch: globalThis.fetch };
+  process.env.GROQ_API_KEY = "test";
+  const used = [];
+  globalThis.fetch = async (_url, init) => {
+    const model = JSON.parse(init.body).model;
+    used.push(model);
+    if (model === "openai/gpt-oss-120b") return new Response("limit", { status: 429 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({
+      overall_score: 50, originality: 50, complexity: 50, level_name: "Средний", code_findings: "-", verdict: "-",
+    }) } }] }), { status: 200 });
+  };
+  try {
+    const body = { skill: "Web", description: "Сайт-визитка на HTML и CSS с адаптивной вёрсткой" };
+    const r = await skillproof(body);
+    assert.equal(r.model, "openai/gpt-oss-20b");
+    assert.deepEqual(used, ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]);
+    await assert.rejects(skillproof({ ...body, strict_model: true }), (e) => e.status === 429);
+  } finally {
+    if (saved.key) process.env.GROQ_API_KEY = saved.key; else delete process.env.GROQ_API_KEY;
+    globalThis.fetch = saved.fetch;
+  }
+});
+
+test("ответ, не прошедший JSON-схему, повторяется один раз", async () => {
+  const saved = { key: process.env.GROQ_API_KEY, fetch: globalThis.fetch };
+  process.env.GROQ_API_KEY = "test";
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    if (calls === 1) return new Response(JSON.stringify({ error: { code: "json_validate_failed" } }), { status: 400 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: "{\"ok\":1}" } }] }), { status: 200 });
+  };
+  try {
+    const r = await groqJSON({ system: "s", user: "u", schema: {}, name: "n", strict: true });
+    assert.deepEqual(r.data, { ok: 1 });
+    assert.equal(calls, 2);
   } finally {
     if (saved.key) process.env.GROQ_API_KEY = saved.key; else delete process.env.GROQ_API_KEY;
     globalThis.fetch = saved.fetch;

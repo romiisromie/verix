@@ -15,7 +15,14 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11, "figure.dpi"
 
 all_repos = json.loads((DATA / "sample.json").read_text(encoding="utf-8"))["repos"]
 sample = [s for s in all_repos if s.get("software", True)]  # правило исключения задано до прогонов
-runs = [json.loads(l) for l in (DATA / "runs.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+raw = [json.loads(l) for l in (DATA / "runs.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+# последняя попытка по каждому заданию (неуспешные задания повторялись в следующих заходах)
+last = {}
+for r in raw:
+    if r["id"] not in last or last[r["id"]]["status"] != 200:
+        last[r["id"]] = r
+runs = list(last.values())
+attempts = raw
 ok = [r for r in runs if r["status"] == 200]
 by_repo = {s["repo"]: s for s in sample}
 NAMES = {"S1": "учебные", "S2": "самостоятельные", "S3": "зрелые"}
@@ -51,7 +58,7 @@ def spearman(x, y):
     rho, p = stats.spearmanr(x, y)
     return {"rho": round(float(rho), 3), "p": float(p), "n": len(x)}
 
-res = {"n_repos": len(sample), "n_sampled": len(all_repos), "n_excluded": len(all_repos) - len(sample), "n_calls": len(runs), "n_ok": len(ok)}
+res = {"n_attempts": len(attempts), "n_limit_hits": sum(1 for r in attempts if r["status"] == 429), "n_repos": len(sample), "n_sampled": len(all_repos), "n_excluded": len(all_repos) - len(sample), "n_calls": len(runs), "n_ok": len(ok)}
 res["strata_sizes"] = {k: sum(1 for s in sample if s["stratum"] == k) for k in NAMES}
 res["spearman_complexity_index"] = spearman([r["index"] for r in rows], [r["complexity"] for r in rows])
 res["spearman_overall_index"] = spearman([r["index"] for r in rows], [r["overall"] for r in rows])

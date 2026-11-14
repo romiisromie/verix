@@ -2,6 +2,9 @@
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 export const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+// Запасная модель: у неё отдельный суточный лимит бесплатного тарифа Groq.
+// Пустая строка в GROQ_FALLBACK_MODEL отключает запасной вариант.
+export const FALLBACK_MODEL = process.env.GROQ_FALLBACK_MODEL ?? "openai/gpt-oss-20b";
 
 export class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -20,8 +23,29 @@ export function rateLimit(key, limit = 10, windowMs = 60_000) {
   if (hits.size > 5000) hits.clear();
 }
 
-// Запрос к Groq со строгой JSON-схемой. Возвращает разобранный объект.
-export async function groqJSON({ system, user, schema, name, maxTokens = 1500 }) {
+// Запрос к Groq со строгой JSON-схемой. Возвращает { data, model }.
+// При исчерпании лимита основной модели пробует запасную (если не strict).
+export async function groqJSON({ system, user, schema, name, maxTokens = 1500, strict = false }) {
+  try {
+    return { data: await callModel(MODEL, { system, user, schema, name, maxTokens }), model: MODEL };
+  } catch (err) {
+    if (strict || err.status !== 429 || !FALLBACK_MODEL || FALLBACK_MODEL === MODEL) throw err;
+    return { data: await callModel(FALLBACK_MODEL, { system, user, schema, name, maxTokens }), model: FALLBACK_MODEL };
+  }
+}
+
+// Модель иногда выдаёт ответ, не прошедший JSON-схему (Groq: 400 json_validate_failed),
+// или сервис кратко сбоит (5xx). Такой запрос повторяем один раз.
+async function callModel(model, args) {
+  try {
+    return await callOnce(model, args);
+  } catch (err) {
+    if (!err.retryable) throw err;
+    return callOnce(model, args);
+  }
+}
+
+async function callOnce(model, { system, user, schema, name, maxTokens }) {
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new HttpError(501, "AI не настроен на сервере");
 
@@ -32,7 +56,7 @@ export async function groqJSON({ system, user, schema, name, maxTokens = 1500 })
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       signal: AbortSignal.timeout(40_000),
       body: JSON.stringify({
-        model: MODEL,
+        model,
         max_completion_tokens: maxTokens,
         reasoning_effort: "low",
         messages: [
@@ -53,12 +77,18 @@ export async function groqJSON({ system, user, schema, name, maxTokens = 1500 })
     if (res.status === 429) throw new HttpError(429, "Лимит бесплатного AI исчерпан. Попробуй через минуту.");
     if (res.status === 401 || res.status === 403) throw new HttpError(502, "Неверный ключ AI на сервере");
     if (res.status === 413) throw new HttpError(413, "Слишком большой запрос для AI");
-    throw new HttpError(502, "Ошибка AI-сервиса");
+    const err = new HttpError(502, "Ошибка AI-сервиса");
+    err.retryable = res.status >= 500 || (res.status === 400 && /json_validate_failed|failed_generation/.test(detail));
+    throw err;
   }
 
   const payload = await res.json();
   const text = payload?.choices?.[0]?.message?.content || "";
-  try { return JSON.parse(text); } catch { throw new HttpError(502, "AI вернул неверный ответ"); }
+  try { return JSON.parse(text); } catch {
+    const err = new HttpError(502, "AI вернул неверный ответ");
+    err.retryable = true;
+    throw err;
+  }
 }
 
 // Обёртка для Web Request/Response (Vercel и Netlify Functions v2).
