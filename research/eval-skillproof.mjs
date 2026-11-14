@@ -12,7 +12,7 @@ const RUNS = 3;
 const GAP_MS = 8_000; // сервер разрешает 8 запросов в минуту с одного IP
 const OUT = "research/data/runs.jsonl";
 
-const { repos } = JSON.parse(readFileSync("research/data/sample.json", "utf8"));
+const repos = JSON.parse(readFileSync("research/data/sample.json", "utf8")).repos.filter((r) => r.software); // правило исключения — в sample.json
 const done = new Set(existsSync(OUT) ? readFileSync(OUT, "utf8").trim().split("\n").filter(Boolean).map((l) => JSON.parse(l).id) : []);
 const skillFor = (lang) => (lang === "Python" ? "Python" : "Web");
 
@@ -33,16 +33,20 @@ console.log(`Всего заданий: ${jobs.length}, осталось: ${todo
 
 for (const [i, j] of todo.entries()) {
   const body = { skill: skillFor(j.r.language), repo: j.r.url, description: j.description };
-  const t0 = performance.now();
+  let t0 = performance.now();
   let status = 0, data = null;
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 14; attempt++) {
     try {
       const res = await fetch(`${BASE}/api/skillproof`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(70_000) });
       status = res.status;
       data = await res.json().catch(() => null);
     } catch (e) { status = 0; data = { error: String(e.message || e) }; }
     if (status !== 429 && status !== 503 && status !== 0) break;
-    await new Promise((r) => setTimeout(r, 30_000 * (attempt + 1))); // ждём при лимитах и сбоях связи
+    // лимит GitHub/AI или сбой связи: ждём (до 5 минут) и повторяем; время ожидания не входит в замер скорости
+    const wait = Math.min(300_000, 30_000 * (attempt + 1));
+    console.log(`  ${status} ${data?.error || ""} — жду ${wait / 1000} с`);
+    await new Promise((r) => setTimeout(r, wait));
+    t0 = performance.now();
   }
   const ms = Math.round(performance.now() - t0);
   const rec = { id: j.id, exp: j.exp, cond: j.cond, run: j.run, repo: j.r.repo, stratum: j.r.stratum, skill: body.skill, status, ms, at: new Date().toISOString(), ...(status === 200 ? { overall: data.overall_score, originality: data.originality, complexity: data.complexity, level: data.level_name, findings: data.code_findings, verdict: data.verdict, meta: data.repo } : { error: data?.error || "нет ответа" }) };

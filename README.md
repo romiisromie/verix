@@ -111,6 +111,18 @@ npx vercel env add GITHUB_TOKEN production
 
 Список лежит в `data/opportunities.json`. Сейчас там примерные данные для демо — замените их на реальные. Поля: `type`, `org`, `title`, `city`, `grades` (диапазон классов, 12+ — студенты), `deadline` (`YYYY-MM-DD` или `null`), `skills` (по ним считается совпадение), `tags`, `desc`, `url`. Прошедшие дедлайны скрываются сами.
 
+## Исследование надёжности SkillProof
+
+В папке `research/` — открытый и повторяемый эксперимент: можно ли доверять AI-оценке навыка по коду.
+
+```bash
+node research/build-sample.mjs        # выборка репозиториев трёх уровней + объективные метрики по git-истории
+node research/eval-skillproof.mjs     # прогоны через рабочий API (3 повтора + тесты на обман)
+pip install scipy matplotlib && python research/analyze.py   # статистика и графики
+```
+
+Сырые данные — `research/data/`, графики — `research/fig/`. Автотесты сервера: `npm test`.
+
 ## Лицензия
 
 MIT
