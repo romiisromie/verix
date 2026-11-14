@@ -244,17 +244,7 @@ function selSkill(el,name){
 const AI_ENDPOINT='/api/skillproof';
 let lastResult=null;
 
-function localScore(skill,desc){
-  // Офлайн-оценка, когда сервер с AI недоступен (например, на GitHub Pages)
-  const words=desc.split(/\s+/).filter(Boolean).length;
-  const tech=(desc.match(/react|vue|node|python|django|flask|api|sql|docker|git|typescript|redux|hooks?|ml|model|pandas|numpy|figma|auth|deploy|vercel|netlify|test/gi)||[]).length;
-  const base=Math.min(92,Math.max(40,40+Math.round(words*0.6)+tech*4));
-  const originality=Math.min(95,Math.max(35,base+((words*7)%11)-5));
-  const complexity=Math.min(95,Math.max(35,base+tech*2-6));
-  const level=base>=85?'Эксперт':base>=72?'Продвинутый':base>=58?'Средний':'Новичок';
-  const tips=tech<3?'Опиши, какие технологии и библиотеки ты использовал.':words<40?'Добавь подробностей: какие задачи решал и что было сложнее всего.':'Добавь ссылку на репозиторий и тесты — это повысит доверие к оценке.';
-  return {overall_score:base,originality,complexity,level_name:level,verdict:`Предварительная оценка без AI (сервер недоступен). **${tips}**`,source:'local'};
-}
+// Без AI оценка не выставляется: подсчёт «по количеству слов» был бы нечестным.
 
 const REPO_RE=/^https?:\/\/(www\.)?github\.com\/[A-Za-z0-9-]{1,39}\/[A-Za-z0-9._-]{1,100}\/?([#?].*)?$/;
 
@@ -304,7 +294,7 @@ async function runAnalysis(){
   document.getElementById('aiResult').classList.remove('show');
   try{
     let r=await fetchScore(selSkillName,desc,repo);
-    if(!r)r=localScore(selSkillName,desc||repo);
+    if(!r){toast('AI сейчас недоступен — оценку без него не ставим. Попробуй чуть позже.');btn.disabled=false;btn.textContent='Анализировать с AI';btn.removeAttribute('aria-busy');return;}
     lastResult={skill:selSkillName,...r};
     document.getElementById('r-overall').textContent=r.overall_score;
     document.getElementById('r-orig').textContent=r.originality;

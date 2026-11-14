@@ -16,6 +16,23 @@ const INJECTION_RE = /(игнорир|ignore\s+(all|any|the|previous|above|your)
 //        без ссылки — проверка на инъекцию и потолок 60 баллов.
 export const PROTOCOL = "v2";
 
+// Бессмысленный текст («аывап ывапыв…», «asdf asdf…»): не тратим на него запрос к AI.
+// Признаки: мало слов, слова без гласных или с длинными цепочками согласных, сплошные повторы.
+const VOWELS = /[aeiouyаеёиоуыэюяәіөұүі]/i;
+export function looksMeaningless(text) {
+  const words = (String(text).toLowerCase().match(/[a-zа-яёәғқңөұүһі]+/g) || []).filter((w) => w.length >= 3);
+  if (words.length < 4) return true;
+  const plausible = words.filter((w) => VOWELS.test(w) && !/[^aeiouyаеёиоуыэюяәіөұүі\W\d]{5,}/i.test(w)).length;
+  if (plausible / words.length < 0.6) return true;
+  const letters = words.join(" ");
+  if (letters.length >= 30) {
+    const grams = [];
+    for (let i = 0; i + 4 <= letters.length; i++) grams.push(letters.slice(i, i + 4));
+    if (new Set(grams).size / grams.length < 0.5) return true;
+  }
+  return new Set(words).size < 3;
+}
+
 const SYSTEM = `You are SkillProof, the skill assessor of Verix, a platform where school students (grades 8-11) prove their IT skills.
 You receive a skill name, the student's own description of a project, and sometimes evidence collected from the project's public GitHub repository (file tree, languages, commits, README, excerpts of source files).
 Score honestly and calibrated for a school student:
@@ -58,6 +75,9 @@ export function validate(body) {
   if (description.length > MAX_DESC) throw new HttpError(400, `Описание длиннее ${MAX_DESC} символов`);
   if (protocol === "v2" && !repo && INJECTION_RE.test(description)) {
     throw new HttpError(422, "Описание похоже на попытку повлиять на оценку. Опиши, что ты сделал, или дай ссылку на GitHub — тогда оценка будет только по коду.");
+  }
+  if (protocol === "v2" && !repo && looksMeaningless(description)) {
+    throw new HttpError(400, "Описание непонятное. Напиши обычными словами, что ты сделал и какими технологиями, или дай ссылку на GitHub.");
   }
   return { skill, description, repo, strict, lang, protocol };
 }

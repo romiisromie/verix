@@ -236,3 +236,18 @@ test("v2 без кода: попытка инъекции отклоняется
     globalThis.fetch = saved.fetch;
   }
 });
+
+test("бессмысленное описание без кода отклоняется, нормальное — нет", async () => {
+  const { looksMeaningless } = await import("../server/score.mjs");
+  for (const junk of ["аывап ывапыв ывапывап выапывап ывапыв ывап", "asdf asdf asdf asdf qwer", "ффффф ыыыыы ввввв ааааа ппппп", "jkhgfdsa qwrtplkj zxcvbnm hjklpoiu", "abc abc abc"]) {
+    assert.equal(looksMeaningless(junk), true, junk);
+    assert.throws(() => validate({ skill: "Web", description: junk.padEnd(25, " " ) + " " }), (e) => e.status === 400, junk);
+  }
+  for (const ok of [
+    "Сделала сайт на React с авторизацией и тёмной темой, задеплоила на Vercel",
+    "Телеграм-бот на Python: напоминает о домашних заданиях, хранит данные в SQLite",
+    "React-те авторизациясы бар сайт жасадым, Vercel-ге жарияладым",
+    "Built a weather app in JavaScript that uses a public API and shows a 5-day forecast",
+    "привет как дела я сделал крутой проект очень крутой лучший проект",
+  ]) assert.equal(looksMeaningless(ok), false, ok);
+});
