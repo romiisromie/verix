@@ -435,3 +435,5 @@ body.is-offline .offline-badge{display:block;}
   .card,.stat,.skc,.proj,.bdg{box-shadow:none!important;break-inside:avoid;}
   .go-btn,.sh-btn,.ch-card{display:none!important;}
 }
+
+.demo-note{margin:10px 0 4px;padding:10px 12px;border:1.5px dashed var(--accent);border-radius:12px;font-size:13px;line-height:1.4;opacity:.9;}

@@ -46,9 +46,26 @@ function pickCode(files) {
     .slice(0, 2);
 }
 
+const TEST_RE = /(^|\/)(tests?|__tests__|spec)\/|(\.|_)(test|spec)\.[a-z]+$|(^|\/)test_[^/]+\.py$/i;
+const CI_RE = /^\.github\/workflows\/|^\.gitlab-ci\.yml$|^\.circleci\//;
+
+// Кэш собранных данных: повторная проверка того же репозитория не тратит лимит GitHub API.
+const CACHE_TTL = 30 * 60_000;
+const cache = new Map();
+
 // Возвращает { prompt: текст для модели, meta: краткие факты для интерфейса }
 export async function repoEvidence(url) {
   const { owner, repo } = parseRepo(url);
+  const key = `${owner}/${repo}`.toLowerCase();
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.at < CACHE_TTL) return hit.value;
+  const value = await collect(owner, repo);
+  if (cache.size > 300) cache.clear();
+  cache.set(key, { at: Date.now(), value });
+  return value;
+}
+
+async function collect(owner, repo) {
   const base = `/repos/${owner}/${repo}`;
   const { data: info } = await gh(base);
   const branch = info.default_branch || "main";
@@ -63,6 +80,10 @@ export async function repoEvidence(url) {
     .filter((t) => t.type === "blob" && !SKIP_DIR.test(t.path) && !SKIP_FILE.test(t.path))
     .map((t) => ({ path: t.path, size: t.size || 0 }));
   if (!files.length && info.size === 0) throw new HttpError(400, "Репозиторий пустой");
+
+  const allPaths = (tree.tree || []).map((t) => t.path);
+  const testFiles = files.filter((f) => TEST_RE.test(f.path)).length;
+  const hasCI = allPaths.some((p) => CI_RE.test(p));
 
   const readmeFile = files.find((f) => /^readme(\.(md|rst|txt))?$/i.test(f.path));
   const code = pickCode(files);
@@ -91,6 +112,8 @@ export async function repoEvidence(url) {
     authors: authors.length,
     first_commit: dates[0] || null,
     last_commit: dates[dates.length - 1] || null,
+    test_files: testFiles,
+    ci: hasCI,
   };
 
   const prompt = [
@@ -98,6 +121,7 @@ export async function repoEvidence(url) {
     `Description: ${info.description || "—"}`,
     `Languages: ${langPct.join(", ") || "—"}`,
     `Files (without vendor/build): ${files.length}. Commits: ${meta.commits}, authors: ${authors.length}, period: ${meta.first_commit || "?"} … ${meta.last_commit || "?"}`,
+    `Automated tests: ${testFiles ? testFiles + " test file(s)" : "none found"}. CI: ${hasCI ? "yes" : "no"}`,
     `Recent commit messages:\n${commitList.slice(0, 12).map((c) => "- " + String(c.commit?.message || "").split("\n")[0].slice(0, 80)).join("\n") || "—"}`,
     `File tree (first 80):\n${files.slice(0, 80).map((f) => f.path).join("\n")}`,
     readme ? `README (truncated):\n${readme}` : "README: none",

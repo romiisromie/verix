@@ -844,7 +844,7 @@ function openMessenger(userName) {
         <div class="messenger-avatar">${user.avatar}</div>
         <div class="messenger-info">
           <div class="messenger-name">${user.name}</div>
-          <div class="messenger-status">${user.isOnline ? 'В сети' : 'Не в сети'}</div>
+          <div class="messenger-status">Демо-собеседник · ответы автоматические</div>
         </div>
         <div class="messenger-close" onclick="closeModal()">×</div>
       </div>
