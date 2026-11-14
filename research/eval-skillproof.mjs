@@ -36,7 +36,7 @@ for (const [i, j] of todo.entries()) {
   const body = { skill: skillFor(j.r.language), repo: j.r.url, description: j.description, strict_model: true }; // только основная модель — иначе оценки несравнимы
   let t0 = performance.now();
   let status = 0, data = null;
-  for (let attempt = 0; attempt < 14; attempt++) {
+  for (let attempt = 0; attempt < 200; attempt++) { // суточный лимит может держаться до 24 ч
     try {
       const res = await fetch(`${BASE}/api/skillproof`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(70_000) });
       status = res.status;
@@ -44,7 +44,7 @@ for (const [i, j] of todo.entries()) {
     } catch (e) { status = 0; data = { error: String(e.message || e) }; }
     if (status !== 429 && status !== 503 && status !== 0) break;
     // лимит GitHub/AI или сбой связи: ждём (до 5 минут) и повторяем; время ожидания не входит в замер скорости
-    const wait = Math.min(300_000, 30_000 * (attempt + 1));
+    const wait = status === 429 ? 600_000 : Math.min(300_000, 30_000 * (attempt + 1));
     console.log(`  ${status} ${data?.error || ""} — жду ${wait / 1000} с`);
     await new Promise((r) => setTimeout(r, wait));
     t0 = performance.now();
