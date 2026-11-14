@@ -6,7 +6,9 @@
   "description": "Verix — платформа цифровой репутации для школьников в IT",
   "scripts": {
     "start": "npx --yes serve -l 8000 .",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/",
+    "eval": "node research/eval-skillproof.mjs"
   },
   "engines": {
     "node": ">=20"
