@@ -66,7 +66,7 @@ groups = {k: [r["overall"] for r in rows if r["stratum"] == k] for k in NAMES}
 H, p = stats.kruskal(*[g for g in groups.values() if g])
 res["kruskal"] = {"H": round(float(H), 2), "p": float(p)}
 res["by_stratum"] = {k: {"n": len(g), "median": round(st.median(g), 1), "mean": round(st.mean(g), 1),
-                         "min": min(g), "max": max(g)} for k, g in groups.items() if g}
+                         "min": round(min(g), 1), "max": round(max(g), 1)} for k, g in groups.items() if g}
 pairs = [("S1", "S2"), ("S2", "S3"), ("S1", "S3")]
 res["mannwhitney"] = {f"{a}-{b}": float(stats.mannwhitneyu(groups[a], groups[b], alternative="less").pvalue) for a, b in pairs}
 
@@ -132,7 +132,7 @@ for i, k in enumerate(NAMES, 1):
     ax.scatter([i] * len(groups[k]), groups[k], color=COL[k], s=18, zorder=3)
 ax.set_xticks([1, 2, 3], [f"{NAMES[k]}\n(n={len(groups[k])})" for k in NAMES])
 ax.set_ylabel("Общий балл SkillProof (среднее 3 прогонов)")
-ax.set_title(f"Рис. 1. Оценка по группам репозиториев (Краскел–Уоллис p={res['kruskal']['p']:.1e})", fontsize=10)
+ax.set_title(f"Оценка по группам репозиториев (Краскел–Уоллис p={res['kruskal']['p']:.1e})", fontsize=10)
 ax.set_ylim(0, 100); ax.grid(axis="y", alpha=.3)
 fig.tight_layout(); fig.savefig(FIG / "fig1_strata.png"); plt.close(fig)
 
@@ -143,7 +143,7 @@ for k in NAMES:
 ax.set_xlabel("Объективный индекс сложности репозитория (z-оценка)")
 ax.set_ylabel("Сложность по SkillProof")
 sp = res["spearman_complexity_index"]
-ax.set_title(f"Рис. 2. AI-оценка сложности и объективные метрики (ρ={sp['rho']}, n={sp['n']})", fontsize=10)
+ax.set_title(f"AI-оценка сложности и объективные метрики (ρ={sp['rho']}, n={sp['n']})", fontsize=10)
 ax.legend(); ax.grid(alpha=.3); ax.set_ylim(0, 100)
 fig.tight_layout(); fig.savefig(FIG / "fig2_validity.png"); plt.close(fig)
 
@@ -153,7 +153,7 @@ ax.scatter(r1, r2, s=26, label="прогон 1 vs 2", color="#2f6bff")
 ax.scatter(r1, r3, s=26, label="прогон 1 vs 3", color="#ff4f9a", marker="^")
 ax.plot([0, 100], [0, 100], color="gray", lw=1, ls="--")
 ax.set_xlabel("Балл в прогоне 1"); ax.set_ylabel("Балл в повторном прогоне")
-ax.set_title(f"Рис. 3. Воспроизводимость оценки (ICC={res['icc1']}, n={n})", fontsize=10)
+ax.set_title(f"Воспроизводимость оценки (ICC={res['icc1']}, n={n})", fontsize=10)
 ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.legend(); ax.grid(alpha=.3)
 fig.tight_layout(); fig.savefig(FIG / "fig3_retest.png"); plt.close(fig)
 
@@ -165,7 +165,7 @@ if complete:
     for b, v in zip(bars, vals):
         ax.text(b.get_x() + b.get_width() / 2, v + 1.5, f"{v}", ha="center")
     ax.set_ylim(0, 100); ax.set_ylabel("Средний общий балл")
-    ax.set_title(f"Рис. 4. Устойчивость к обману (учебные репозитории, n={len(complete)})", fontsize=10)
+    ax.set_title(f"Устойчивость к обману (учебные репозитории, n={len(complete)})", fontsize=10)
     ax.grid(axis="y", alpha=.3)
     fig.tight_layout(); fig.savefig(FIG / "fig4_robustness.png"); plt.close(fig)
 
