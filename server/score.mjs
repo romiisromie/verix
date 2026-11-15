@@ -2,6 +2,7 @@
 // Если передана ссылка на GitHub, модель смотрит на реальный код, коммиты и README.
 import { HttpError, clamp, str, groqJSON, makeHandler, LANG_NOTE, lang as pickLang } from "./groq.mjs";
 import { repoEvidence } from "./github.mjs";
+import { recordProof } from "./social.mjs";
 
 const SKILLS = ["React", "Python", "ML/AI", "Design", "Data", "Web"];
 const LEVELS = ["Новичок", "Средний", "Продвинутый", "Эксперт"];
@@ -87,16 +88,24 @@ export function validate(body) {
 const RESULT_TTL = 60 * 60_000;
 const results = new Map();
 
-export async function skillproof(body) {
+export async function skillproof(body, request) {
   const { skill, description, repo, strict, lang, protocol } = validate(body);
   if (!process.env.GROQ_API_KEY) throw new HttpError(501, "AI не настроен на сервере");
   const cacheKey = protocol === "v2" && repo ? `${lang}|${skill}|${repo.toLowerCase().replace(/\/+$/, "")}` : null;
   const hit = cacheKey && results.get(cacheKey);
-  if (hit && Date.now() - hit.at < RESULT_TTL) return { ...hit.value, cached: true };
-  const value = await score({ skill, description, repo, strict, lang, protocol });
-  if (cacheKey) {
-    if (results.size > 500) results.clear();
-    results.set(cacheKey, { at: Date.now(), value });
+  let value;
+  if (hit && Date.now() - hit.at < RESULT_TTL) value = { ...hit.value, cached: true };
+  else {
+    value = await score({ skill, description, repo, strict, lang, protocol });
+    if (cacheKey) {
+      if (results.size > 500) results.clear();
+      results.set(cacheKey, { at: Date.now(), value });
+    }
+  }
+  // Вошёл через GitHub и проверил СВОЙ репозиторий → навык сохраняется на сервере и идёт в рейтинг
+  if (request && protocol === "v2") {
+    try { const proof = await recordProof(request, { skill, repo, result: value }); if (proof) value = { ...value, proof }; }
+    catch (err) { console.error("recordProof", err); }
   }
   return value;
 }

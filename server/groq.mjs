@@ -125,7 +125,7 @@ export function makeHandler(work, { limit = 10, maxBody = 8000 } = {}) {
       if (raw.length > maxBody) throw new HttpError(413, "Слишком большой запрос");
       let body;
       try { body = JSON.parse(raw); } catch { throw new HttpError(400, "Неверный JSON"); }
-      return json(200, await work(body));
+      return json(200, await work(body, request));
     } catch (err) {
       if (err instanceof HttpError) return json(err.status, { error: err.message });
       console.error(err);

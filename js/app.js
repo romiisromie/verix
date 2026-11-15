@@ -71,6 +71,11 @@ function openEditProfile(){
           <select class="inp" id="e_t3" style="flex:1;">${tOpts(p.tag3)}</select>
         </div>
       </div>
+      <div>
+        <div class="lbl">Приватность</div>
+        <label class="f-check" style="display:flex;margin:6px 0;"><input type="checkbox" id="e_public" ${p.public!==false?'checked':''}> Показывать меня в рейтинге</label>
+        <label class="f-check" style="display:flex;"><input type="checkbox" id="e_dm" ${p.dm!==false?'checked':''}> Разрешить ученикам писать мне</label>
+      </div>
       <button class="go-btn" onclick="applyProfile()">Сохранить</button>
       <button class="outline-btn" style="margin-top:0;" onclick="vxOnboarding()">Пройти опрос заново</button>
       <button class="outline-btn danger-btn" style="margin-top:0;" onclick="if(confirm('Сбросить профиль к стандартному?')){store.del('p');renderProfile();closeModal();toast('Сброшено');}">Сбросить профиль</button>
@@ -89,6 +94,8 @@ function applyProfile(){
   p.tag1=document.getElementById('e_t1').value;
   p.tag2=document.getElementById('e_t2').value;
   p.tag3=document.getElementById('e_t3').value;
+  p.public=document.getElementById('e_public').checked;
+  p.dm=document.getElementById('e_dm').checked;
   saveP(p);renderProfile();closeModal();toast('Профиль сохранён!');
   if(window.loadOpps&&oppsLoaded){buildDeck();renderOpp();}
 }
@@ -217,6 +224,7 @@ async function runAnalysis(){
     renderRepoProof(r);
     const res2=document.getElementById('aiResult');res2.classList.add('show');
     if(window.vxGain&&r.source==='github'&&r.repo&&r.repo.url)vxGain('github',r.repo.url); // XP только за проверку по коду, один раз на репозиторий
+    if(window.vxProofNote&&r.proof)vxProofNote(r.proof);
     setTimeout(()=>res2.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
   }catch(e){toast('Не получилось: '+e.message);console.error(e);}
   btn.disabled=false;btn.textContent='Анализировать снова';btn.removeAttribute('aria-busy');

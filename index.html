@@ -56,7 +56,9 @@
         <input type="password" id="passwordInput" class="inp" placeholder="минимум 6 символов" autocomplete="current-password" minlength="6" required aria-describedby="loginError">
       </div>
       <div id="loginError" class="form-error" role="alert" aria-live="assertive"></div>
-      <button type="submit" class="go-btn" style="width:100%;margin-bottom:10px;">Войти в Verix</button>
+      <button type="button" class="go-btn gh-btn gh-only" style="width:100%;margin-bottom:10px;" onclick="vxGithubLogin()">Войти через GitHub</button>
+      <div class="hint gh-only" style="text-align:center;margin-bottom:10px;">или без аккаунта — только в этом браузере:</div>
+      <button type="submit" class="outline-btn" style="width:100%;margin:0 0 10px;">Войти в Verix</button>
       <button type="button" class="outline-btn" style="margin:0 0 12px;" onclick="demoLogin()">Попробовать без регистрации</button>
     </form>
     <div style="text-align:center;">
@@ -291,7 +293,7 @@
 <div class="screen" id="screen-rankings">
   <nav>
     <div class="nav-logo">Рейтинги</div>
-    <div class="nav-right"><div class="nbtn" onclick="openModal('rankings-info')">?</div></div>
+    <div class="nav-right"><div class="nbtn" role="button" tabindex="0" aria-label="Сообщения" onclick="vxOpenInbox()">✉</div><div class="nbtn" onclick="openModal('rankings-info')">?</div></div>
   </nav>
   <div class="scroll">
     <div class="rankings-hero">
@@ -304,7 +306,8 @@
     </div>
     <div class="card">
       <div class="lbl">Общий рейтинг учеников и школ</div>
-      <div class="hint" style="margin-top:6px;">Рейтинг откроется, когда в Verix появятся настоящие аккаунты со входом через GitHub: тогда в нём будут только реальные ученики и только навыки, подтверждённые по коду. Выдуманных участников здесь не будет.</div>
+      <div class="hint" id="rankHint" style="margin-top:6px;">Рейтинг откроется, когда в Verix появятся настоящие аккаунты со входом через GitHub: тогда в нём будут только реальные ученики и только навыки, подтверждённые по коду. Выдуманных участников здесь не будет.</div>
+      <div id="rankList" class="rank-list"></div>
     </div>
     <div class="card">
       <div class="lbl">Как попасть в рейтинг</div>
@@ -345,6 +348,7 @@
 <script src="js/edupath.js"></script>
 <script src="js/game.js"></script>
 <script src="js/onboarding.js"></script>
+<script src="js/social.js"></script>
 <script src="js/enhance.js"></script>
 </body>
 </html>

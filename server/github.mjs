@@ -14,7 +14,7 @@ export function parseRepo(url) {
   return { owner: m[1], repo: m[2].replace(/\.git$/, "") };
 }
 
-async function gh(path) {
+export async function gh(path) {
   const headers = { Accept: "application/vnd.github+json", "User-Agent": "verix-skillproof" };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   let res;
@@ -129,4 +129,12 @@ async function collect(owner, repo) {
   ].join("\n\n");
 
   return { prompt, meta };
+}
+
+// Логины соавторов репозитория (до 100) — для проверки, что ученик действительно участвовал в проекте
+export async function contributors(owner, repo) {
+  try {
+    const { data } = await gh(`/repos/${owner}/${repo}/contributors?per_page=100`);
+    return Array.isArray(data) ? data.map((c) => String(c.login || "").toLowerCase()).filter(Boolean) : [];
+  } catch { return []; }
 }
