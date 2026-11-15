@@ -492,5 +492,22 @@
       "Новичок",
       "Новичок"
     ]
+  },
+  {
+    "repo": "justlovemaki/AIClient2API",
+    "stratum": "S3",
+    "index": 1.2051820208614212,
+    "n": 2,
+    "overall": 78,
+    "complexity": 85,
+    "originality": 62.5,
+    "overall_runs": [
+      78,
+      78
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый"
+    ]
   }
 ]
