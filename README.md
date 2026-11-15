@@ -124,6 +124,19 @@ pip install scipy matplotlib && python research/analyze.py   # статисти�
 
 Сырые данные — `research/data/`, графики — `research/fig/`. Автотесты сервера: `npm test`.
 
+## Аккаунты, рейтинг и чат
+
+Вход через GitHub, серверный рейтинг и чат включаются, когда заданы переменные окружения:
+
+| Переменная | Откуда |
+|---|---|
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Vercel → Storage → Upstash for Redis (префикс `KV`) |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | github.com/settings/developers → OAuth App, callback `https://<домен>/api/auth/callback` |
+| `SESSION_SECRET` | случайная строка от 32 символов |
+| `OAUTH_BASE_URL` | адрес сайта, например `https://verix-khaki.vercel.app` |
+
+Навык попадает в рейтинг, только если ученик — владелец или соавтор репозитория. Чат: только между зарегистрированными учениками, до 500 символов, 20 сообщений в минуту, блокировка и жалобы. Без этих переменных Verix работает в браузерном режиме.
+
 ## Лицензия
 
 MIT
