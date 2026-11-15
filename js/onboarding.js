@@ -3,7 +3,8 @@
 // и настраиваются фильтры TalentMatch — дальше Verix подстраивается под ученика.
 (function () {
   'use strict';
-  const CITIES = ['Алматы', 'Астана', 'Шымкент', 'Караганда', 'Актобе', 'Атырау', 'Павлодар', 'Усть-Каменогорск', 'Тараз', 'Костанай', 'Кызылорда', 'Уральск', 'Туркестан', 'Другой город'];
+  // Города республиканского значения и все областные центры Казахстана (по алфавиту после трёх крупнейших)
+  const CITIES = ['Алматы', 'Астана', 'Шымкент', 'Актау', 'Актобе', 'Атырау', 'Жезказган', 'Караганда', 'Кокшетау', 'Конаев', 'Костанай', 'Кызылорда', 'Павлодар', 'Петропавловск', 'Семей', 'Талдыкорган', 'Тараз', 'Туркестан', 'Уральск', 'Усть-Каменогорск', 'Другой город'];
   const GOALS = ['Frontend Engineer', 'Backend Developer', 'Data Scientist', 'ML Engineer', 'UI/UX Designer', 'Mobile Developer', 'Game Developer', 'Cybersecurity'];
   const GOAL_TAG = { 'Frontend Engineer': 'Frontend', 'Backend Developer': 'Backend', 'Data Scientist': 'Data', 'ML Engineer': 'AI/ML', 'UI/UX Designer': 'Design', 'Mobile Developer': 'Mobile', 'Game Developer': 'Game Dev', 'Cybersecurity': 'Cybersecurity' };
   const TAGS = ['Frontend', 'Backend', 'AI/ML', 'Data', 'Design', 'Mobile', 'Game Dev', 'Cybersecurity'];
