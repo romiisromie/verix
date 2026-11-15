@@ -156,7 +156,8 @@
       if (st === 'unavailable') toast('Вход через GitHub ещё не настроен на сервере');
     }
     const data = await getJSON('/api/me');
-    if (data && data.ready === false) document.querySelectorAll('.gh-only').forEach((el) => { el.hidden = true; });
+    // Кнопку входа показываем, только если сервер ответил, что вход через GitHub настроен
+    document.querySelectorAll('.gh-only').forEach((el) => { el.hidden = !(data && data.ready); });
     if (data && data.user) {
       ME = data; mergeServer(data);
       store.set('session', { email: data.user.login, github: true, at: Date.now() });
