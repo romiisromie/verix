@@ -128,7 +128,7 @@
       </div>
       <div class="proj-desc" style="margin-bottom:12px;">Фаза ${cur.pi+1} · ${esc(p.title)} · задача ${cur.ti+1} из ${p.tasks.length}</div>
       ${(()=>{const g=window.vxGuide?vxGuide(r.tpl,r.goal_key||r.goal_title,cur.pi):null;return g?`<div class="ai-verd" style="margin-bottom:10px;"><div class="ai-verd-h">Как сделать</div><div class="ai-verd-t" data-no-i18n>${esc(g.how)}</div></div>
-      <div class="lbl">Бесплатные курсы</div><div class="course-list">${g.links.map(l=>`<a class="course" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.name)} ↗</a>`).join('')}</div>`:'';})()}
+      <div class="lbl">Бесплатные курсы</div><div class="course-list">${g.links.map(l=>`<a class="course" href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer">${esc(l.name)} ↗</a>`).join('')}</div>`:'';})()}
       <div class="ai-verd"><div class="ai-verd-h">Как доказать</div><div class="ai-verd-t">Сделай результат в публичном репозитории на GitHub — потом <strong>проверь его в SkillProof</strong>, и навык появится в профиле с отметкой «код ✓».</div></div>
       <button class="go-btn" style="margin-top:14px;" onclick="rmToggle(${cur.pi},${cur.ti});closeModal()">Готово, отметить</button>
       <button class="outline-btn" onclick="closeModal();switchTab('skillproof')">Проверить в SkillProof</button>`;

@@ -43,7 +43,7 @@ test("rateLimit пропускает лимит запросов и блокир
 
 test("makeHandler: только POST, проверка JSON и размера, коды ошибок", async () => {
   const handle = makeHandler(async function echo(body) { return { ok: body.x }; }, { limit: 100, maxBody: 50 });
-  const req = (method, body) => new Request("http://x/api", { method, body });
+  const req = (method, body, headers = { "content-type": "application/json" }) => new Request("http://x/api", { method, body, headers });
   assert.equal((await handle(req("GET"))).status, 405);
   assert.equal((await handle(req("POST", "{нет"))).status, 400);
   assert.equal((await handle(req("POST", JSON.stringify({ x: "y".repeat(100) })))).status, 413);
@@ -250,4 +250,32 @@ test("бессмысленное описание без кода отклоня
     "Built a weather app in JavaScript that uses a public API and shows a 5-day forecast",
     "привет как дела я сделал крутой проект очень крутой лучший проект",
   ]) assert.equal(looksMeaningless(ok), false, ok);
+});
+
+test("API принимает только JSON и только со своего сайта (защита от CSRF)", async () => {
+  const handle = makeHandler(async function ping() { return { ok: true }; }, { limit: 100 });
+  const mk = (headers) => new Request("https://verix.example/api/skillproof", { method: "POST", body: "{}", headers });
+  assert.equal((await handle(mk({ "content-type": "text/plain" }))).status, 415);
+  assert.equal((await handle(mk({ "content-type": "application/json", origin: "https://evil.example" }))).status, 403);
+  assert.equal((await handle(mk({ "content-type": "application/json", origin: "https://verix.example" }))).status, 200);
+  assert.equal((await handle(mk({ "content-type": "application/json; charset=utf-8" }))).status, 200);
+});
+
+test("повторная проверка того же репозитория берётся из кэша и не тратит лимит AI", async () => {
+  const saved = { key: process.env.GROQ_API_KEY, fetch: globalThis.fetch };
+  process.env.GROQ_API_KEY = "test";
+  const prompts = [];
+  globalThis.fetch = mockGroq(prompts);
+  try {
+    const a = await skillproof({ skill: "Web", repo: "https://github.com/u/cache-me" });
+    const b = await skillproof({ skill: "Web", repo: "https://github.com/u/cache-me/" });
+    assert.equal(prompts.length, 1);
+    assert.equal(b.cached, true);
+    assert.equal(b.overall_score, a.overall_score);
+    await skillproof({ skill: "Web", repo: "https://github.com/u/cache-me", protocol: "v1", strict_model: true });
+    assert.equal(prompts.length, 2, "замеры (v1) не берутся из кэша");
+  } finally {
+    if (saved.key) process.env.GROQ_API_KEY = saved.key; else delete process.env.GROQ_API_KEY;
+    globalThis.fetch = saved.fetch;
+  }
 });

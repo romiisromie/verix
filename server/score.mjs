@@ -82,9 +82,26 @@ export function validate(body) {
   return { skill, description, repo, strict, lang, protocol };
 }
 
+// Кэш готовых оценок (протокол v2, проверка по коду): повторная проверка того же репозитория
+// в течение часа не тратит суточный лимит AI и даёт ту же оценку. Замеры (v1) не кэшируются.
+const RESULT_TTL = 60 * 60_000;
+const results = new Map();
+
 export async function skillproof(body) {
   const { skill, description, repo, strict, lang, protocol } = validate(body);
   if (!process.env.GROQ_API_KEY) throw new HttpError(501, "AI не настроен на сервере");
+  const cacheKey = protocol === "v2" && repo ? `${lang}|${skill}|${repo.toLowerCase().replace(/\/+$/, "")}` : null;
+  const hit = cacheKey && results.get(cacheKey);
+  if (hit && Date.now() - hit.at < RESULT_TTL) return { ...hit.value, cached: true };
+  const value = await score({ skill, description, repo, strict, lang, protocol });
+  if (cacheKey) {
+    if (results.size > 500) results.clear();
+    results.set(cacheKey, { at: Date.now(), value });
+  }
+  return value;
+}
+
+async function score({ skill, description, repo, strict, lang, protocol }) {
   const evidence = repo ? await repoEvidence(repo) : null;
   // v2: при ссылке на репозиторий описание модели не передаётся — запрос точно такой же, как при одной ссылке
   const shownDescription = (protocol === "v2" && evidence) || !description ? "(the student gave only a repository link)" : description;

@@ -109,6 +109,16 @@ export function makeHandler(work, { limit = 10, maxBody = 8000 } = {}) {
       headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
     });
     if (request.method !== "POST") return json(405, { error: "Только POST" });
+    // Защита от CSRF и «сжигания» лимита AI с чужих сайтов: только JSON (кросс-доменный JSON
+    // требует preflight, который мы не разрешаем) и, если браузер прислал Origin, — только свой домен.
+    const ctype = (request.headers.get("content-type") || "").toLowerCase();
+    if (!ctype.startsWith("application/json")) return json(415, { error: "Нужен Content-Type: application/json" });
+    const origin = request.headers.get("origin");
+    if (origin) {
+      let same = false;
+      try { same = new URL(origin).host === new URL(request.url).host; } catch { same = false; }
+      if (!same) return json(403, { error: "Запрос с чужого сайта" });
+    }
     try {
       rateLimit(`${work.name}:${ip}`, limit);
       const raw = await request.text();

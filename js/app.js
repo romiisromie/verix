@@ -1,5 +1,7 @@
 'use strict';
 // ════════════ HELPERS & STORAGE ════════════
+// Ссылки из данных пускаем в href только по https — защита от javascript:/data: URL
+function safeUrl(u){u=String(u??'');return /^https:\/\/[^\s"'<>]+$/i.test(u)?u:'#';}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 const store={
   get(k,def){try{const v=localStorage.getItem('vx_'+k);return v===null?def:JSON.parse(v);}catch(e){return def;}},
@@ -184,7 +186,7 @@ function renderRepoProof(r){
   const m=r.repo;
   box.hidden=false;
   box.innerHTML=`<div class="lbl">Проверено по коду</div>
-    <a class="repo-link" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.full_name)}</a>${m.fork?' <span class="tag">форк</span>':''}
+    <a class="repo-link" href="${esc(safeUrl(m.url))}" target="_blank" rel="noopener noreferrer">${esc(m.full_name)}</a>${m.fork?' <span class="tag">форк</span>':''}
     <div class="repo-facts">
       <span><b>${esc(m.commits)}</b> коммитов</span><span><b>${esc(m.files)}</b> файлов</span><span><b>${esc(m.authors)}</b> авт.</span>${m.stars?`<span><b>${esc(m.stars)}</b> ★</span>`:''}
     </div>
@@ -240,7 +242,7 @@ function openSavedSkill(i){
       <button class="nbtn" onclick="closeModal()" aria-label="Закрыть">×</button>
     </div>
     <div class="proj-desc" style="margin-bottom:10px;">${esc(s.level)} · ${esc(src)} · ${esc(fmtDate(s.date))}</div>
-    ${s.repo?`<a class="repo-link" href="${esc(s.repo)}" target="_blank" rel="noopener noreferrer">${esc(s.repo.replace(/^https?:\/\/(www\.)?github\.com\//,''))}</a>`:''}
+    ${s.repo?`<a class="repo-link" href="${esc(safeUrl(s.repo))}" target="_blank" rel="noopener noreferrer">${esc(s.repo.replace(/^https?:\/\/(www\.)?github\.com\//,''))}</a>`:''}
     <button class="outline-btn" onclick="switchTab('skillproof');closeModal()">Проверить заново</button>`;
   document.getElementById('modal-overlay').classList.add('show');
 }
@@ -290,7 +292,7 @@ function renderDashboard(){
     list.innerHTML=repos.map(url=>{
       const best=skills.filter(x=>x.repo===url).sort((a,b)=>b.score-a.score)[0];
       const name=url.replace(/^https?:\/\/(www\.)?github\.com\//,'');
-      return `<a class="proj" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><div style="flex:1;min-width:0"><div class="proj-name">${esc(name)}</div><div class="proj-desc">${esc(best.skill)} · ${esc(best.level)} · код ✓</div></div><div class="proj-score">${esc(best.score)}</div></a>`;
+      return `<a class="proj" href="${esc(safeUrl(url))}" target="_blank" rel="noopener noreferrer"><div style="flex:1;min-width:0"><div class="proj-name">${esc(name)}</div><div class="proj-desc">${esc(best.skill)} · ${esc(best.level)} · код ✓</div></div><div class="proj-score">${esc(best.score)}</div></a>`;
     }).join('');
     const e=document.getElementById('projEmpty');if(e)e.hidden=repos.length>0;
   }
@@ -378,7 +380,7 @@ function renderOpp(){
   const dl=daysLeft(o.deadline);
   document.getElementById('cardTags').innerHTML=[o.city,...(o.tags||[])].map(t=>`<span class="opp-tag">${esc(t)}</span>`).join('')+
     `<span class="opp-tag${dl!==null&&dl<=14?' urgent':''}">${esc(o.deadline?fmtDeadline(o.deadline):'сроки — на сайте')}</span>`+
-    (o.url?`<a class="opp-tag opp-link" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Сайт ↗</a>`:'');
+    (o.url?`<a class="opp-tag opp-link" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Сайт ↗</a>`:'');
   document.getElementById('nopeBadge').style.opacity=0;
   document.getElementById('likedBadge').style.opacity=0;
   card.style.transform='';
@@ -411,7 +413,7 @@ function openCurrentOpp(){
     </div>
     <div class="proj-desc" style="margin-bottom:6px;">${esc(o.org)} · ${esc(o.type)} · ${esc(o.city)}</div>
     <div class="proj-desc" style="margin-bottom:12px;">${esc(fmtDeadline(o.deadline))} · совпадение ${o.match}%</div>
-    ${o.url?`<a class="repo-link" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer">Сайт организатора</a>`:''}
+    ${o.url?`<a class="repo-link" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener noreferrer">Сайт организатора</a>`:''}
     <label class="lbl" for="applyText" style="display:block;margin-top:10px;">Сопроводительное письмо</label>
     <textarea class="ai-ta" id="applyText" maxlength="1000" placeholder="Почему ты подходишь? Упомяни проекты из профиля."></textarea>
     <button class="go-btn" style="margin-top:12px;" onclick="submitApplication()">Сохранить заявку</button>`;
@@ -522,7 +524,7 @@ function modalShell(title,body){
 function openNotifications(){
   const ids=new Set(store.get('matches',[]).map(m=>m.id));
   const soon=OPPS.filter(o=>ids.has(o.id)&&o.deadline).map(o=>({o,d:daysLeft(o.deadline)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
-  modalShell('Уведомления',soon.length?`<div style="display:flex;flex-direction:column;gap:8px;">${soon.map(({o})=>`<a class="proj" href="${esc(o.url||'#')}" target="_blank" rel="noopener noreferrer"><div style="flex:1;min-width:0"><div class="proj-name">${esc(o.title)}</div><div class="proj-desc">${esc(o.org)} · ${esc(fmtDeadline(o.deadline))}</div></div></a>`).join('')}</div>`
+  modalShell('Уведомления',soon.length?`<div style="display:flex;flex-direction:column;gap:8px;">${soon.map(({o})=>`<a class="proj" href="${esc(safeUrl(o.url||'#'))}" target="_blank" rel="noopener noreferrer"><div style="flex:1;min-width:0"><div class="proj-name">${esc(o.title)}</div><div class="proj-desc">${esc(o.org)} · ${esc(fmtDeadline(o.deadline))}</div></div></a>`).join('')}</div>`
     :`<div class="hint">Пока нет уведомлений. Отметь возможности в TalentMatch — здесь появятся их ближайшие дедлайны.</div>`);
 }
 function openShare(){
