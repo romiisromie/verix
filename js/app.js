@@ -280,6 +280,15 @@ function renderSavedSkills(){
 //   активность — XP за доказанные действия относительно 640 XP (LVL 5).
 function provenRepos(){return [...new Set(store.get('skills',[]).filter(x=>x.source==='github'&&x.repo).map(x=>x.repo))];}
 function repScore(){
+  // Вошёл через GitHub — показываем ровно тот скор, что посчитал сервер для рейтинга
+  const acc=window.vxAccount&&vxAccount();
+  if(acc&&acc.user){
+    const ss=acc.skills||[];if(!ss.length)return null;
+    const skill=Math.round(ss.reduce((a,x)=>a+(+x.score||0),0)/ss.length);
+    const repos=new Set(ss.map(x=>x.repo)).size,proj=Math.min(100,repos*25);
+    const act=Math.min(100,Math.round((repos*40+ss.length*15)/640*100));
+    return {total:Math.round(.4*skill+.35*proj+.25*act),skill,proj,act};
+  }
   const skills=store.get('skills',[]);
   if(!skills.length)return null;
   const skill=Math.round(skills.reduce((a,x)=>a+(+x.score||0),0)/skills.length);

@@ -189,9 +189,10 @@ export const rank = api(async (request) => {
   for (let i = 0; i < top.length; i += 2) ids.push([top[i], +top[i + 1]]);
   const profiles = await pipeline(ids.map(([id]) => ["GET", `profile:${id}`]));
   const logins = await pipeline(ids.map(([id]) => ["HGET", `user:${id}`, "login"]));
+  const ghNames = await pipeline(ids.map(([id]) => ["HGET", `user:${id}`, "name"]));
   const list = ids.map(([id, score], i) => {
     const p = { ...DEFAULT_PROFILE, ...(parse(profiles[i]) || {}) };
-    return { uid: id, place: i + 1, score, name: p.name || logins[i] || "Ученик", login: logins[i] || "", grade: p.grade, city: p.city, tags: p.tags, dm: !!p.dm, me: !!u && u.uid === id };
+    return { uid: id, place: i + 1, score, name: (p.name && p.name !== "Ученик" ? p.name : "") || ghNames[i] || logins[i] || "Ученик", login: logins[i] || "", grade: p.grade, city: p.city, tags: p.tags, dm: !!p.dm, me: !!u && u.uid === id };
   });
   const total = await kv("ZCARD", "rank");
   return { list, total: +total || 0 };
