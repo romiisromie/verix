@@ -38,6 +38,9 @@ def new_document():
         h.element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
         h.element.rPr.rFonts.set(qn("w:ascii"), FONT)
         h.element.rPr.rFonts.set(qn("w:hAnsi"), FONT)
+        h.element.rPr.rFonts.set(qn("w:cs"), FONT)
+        for attr in ("w:asciiTheme", "w:hAnsiTheme", "w:eastAsiaTheme", "w:cstheme"):
+            h.element.rPr.rFonts.attrib.pop(qn(attr), None)  # иначе Word берёт шрифт темы (Calibri)
         h.paragraph_format.space_before, h.paragraph_format.space_after = Pt(12), Pt(6)
         h.paragraph_format.keep_with_next = True
     doc.styles["Heading 1"].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
