@@ -6,7 +6,7 @@
 
 Докажи навыки с AI, находи стажировки и гранты, прокачивайся по личному роадмапу.
 
-[Открыть Verix](https://verix-khaki.vercel.app) · [зеркало на GitHub Pages](https://romiisromie.github.io/verix/) (без AI)
+[Открыть Verix](https://verix-khaki.vercel.app)
 
 </div>
 
