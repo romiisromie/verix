@@ -93,7 +93,9 @@ def page_break(doc):
     doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
 
-def table(doc, header, rows, widths=None, size=12, caption=None):
+def table(doc, header, rows, widths=None, size=12, caption=None, keep=True):
+    """keep=True — таблица не разрывается (целиком переносится на следующую страницу вместе с подписью);
+    keep=False — длинная таблица может продолжаться на следующей странице: строки не рвутся, шапка повторяется."""
     if caption:
         para(doc, caption, align="left", indent=False, keep=True, size=size + 1)
     t = doc.add_table(rows=1, cols=len(header))
@@ -115,6 +117,13 @@ def table(doc, header, rows, widths=None, size=12, caption=None):
     # повтор шапки на новой странице
     trPr = t.rows[0]._tr.get_or_add_trPr()
     h = OxmlElement("w:tblHeader"); h.set(qn("w:val"), "true"); trPr.append(h)
+    for i, row in enumerate(t.rows):
+        rp = row._tr.get_or_add_trPr()
+        cs = OxmlElement("w:cantSplit"); cs.set(qn("w:val"), "true"); rp.append(cs)  # строка не рвётся между страницами
+        if keep and i < len(t.rows) - 1:
+            for c in row.cells:
+                for p_ in c.paragraphs:
+                    p_.paragraph_format.keep_with_next = True  # держать вместе со следующей строкой
     doc.add_paragraph()
     return t
 
