@@ -40,22 +40,21 @@
     T('Портфолио','Проект, который не стыдно показать',[`Финальный проект: ${goal}`,'Проверить проект в SkillProof','Откликнуться на 3 возможности']),
   ]});
 
-  function build(goal,src,months,advice){
-    return {goal_title:goal,months,source:src,advice,created:Date.now(),
+  function build(goal,src,months,advice,tpl){
+    return {goal_title:goal,tpl:tpl||'',months,source:src,advice,created:Date.now(),
       phases:src.phases.map(p=>({title:p.title,desc:p.desc,tasks:p.tasks.map(t=>({t,done:false}))}))};
   }
   function fromTemplate(goalName){
     const g=GOALS.find(x=>x.name===goalName);
     const tpl=(g&&TEMPLATES[g.id])||generic(goalName);
-    return build(goalName,tpl,tpl.months,'План по шаблону. **Нажми «AI-план»**, чтобы AI подстроил его под твои навыки и время.');
+    return build(goalName,tpl,tpl.months,'План по шаблону. **Нажми «AI-план»**, чтобы AI подстроил его под твои навыки и время.',g&&TEMPLATES[g.id]?g.id:'');
   }
-  function defaultRoadmap(){
-    const r=fromTemplate('Frontend Engineer');
-    // Демо-прогресс, как в исходном профиле
-    r.phases[0].tasks.forEach(t=>t.done=true);r.phases[1].tasks[0].done=true;
-    r.advice='Ты прогрессируешь стабильно. Следующий шаг: закончи задание по **useEffect** — это откроет API-запросы и поднимет скор.';
-    return r;
-  }
+  // План по умолчанию — под цель из опроса, без выдуманного прогресса
+  function defaultRoadmap(){return fromTemplate((loadP().goal)||'Frontend Engineer');}
+  window.rmSetGoal=function(goal,force){
+    if(!force&&store.get('roadmap',null))return;
+    save(fromTemplate(goal));render();
+  };
   const load=()=>{const r=store.get('roadmap',null);return r&&Array.isArray(r.phases)&&r.phases.length?r:defaultRoadmap();};
   const save=r=>store.set('roadmap',r);
 
@@ -86,7 +85,7 @@
       const last=pi===r.phases.length-1;
       const tasks=p.tasks.map((t,ti)=>{
         const now=isNow&&cur.ti===ti;
-        return `<div class="tk${state==='locked'?' tk-locked':''}" onclick="rmToggle(${pi},${ti})" aria-pressed="${t.done}"><div class="tk-box ${t.done?'done':now?'now':''}">${t.done?'✓':now?'→':''}</div>${esc(t.t)}</div>`;
+        return `<div class="tk-row"><div class="tk${state==='locked'?' tk-locked':''}" onclick="rmToggle(${pi},${ti})" aria-pressed="${t.done}"><div class="tk-box ${t.done?'done':now?'now':''}">${t.done?'✓':now?'→':''}</div>${esc(t.t)}</div><button type="button" class="tk-how" onclick="rmOpenTask(${pi},${ti})" aria-label="Как сделать">?</button></div>`;
       }).join('');
       return `<div class="rm-item">
         <div class="rm-left"><div class="rm-dot ${state}">${pi+1}</div>${last?'':'<div class="rm-line"></div>'}</div>
@@ -105,18 +104,22 @@
     const r=load();const t=r.phases[pi]&&r.phases[pi].tasks[ti];if(!t)return;
     t.done=!t.done;
     const ph=r.phases[pi];
-    // XP начисляется один раз за задачу и за фазу, чтобы галочки нельзя было «накручивать»
-    const firstTask=t.done&&!t.xp;if(firstTask)t.xp=1;
-    const phaseDone=ph.tasks.every(x=>x.done),firstPhase=phaseDone&&!ph.xp;if(firstPhase)ph.xp=1;
+    // Галочка задачи XP не даёт: её нельзя проверить. XP за фазу k начисляется один раз
+    // и только если подтверждено по коду не меньше k разных проектов.
+    const phaseDone=ph.tasks.every(x=>x.done);
     save(r);render();
     if(t.done){
-      if(firstTask&&window.vxGain)vxGain('task');
-      if(phaseDone){toast(`Фаза «${ph.title}» пройдена!`);if(firstPhase&&window.vxGain)vxGain('phase');}
-      else toast(firstTask?'Задача выполнена: +10 XP':'Задача выполнена');
+      if(phaseDone){
+        const proven=new Set(store.get('skills',[]).filter(x=>x.source==='github'&&x.repo).map(x=>x.repo.toLowerCase())).size;
+        const need=pi+1;
+        if(proven>=need){toast(`Фаза «${ph.title}» пройдена!`);if(window.vxGain)vxGain('phase',(r.goal_title||'')+'#'+pi);}
+        else toast(`Фаза отмечена. Чтобы получить XP, подтверди по коду ещё ${need-proven} проект(а) в SkillProof`);
+      }
+      else toast('Задача выполнена');
     }
   };
-  window.rmOpenTask=function(){
-    const r=load(),cur=current(r);if(!cur)return;
+  window.rmOpenTask=function(api,ati){
+    const r=load(),cur=typeof api==='number'?{pi:api,ti:ati}:current(r);if(!cur||!r.phases[cur.pi])return;
     const p=r.phases[cur.pi],t=p.tasks[cur.ti];
     document.getElementById('modal-content').innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -124,6 +127,8 @@
         <button class="nbtn" onclick="closeModal()" aria-label="Закрыть">×</button>
       </div>
       <div class="proj-desc" style="margin-bottom:12px;">Фаза ${cur.pi+1} · ${esc(p.title)} · задача ${cur.ti+1} из ${p.tasks.length}</div>
+      ${(()=>{const g=window.vxGuide?vxGuide(r.tpl,r.goal_key||r.goal_title,cur.pi):null;return g?`<div class="ai-verd" style="margin-bottom:10px;"><div class="ai-verd-h">Как сделать</div><div class="ai-verd-t" data-no-i18n>${esc(g.how)}</div></div>
+      <div class="lbl">Бесплатные курсы</div><div class="course-list">${g.links.map(l=>`<a class="course" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.name)} ↗</a>`).join('')}</div>`:'';})()}
       <div class="ai-verd"><div class="ai-verd-h">Как доказать</div><div class="ai-verd-t">Сделай результат в публичном репозитории на GitHub — потом <strong>проверь его в SkillProof</strong>, и навык появится в профиле с отметкой «код ✓».</div></div>
       <button class="go-btn" style="margin-top:14px;" onclick="rmToggle(${cur.pi},${cur.ti});closeModal()">Готово, отметить</button>
       <button class="outline-btn" onclick="closeModal();switchTab('skillproof')">Проверить в SkillProof</button>`;
@@ -174,9 +179,9 @@
       if(!data||!Array.isArray(data.phases)){
         save(fromTemplate(goal));render();closeModal();toast('AI недоступен — взяли шаблон');return;
       }
-      const r=build(data.goal_title||goal,data,data.months||8,data.advice);r.source='ai';
+      const known=GOALS.find(x=>x.name===goal);
+      const r=build(data.goal_title||goal,data,data.months||8,data.advice,'');r.source='ai';r.goal_key=known?known.name:'';
       save(r);render();closeModal();toast('AI-план готов!');
-      if(window.vxGain)vxGain('roadmap');
     }catch(e){toast('Не получилось: '+e.message);btn.disabled=false;btn.textContent='Построить план с AI';btn.removeAttribute('aria-busy');}
   };
 

@@ -1,14 +1,16 @@
 // ════════════ МОТИВАЦИЯ: XP, уровни, серия дней, челленджи недели, достижения ════════════
 (function(){
   'use strict';
-  const XP={visit:5,analyze:20,github:40,save:15,like:5,apply:25,task:10,phase:30,roadmap:15,challenge:50};
+  // XP начисляется только за доказанные действия и только один раз за каждое доказательство
+  // (ключ — репозиторий, навык, возможность или фаза). За свайпы, проверку по описанию,
+  // построение плана и отметку задач без кода XP не даётся: это нельзя проверить.
+  const XP={visit:5,github:40,save:15,apply:25,phase:30,challenge:50};
   const CHALLENGES=[
-    {id:'analyze2',title:'Проверь 2 проекта в SkillProof',ev:['analyze','github'],need:2},
     {id:'github1',title:'Проверь проект по ссылке на GitHub',ev:['github'],need:1},
-    {id:'like3',title:'Откликнись на 3 возможности',ev:['like'],need:3},
-    {id:'apply1',title:'Сохрани заявку на возможность',ev:['apply'],need:1},
-    {id:'task3',title:'Выполни 3 задачи роадмапа',ev:['task'],need:3},
-    {id:'save1',title:'Добавь проверенный навык в профиль',ev:['save'],need:1},
+    {id:'github2',title:'Проверь по коду 2 разных проекта',ev:['github'],need:2},
+    {id:'apply1',title:'Отправь заявку с письмом от 150 символов',ev:['apply'],need:1},
+    {id:'save1',title:'Добавь проверенный по коду навык в профиль',ev:['save'],need:1},
+    {id:'phase1',title:'Закрой фазу роадмапа проверенным проектом',ev:['phase'],need:1},
   ];
 
   const pad=n=>String(n).padStart(2,'0');
@@ -24,7 +26,9 @@
   // Уровень: 40 XP до 2-го, дальше растёт квадратично
   const levelOf=xp=>Math.floor(Math.sqrt(xp/40))+1;
   const xpFor=l=>40*(l-1)*(l-1);
-  const getXP=()=>+store.get('xp',0)||0;
+  // Журнал начислений: { ключ: XP }. Итоговый XP — сумма журнала, повторно за то же не начисляется.
+  const ledger=()=>{const l=store.get('xp_log',null);return l&&typeof l==='object'&&!Array.isArray(l)?l:{};};
+  const getXP=()=>Object.values(ledger()).reduce((a,v)=>a+(+v||0),0);
   window.vxLevel=()=>levelOf(getXP());
 
   function week(){
@@ -38,17 +42,21 @@
     return w;
   }
 
-  function addXP(n,silent){
-    const before=getXP(),after=before+n;store.set('xp',after);
+  function addXP(key,n,silent){
+    const l=ledger();if(key in l)return false;
+    const before=getXP();l[key]=n;store.set('xp_log',l);const after=before+n;
     const lb=levelOf(before),la=levelOf(after);
     if(la>lb){
       toast(`Новый уровень: LVL ${la}!`);
       if(window.vxBurst)vxBurst(document.querySelector('.avatar'),60);
     }else if(!silent&&n>0){toast(`+${n} XP`);}
+    return true;
   }
 
-  window.vxGain=function(type){
-    if(!XP[type])return;
+  // type — вид доказательства, key — что именно доказано (репозиторий, id возможности, номер фазы)
+  window.vxGain=function(type,key){
+    if(!XP[type]||!key)return false;
+    if(!addXP(type+':'+String(key).toLowerCase(),XP[type],false))return false;
     const w=week();
     w.c[type]=(w.c[type]||0)+1;
     let bonus=0;
@@ -59,8 +67,9 @@
         setTimeout(()=>{toast(`Челлендж выполнен: ${ch.title}! +${XP.challenge} XP`);if(window.vxBurst)vxBurst(document.getElementById('chList'),50);},1400);}
     });
     store.set('week',w);
-    addXP(XP[type]+bonus,true);
+    if(bonus)addXP('challenge:'+w.key+':'+w.done.join(','),bonus,true);
     render();
+    return true;
   };
 
   function streak(){
@@ -70,7 +79,7 @@
     s.count=s.last===dayKey(y)?s.count+1:1;
     s.best=Math.max(s.best||0,s.count);s.last=today;
     store.set('streak',s);
-    addXP(XP.visit,true);
+    addXP('visit:'+today,XP.visit,true);
     return s;
   }
 
@@ -84,7 +93,7 @@
       {name:'Код ✓',desc:'Получи оценку AI по реальному коду с GitHub',ok:skills.some(x=>x.source==='github')},
       {name:'Серия 3 дня',desc:'Заходи в Verix 3 дня подряд',ok:(s.best||0)>=3},
       {name:'Серия 7 дней',desc:'Заходи в Verix 7 дней подряд',ok:(s.best||0)>=7},
-      {name:'3 матча',desc:'Откликнись на 3 возможности в TalentMatch',ok:store.get('matches',[]).length>=3},
+      {name:'3 проекта по коду',desc:'Подтверди 3 разных проекта по коду GitHub',ok:new Set(skills.filter(x=>x.source==='github'&&x.repo).map(x=>x.repo.toLowerCase())).size>=3},
       {name:'Первая заявка',desc:'Сохрани сопроводительное письмо к возможности',ok:store.get('applications',[]).length>0},
       {name:'Фаза пройдена',desc:'Выполни все задачи одной фазы роадмапа',ok:phaseDone},
       {name:'Челленджер',desc:'Выполни челлендж недели',ok:(+store.get('ch_total',0)||0)>0},
@@ -134,8 +143,10 @@
       const all=row.parentElement.querySelector('.sh-btn');if(all)all.textContent=`Все (${bs.filter(b=>b.ok).length}/${bs.length})`;
       if(window.a11yRefresh)a11yRefresh(row);
     }
+    if(window.renderDashboard)renderDashboard();
   }
   window.vxRender=render;
+  window.vxXP=getXP;
 
   streak();render();
 })();

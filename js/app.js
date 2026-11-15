@@ -10,9 +10,9 @@ function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0'
 
 // ════════════ PROFILE DATA ════════════
 const DEFAULTS = {
-  name:'Рамина Ибраимова', grade:'11 класс', city:'Алматы, Казахстан',
-  emoji:'', level:7, about:'Frontend разработчица, люблю создавать продукты с нуля.',
-  tag1:'Frontend', tag2:'AI/ML', tag3:'Design'
+  name:'Ученик', grade:'11 класс', city:'Алматы, Казахстан',
+  emoji:'', level:1, about:'',
+  tag1:'Frontend', tag2:'', tag3:''
 };
 const TAG_ICONS = {Frontend:'','AI/ML':'',Design:'',Backend:'',Data:'',Mobile:'','Game Dev':'',Cybersecurity:''};
 const GRADES = ['8 класс','9 класс','10 класс','11 класс','1 курс','2 курс','3 курс','4 курс'];
@@ -70,6 +70,7 @@ function openEditProfile(){
         </div>
       </div>
       <button class="go-btn" onclick="applyProfile()">Сохранить</button>
+      <button class="outline-btn" style="margin-top:0;" onclick="vxOnboarding()">Пройти опрос заново</button>
       <button class="outline-btn danger-btn" style="margin-top:0;" onclick="if(confirm('Сбросить профиль к стандартному?')){store.del('p');renderProfile();closeModal();toast('Сброшено');}">Сбросить профиль</button>
       <button class="outline-btn" style="margin-top:0;" onclick="logout()">Выйти из аккаунта</button>
     </div>`;
@@ -109,6 +110,8 @@ function toast(msg){
 // ════════════ MODALS ════════════
 function openModal(key){
   if(key==='edit-profile'){openEditProfile();return;}
+  if(key==='notif'){openNotifications();return;}
+  if(key==='share'){openShare();return;}
   if(key==='change-goal'&&window.openGoalPicker){openGoalPicker();return;}
   const m=MODALS[key];if(!m)return;
   document.getElementById('modal-content').innerHTML=`
@@ -124,116 +127,23 @@ function closeModal(){document.getElementById('modal-overlay').classList.remove(
 function closeModalOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
 
 const MODALS={
-  notif:{title:'Уведомления',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Новый матч!</div><div class="proj-desc">Kolesa Group · 2ч назад</div></div></div>
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Скор вырос до 86</div><div class="proj-desc">+4 очка за неделю · 1д назад</div></div></div>
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Новое достижение</div><div class="proj-desc">«Стрик 7 дней» · 2д назад</div></div></div>
-  </div>`},
-  share:{title:'Поделиться профилем',sub:'Покажи навыки университетам и работодателям',body:`
-    <div style="background:var(--s2);border-radius:13px;padding:14px;text-align:center;margin-bottom:14px;">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Публичная ссылка</div>
-      <div style="font-size:14px;font-weight:600;color:var(--accent);">verix.app/u/ramina</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="go-btn" onclick="shareProfile()">Поделиться ссылкой</button>
-      <button class="outline-btn" style="margin:0;" onclick="closeModal();setTimeout(()=>window.print(),150)">Сохранить профиль в PDF</button>
-      <button class="outline-btn" style="margin:0;" onclick="emailProfile()">Отправить на email</button>
-    </div>`},
   'skillproof-info':{title:'Как работает SkillProof AI',sub:'',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)">1</div><div style="flex:1"><div class="proj-name">Выбираешь навык</div><div class="proj-desc">React, Python, ML, Design и другие</div></div></div>
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)">2</div><div style="flex:1"><div class="proj-name">Описываешь проект</div><div class="proj-desc">Технологии, что сделала, сложность</div></div></div>
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)">3</div><div style="flex:1"><div class="proj-name">AI анализирует</div><div class="proj-desc">Сложность, оригинальность, уровень</div></div></div>
-    <div class="proj"><div class="proj-ico" style="background:var(--s3)">4</div><div style="flex:1"><div class="proj-name">Добавляешь в профиль</div><div class="proj-desc">Скор виден работодателям</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:var(--s3)">1</div><div style="flex:1"><div class="proj-name">Даёшь ссылку на GitHub</div><div class="proj-desc">Публичный репозиторий с твоим проектом</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:var(--s3)">2</div><div style="flex:1"><div class="proj-name">AI читает код</div><div class="proj-desc">Файлы, коммиты, авторы, тесты, README</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:var(--s3)">3</div><div style="flex:1"><div class="proj-name">Балл — только по коду</div><div class="proj-desc">Описание на оценку не влияет; без кода — не выше 60</div></div></div>
+    <div class="proj"><div class="proj-ico" style="background:var(--s3)">4</div><div style="flex:1"><div class="proj-name">Навык в профиле</div><div class="proj-desc">С отметкой «код ✓» и XP за доказательство</div></div></div>
   </div>`},
   'talent-info':{title:'Как работает TalentMatch',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
     <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Подбирает стажировки, гранты и конкурсы под твой профиль.</div>
-    <div class="ai-verd"><div class="ai-verd-h">Как свайпать:</div><div class="ai-verd-t"><strong>✕</strong> — не интересно &nbsp; <strong></strong> — суперлайк &nbsp; <strong>✓</strong> — хочу матч</div></div>
-  </div>`},
-  projects:{title:'Все проекты (7)',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
-    <div class="proj" onclick="closeModal();toast('Verix App')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Verix App</div><div class="proj-desc">React Native · 91/100</div></div><div class="proj-score">91</div></div>
-    <div class="proj" onclick="closeModal();toast('ML Classifier')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">ML Classifier</div><div class="proj-desc">Python · 84/100</div></div><div class="proj-score">84</div></div>
-    <div class="proj" onclick="closeModal();toast('EcoTrack')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">EcoTrack</div><div class="proj-desc">React · 78/100</div></div><div class="proj-score">78</div></div>
-    <div class="proj" onclick="closeModal();toast('Portfolio')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Portfolio Site</div><div class="proj-desc">HTML/CSS · 72/100</div></div><div class="proj-score">72</div></div>
-    <button class="outline-btn" style="margin-top:4px;" onclick="closeModal();switchTab('skillproof')">+ Добавить проект</button>
-  </div>`},
-  'start-task':{title:'useState & useEffect',sub:'Фаза 2 · Задание 2 из 4',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Создай компонент таймера:<br>• Считает секунды (useState)<br>• Запускает интервал (useEffect)<br>• Кнопки Старт / Пауза / Сброс</div>
-    <div class="ai-verd"><div class="ai-verd-h">Подсказка</div><div class="ai-verd-t">Очищай интервал в <strong>return</strong> из useEffect — иначе утечки памяти.</div></div>
-    <button class="go-btn" onclick="toast('Задание началось!');closeModal()">Начать</button>
-    <button class="outline-btn" style="margin:0;" onclick="toast('Видео открыт');closeModal()">Смотреть урок</button>
-  </div>`},
-  'change-goal':{title:'Выбрать цель',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
-    <div class="proj" onclick="toast('Frontend Engineer');closeModal()"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Frontend Engineer</div><div class="proj-desc">React, TypeScript · 8 мес</div></div><div style="font-size:18px;">✓</div></div>
-    <div class="proj" onclick="toast('Data Scientist');closeModal()"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Data Scientist</div><div class="proj-desc">Python, ML · 10 мес</div></div></div>
-    <div class="proj" onclick="toast('UI/UX Designer');closeModal()"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">UI/UX Designer</div><div class="proj-desc">Figma, Research · 6 мес</div></div></div>
-    <div class="proj" onclick="toast('Backend Developer');closeModal()"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1"><div class="proj-name">Backend Developer</div><div class="proj-desc">Python/Node, APIs · 9 мес</div></div></div>
+    <div class="ai-verd"><div class="ai-verd-h">Как свайпать:</div><div class="ai-verd-t"><strong>✕</strong> — не интересно &nbsp; <strong>★</strong> — суперлайк &nbsp; <strong>✓</strong> — хочу матч</div></div>
   </div>`},
   'path-goals':{title:'Карьерные цели',sub:'',body:`<div style="display:flex;flex-direction:column;gap:10px;">
-    <div style="font-size:13px;color:var(--muted2);line-height:1.6;">EduPath строит роадмап под твой уровень и цель. AI обновляет план каждую неделю.</div>
-    <button class="go-btn" onclick="openModal('change-goal')">Сменить цель</button>
-    <button class="outline-btn" style="margin:0;" onclick="toast('Статистика');closeModal()">Статистика</button>
+    <div style="font-size:13px;color:var(--muted2);line-height:1.6;">EduPath строит роадмап под твою цель, класс и время. У каждой задачи — объяснение, как её сделать, и ссылка на бесплатный курс.</div>
+    <button class="go-btn" onclick="openGoalPicker()">Сменить цель</button>
   </div>`},
-  'skill-react':{title:'React',sub:'Верифицирован AI · Продвинутый',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">85</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">3</div><div class="sc-l">Проекта</div></div></div>
-    <div class="ai-verd"><div class="ai-verd-h">AI оценка</div><div class="ai-verd-t">Сильная архитектура. Изучи <strong>React Query</strong> и <strong>оптимизацию рендеров</strong>.</div></div>
-    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">Пересдать тест</button>
-  </div>`},
-  'skill-python':{title:'Python',sub:'Верифицирован AI · Средний',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">60</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">2</div><div class="sc-l">Проекта</div></div></div>
-    <div class="ai-verd"><div class="ai-verd-h">AI оценка</div><div class="ai-verd-t">Хорошая база. Изучи <strong>pandas</strong>, <strong>numpy</strong>, <strong>sklearn</strong>.</div></div>
-    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">Улучшить</button>
-  </div>`},
-  'skill-figma':{title:'Figma',sub:'Верифицирован AI · Продвинутый',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">80</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">4</div><div class="sc-l">Проекта</div></div></div>
-    <button class="go-btn" onclick="switchTab('skillproof');closeModal()">Пересдать</button>
-  </div>`},
-  'skill-ai':{title:'ML/AI',sub:'Верифицирован AI · Начинающий',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">35</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--orange)">1</div><div class="sc-l">Проект</div></div></div>
-    <div class="ai-verd"><div class="ai-verd-h">AI оценка</div><div class="ai-verd-t">Рекомендую <strong>EduPath → Data Scientist</strong>.</div></div>
-    <button class="go-btn" onclick="switchTab('edupath');closeModal()">EduPath</button>
-  </div>`},
-  badges:{title:'Все достижения',sub:'',body:`<div style="display:flex;flex-direction:column;gap:8px;">
-    <div class="proj"><div class="proj-ico" style="font-size:22px"></div><div style="flex:1"><div class="proj-name">Хакатон 2024</div><div class="proj-desc">2 место в Almaty Hack</div></div></div>
-    <div class="proj"><div class="proj-ico" style="font-size:22px"></div><div style="flex:1"><div class="proj-name">Стрик 7 дней</div><div class="proj-desc">7 дней подряд</div></div></div>
-    <div class="proj"><div class="proj-ico" style="font-size:22px"></div><div style="flex:1"><div class="proj-name">Первый проект</div><div class="proj-desc">Первый проект в портфолио</div></div></div>
-    <div class="proj"><div class="proj-ico" style="font-size:22px"></div><div style="flex:1"><div class="proj-name">3 матча</div><div class="proj-desc">3 матча с компаниями</div></div></div>
-    <div class="proj"><div class="proj-ico" style="font-size:22px"></div><div style="flex:1"><div class="proj-name">Top 12%</div><div class="proj-desc">Топ 12% школьников</div></div></div>
-    <div class="proj" style="opacity:.4"><div class="proj-ico" style="font-size:22px"></div><div style="flex:1"><div class="proj-name">Top 5%</div><div class="proj-desc">Войди в топ 5%</div></div></div>
-  </div>`},
-  'badge-hack':{title:'Хакатон 2024',sub:'15 ноября 2024',body:`<div style="text-align:center;padding:10px 0;"><div style="margin-top:10px;font-size:13px;color:var(--muted2);line-height:1.6;">2 место на Almaty Hack 2024.<br>Команда из 4 человек, проект EcoTrack.<br>+15 к репутационному скору.</div></div>`},
-  'badge-fire':{title:'Стрик 7 дней',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="margin-top:10px;font-size:13px;color:var(--muted2)">7 дней активности подряд. +5 к скору.</div></div>`},
-  'badge-star':{title:'Первый проект',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="margin-top:10px;font-size:13px;color:var(--muted2)">Добавила первый проект!</div></div>`},
-  'badge-match':{title:'3 матча',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="margin-top:10px;font-size:13px;color:var(--muted2)">3 матча с компаниями!</div></div>`},
-  'badge-top':{title:'Top 12%',sub:'',body:`<div style="text-align:center;padding:10px 0;"><div style="margin-top:10px;font-size:13px;color:var(--muted2)">Топ 12% школьников на платформе!</div></div>`},
-  'match-kolesa':{title:'Kolesa Group',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Junior Frontend Developer</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Стажировка · Алматы · 80к/мес<br>Гибкий график, ментор</div></div>
-    <button class="go-btn" onclick="toast('Заявка отправлена!');closeModal()">Отправить заявку</button>
-    <button class="outline-btn" style="margin:0;" onclick="toast('Чат открыт');closeModal()">Написать рекрутеру</button>
-  </div>`},
-  'match-epam':{title:'EPAM Systems',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Young Talent Program</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Онлайн · 3 месяца · Сертификат</div></div>
-    <button class="go-btn" onclick="toast('Заявка!');closeModal()">Подать заявку</button>
-  </div>`},
-  'match-most':{title:'MOST Grant',sub:'Матч подтверждён',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div style="background:var(--s2);border-radius:13px;padding:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Грант $500 для IT-школьников</div><div style="font-size:12px;color:var(--muted2);line-height:1.5;">Нужно: портфолио + письмо<br>Дедлайн: 30 апреля 2025</div></div>
-    <button class="go-btn" onclick="toast('Заявка начата!');closeModal()">Подать на грант</button>
-  </div>`},
-  'proj-verix':{title:'Verix App',sub:'AI Score: 91/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">91</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">88</div><div class="sc-l">Оригинальность</div></div></div>
-    <div style="font-size:12px;color:var(--muted2);">React Native · TypeScript · Expo</div>
-    <button class="go-btn" onclick="toast('GitHub!');closeModal()">GitHub</button>
-  </div>`},
-  'proj-ml':{title:'ML Classifier',sub:'AI Score: 84/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">84</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--green)">79</div><div class="sc-l">Сложность</div></div></div>
-    <div style="font-size:12px;color:var(--muted2);">Python · TensorFlow · 94% точность</div>
-    <button class="go-btn" onclick="toast('GitHub!');closeModal()">GitHub</button>
-  </div>`},
-  'proj-eco':{title:'EcoTrack',sub:'AI Score: 78/100',body:`<div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="sc-grid"><div class="sc-box"><div class="sc-n" style="color:var(--accent)">78</div><div class="sc-l">AI Score</div></div><div class="sc-box"><div class="sc-n" style="color:var(--orange)">72</div><div class="sc-l">Сложность</div></div></div>
-    <div style="font-size:12px;color:var(--muted2);">React · Chart.js · Almaty Hack 2024, 2 место</div>
-    <button class="go-btn" onclick="toast('GitHub!');closeModal()">GitHub</button>
-  </div>`},
+  'rankings-info':{title:'Как устроены рейтинги',sub:'',body:`<div style="font-size:13px;color:var(--muted2);line-height:1.6;">В рейтинге будут только настоящие ученики и только навыки, подтверждённые по коду в SkillProof. Пока аккаунты хранятся в браузере, видно только твоё место по собственному скору.</div>`},
 };
+
 
 // ════════════ SKILLPROOF ════════════
 let selSkillName='';
@@ -304,7 +214,7 @@ async function runAnalysis(){
     document.getElementById('aiVerdText').innerHTML=esc(r.verdict).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
     renderRepoProof(r);
     const res2=document.getElementById('aiResult');res2.classList.add('show');
-    if(window.vxGain)vxGain(r.source==='github'?'github':'analyze');
+    if(window.vxGain&&r.source==='github'&&r.repo&&r.repo.url)vxGain('github',r.repo.url); // XP только за проверку по коду, один раз на репозиторий
     setTimeout(()=>res2.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
   }catch(e){toast('Не получилось: '+e.message);console.error(e);}
   btn.disabled=false;btn.textContent='Анализировать снова';btn.removeAttribute('aria-busy');
@@ -316,7 +226,7 @@ function saveSkill(){
   skills.unshift({skill:lastResult.skill,score:lastResult.overall_score,level:lastResult.level_name,source:lastResult.source,repo:lastResult.repo?lastResult.repo.url:null,date:Date.now()});
   store.set('skills',skills.slice(0,20));
   renderSavedSkills();
-  if(window.vxGain)vxGain('save');
+  if(window.vxGain&&lastResult.source==='github'&&lastResult.repo)vxGain('save',lastResult.skill+'|'+lastResult.repo.url);
   toast('Навык добавлен в профиль!');
   setTimeout(()=>switchTab('profile'),800);
 }
@@ -348,9 +258,48 @@ function renderSavedSkills(){
     el.innerHTML=`<div class="skc-name">${esc(s.skill)}</div><div class="skc-lv">${esc(s.level)}${mark}</div><div class="skc-bar"><div class="skc-fill" style="width:${Math.max(0,Math.min(100,+s.score||0))}%"></div></div>`;
     grid.prepend(el);
   });
-  const n=document.querySelector('#screen-profile .stat:nth-child(2) .stat-n');
-  if(n){n.textContent=12+skills.length;delete n.dataset.v;}
+  const empty=document.getElementById('skillsEmpty');if(empty)empty.hidden=skills.length>0;
   if(window.a11yRefresh)a11yRefresh(grid);
+  renderDashboard();
+}
+
+// ════════════ DASHBOARD: только настоящие данные ════════════
+// Скор = 0,40·навыки + 0,35·проекты + 0,25·активность, где
+//   навыки — средний балл SkillProof по навыкам в профиле;
+//   проекты — 25 баллов за каждый репозиторий, подтверждённый по коду (максимум 100);
+//   активность — XP за доказанные действия относительно 640 XP (LVL 5).
+function provenRepos(){return [...new Set(store.get('skills',[]).filter(x=>x.source==='github'&&x.repo).map(x=>x.repo))];}
+function repScore(){
+  const skills=store.get('skills',[]);
+  if(!skills.length)return null;
+  const skill=Math.round(skills.reduce((a,x)=>a+(+x.score||0),0)/skills.length);
+  const proj=Math.min(100,provenRepos().length*25);
+  const act=Math.min(100,Math.round((window.vxXP?vxXP():0)/640*100));
+  return {total:Math.round(.4*skill+.35*proj+.25*act),skill,proj,act};
+}
+function renderDashboard(){
+  const r=repScore(),set=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=v;delete el.dataset.v;}};
+  const bar=(id,v)=>{const el=document.getElementById(id);if(el){el.style.width=v+'%';el.dataset.w=v+'%';}};
+  set('repNum',r?r.total:'—');set('repProj',r?r.proj:0);set('repSkill',r?r.skill:0);set('repAct',r?r.act:0);
+  bar('repProjBar',r?r.proj:0);bar('repSkillBar',r?r.skill:0);bar('repActBar',r?r.act:0);
+  const ring=document.getElementById('repRing');if(ring)ring.style.strokeDashoffset=String(245-245*(r?r.total:0)/100);
+  const repos=provenRepos(),skills=store.get('skills',[]);
+  set('statProj',repos.length);set('statSkills',skills.length);set('statMatches',store.get('matches',[]).length);
+  const list=document.getElementById('projList');
+  if(list){
+    list.innerHTML=repos.map(url=>{
+      const best=skills.filter(x=>x.repo===url).sort((a,b)=>b.score-a.score)[0];
+      const name=url.replace(/^https?:\/\/(www\.)?github\.com\//,'');
+      return `<a class="proj" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><div style="flex:1;min-width:0"><div class="proj-name">${esc(name)}</div><div class="proj-desc">${esc(best.skill)} · ${esc(best.level)} · код ✓</div></div><div class="proj-score">${esc(best.score)}</div></a>`;
+    }).join('');
+    const e=document.getElementById('projEmpty');if(e)e.hidden=repos.length>0;
+  }
+  const mine=document.getElementById('myRankCard');
+  if(mine){
+    const p=loadP();
+    mine.innerHTML=r?`<div class="proj"><div style="flex:1;min-width:0"><div class="proj-name">${esc(p.name)}</div><div class="proj-desc">${esc(p.grade)} · ${esc(p.city)} · проектов по коду: ${repos.length}</div></div><div class="proj-score">${r.total}</div></div>`
+      :`<div class="hint">У тебя пока нет проверенных навыков — проверь первый проект в SkillProof, и здесь появится твой скор.</div>`;
+  }
 }
 
 // ════════════ TALENT ════════════
@@ -359,7 +308,8 @@ let OPPS=[];let oppIdx=0;let deck=[];let oppsLoaded=false;
 const OPP_TYPES=[['all','Все'],['Стажировка','Стажировки'],['Грант','Гранты'],['Хакатон','Хакатоны'],['Программа','Программы'],['Конкурс','Конкурсы']];
 const SKILL_MAP={React:'Frontend',Web:'Frontend',Python:'Backend','ML/AI':'AI/ML',Design:'Design',Data:'Data'};
 function gradeNum(g){const n=parseInt(g,10)||10;return /курс/.test(g)?11+n:n;}
-function oppFilter(){return {type:'all',city:'all',mine:true,...store.get('opp_filter',{})};}
+function oppFilter(){return {type:'all',city:'all',mine:true,skill:'all',...store.get('opp_filter',{})};}
+const OPP_SKILLS=['Frontend','Backend','AI/ML','Data','Design','Cybersecurity','Game Dev'];
 
 function matchScore(o){
   const p=loadP();
@@ -389,6 +339,7 @@ function buildDeck(){
     if(f.type!=='all'&&o.type!==f.type)return false;
     if(f.city!=='all'&&o.city!==f.city&&o.city!=='Онлайн')return false;
     if(f.mine){const [lo,hi]=o.grades||[8,12];if(g<lo||g>hi)return false;}
+    if(f.skill&&f.skill!=='all'&&!(o.skills||[]).includes(f.skill))return false;
     return true;
   }).map(o=>({...o,match:matchScore(o)})).sort((a,b)=>b.match-a.match);
   oppIdx=0;
@@ -402,7 +353,8 @@ function renderOppFilters(){
       <label class="sr-only" for="oppCity">Город</label>
       <select class="inp f-sel" id="oppCity" onchange="setOppFilter('city',this.value)">${cities.map(c=>`<option value="${esc(c)}"${f.city===c?' selected':''}>${c==='all'?'Любой город':esc(c)+' + онлайн'}</option>`).join('')}</select>
       <label class="f-check"><input type="checkbox" ${f.mine?'checked':''} onchange="setOppFilter('mine',this.checked)"> Мой класс</label>
-    </div>`;
+    </div>
+    <div class="chip-row" role="group" aria-label="Навык">${[['all','Любой навык'],...OPP_SKILLS.map(x=>[x,x])].map(([v,l])=>`<button type="button" class="f-chip f-skill${f.skill===v?' on':''}" aria-pressed="${f.skill===v}" onclick="setOppFilter('skill','${v}')">${l}</button>`).join('')}</div>`;
 }
 function setOppFilter(k,v){const f=oppFilter();f[k]=v;store.set('opp_filter',f);renderOppFilters();buildDeck();renderOpp();}
 
@@ -420,12 +372,13 @@ function renderOpp(){
   document.getElementById('cardType').textContent=o.type;
   document.getElementById('cardOrg').textContent=o.org;
   document.getElementById('cardTitle').textContent=o.title;
-  document.getElementById('cardDesc').textContent=o.desc;
+  document.getElementById('cardDesc').textContent=o.desc+(o.deadline_note?' · '+o.deadline_note:'');
   document.getElementById('matchBar').style.width=o.match+'%';
   document.getElementById('matchPct').textContent=o.match+'%';
   const dl=daysLeft(o.deadline);
   document.getElementById('cardTags').innerHTML=[o.city,...(o.tags||[])].map(t=>`<span class="opp-tag">${esc(t)}</span>`).join('')+
-    `<span class="opp-tag${dl!==null&&dl<=14?' urgent':''}">${esc(fmtDeadline(o.deadline))}</span>`;
+    `<span class="opp-tag${dl!==null&&dl<=14?' urgent':''}">${esc(o.deadline?fmtDeadline(o.deadline):'сроки — на сайте')}</span>`+
+    (o.url?`<a class="opp-tag opp-link" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Сайт ↗</a>`:'');
   document.getElementById('nopeBadge').style.opacity=0;
   document.getElementById('likedBadge').style.opacity=0;
   card.style.transform='';
@@ -440,7 +393,6 @@ function swipe(dir){
     const m=store.get('matches',[]);
     if(!m.some(x=>x.title===o.title))m.push({id:o.id,org:o.org,title:o.title,type:o.type,super:dir==='super'});
     store.set('matches',m);renderMatches();
-    if(window.vxGain)vxGain('like');
   }else{
     document.getElementById('nopeBadge').style.opacity=1;
     card.style.transform='translateX(-45px) rotate(-4deg)';
@@ -471,7 +423,7 @@ function submitApplication(){
   if(text.length<20){toast('Напиши хотя бы пару предложений');return;}
   const apps=store.get('applications',[]);apps.push({id:o.id,title:o.title,org:o.org,text,date:Date.now()});store.set('applications',apps);
   closeModal();toast('Заявка сохранена: '+o.org);
-  if(window.vxGain)vxGain('apply');
+  if(window.vxGain&&text.length>=150)vxGain('apply',o.id); // XP только за настоящее письмо, один раз на возможность
   const m=store.get('matches',[]);if(!m.some(x=>x.title===o.title)){m.push({id:o.id,org:o.org,title:o.title,type:o.type});store.set('matches',m);renderMatches();}
 }
 async function loadOpps(){
@@ -480,7 +432,7 @@ async function loadOpps(){
     const data=await res.json();
     OPPS=(Array.isArray(data.items)?data.items:[]).filter(o=>o&&o.id&&o.title);
   }catch(e){console.warn('opportunities:',e);OPPS=[];}
-  oppsLoaded=true;renderOppFilters();buildDeck();renderOpp();
+  oppsLoaded=true;renderOppFilters();buildDeck();renderOpp();renderMatches();
 }
 function renderMatches(){
   const row=document.querySelector('.matches-row');if(!row)return;
@@ -493,11 +445,13 @@ function renderMatches(){
     shown.add(name.toLowerCase());total++;
     const c=document.createElement('div');c.className='m-chip';c.dataset.saved='1';
     c.textContent=name;c.title=x.title;
-    c.setAttribute('onclick',"toast(this.title)");
+    const o=OPPS.find(y=>y.id===x.id);
+    if(o&&/^https:\/\//.test(o.url)){c.setAttribute('role','link');c.dataset.url=o.url;c.setAttribute('onclick',"window.open(this.dataset.url,'_blank','noopener')");}
+    else c.setAttribute('onclick',"toast(this.title)");
     row.appendChild(c);
   });
   const lbl=row.previousElementSibling;if(lbl)lbl.textContent=`Твои матчи (${total})`;
-  const n=document.querySelector('#screen-profile .stat:nth-child(3) .stat-n');if(n){n.textContent=total;delete n.dataset.v;}
+  renderDashboard();
   if(window.a11yRefresh)a11yRefresh(row);
 }
 
@@ -513,6 +467,7 @@ async function hashPass(email,pass){
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='flex';
+  if(window.vxMaybeOnboard)vxMaybeOnboard();
 }
 function loginError(msg){
   const e=document.getElementById('emailInput'),p=document.getElementById('passwordInput');
@@ -558,395 +513,28 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('passwordInput').addEventListener('keydown',handleLoginKey);
 });
 
-// ════════════ RANKINGS ════════════
-function switchRanking(type) {
-  // Hide all ranking contents
-  document.querySelectorAll('.ranking-content').forEach(content => {
-    content.style.display = 'none';
-  });
-  
-  // Remove active class from all tabs
-  document.querySelectorAll('.rank-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  
-  // Show selected content
-  document.getElementById('rankings-' + type).style.display = 'block';
-  
-  // Add active class to clicked tab
-  event.target.classList.add('active');
-  
-  // Show toast notification
-  const messages = {
-    users: 'Рейтинг учеников',
-    schools: 'Рейтинг школ', 
-    skills: 'Топ по навыкам',
-    competitions: 'Соревнования'
-  };
-  toast(messages[type] || 'Рейтинги');
+// ════════════ NOTIFICATIONS & SHARE ════════════
+function modalShell(title,body){
+  document.getElementById('modal-content').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h2 style="font-family:var(--display);font-size:17px;">${esc(title)}</h2><button class="nbtn" onclick="closeModal()" aria-label="Закрыть">×</button></div>${body}`;
+  document.getElementById('modal-overlay').classList.add('show');
 }
-
-// Mock data for rankings (in real app, this would come from API)
-const rankingsData = {
-  users: [
-    { 
-      rank: 1, 
-      name: 'Марат Алиев', 
-      school: 'Школа №45, Алматы', 
-      avatar: 'МА', 
-      score: 92.5, 
-      change: 2, 
-      skills: ['React', 'Node.js', 'Python'],
-      bio: 'Frontend разработчик, увлекаюсь React и созданием современных веб-приложений. Люблю решать сложные задачи и учиться новому.',
-      projects: [
-        { name: 'Verix App', desc: 'React Native · Digital Reputation Platform', score: 91, icon: '' },
-        { name: 'EcoTracker', desc: 'React · Трекер углеродного следа', score: 85, icon: '' },
-        { name: 'Task Manager', desc: 'React + TypeScript · Управление задачами', score: 88, icon: '' }
-      ],
-      stats: { projects: 12, skills: 8, matches: 5 },
-      level: 8,
-      isOnline: true
-    },
-    { 
-      rank: 2, 
-      name: 'Алия Нурсултанова', 
-      school: 'НИШ Физмат, Астана', 
-      avatar: 'АН', 
-      score: 89.2, 
-      change: -1, 
-      skills: ['ML', 'Python', 'Data'],
-      bio: 'Data Scientist в будущем. Изучаю машинное обучение и анализ данных. Участница хакатонов и грантов.',
-      projects: [
-        { name: 'ML Classifier', desc: 'Python · Классификатор изображений', score: 94, icon: '' },
-        { name: 'Data Visualizer', desc: 'Python · Визуализация данных', score: 87, icon: '' },
-        { name: 'ChatBot AI', desc: 'Python · NLP чат-бот', score: 89, icon: '' }
-      ],
-      stats: { projects: 9, skills: 6, matches: 3 },
-      level: 7,
-      isOnline: true
-    },
-    { 
-      rank: 3, 
-      name: 'Данияр Омаров', 
-      school: 'Гимназия №7, Алматы', 
-      avatar: 'ДО', 
-      score: 87.8, 
-      change: 0, 
-      skills: ['React', 'TypeScript'],
-      bio: 'Full-stack разработчик. Специализируюсь на React и Node.js. Создаю масштабируемые приложения.',
-      projects: [
-        { name: 'Social Network', desc: 'React + Node.js · Социальная сеть', score: 86, icon: '' },
-        { name: 'E-commerce Platform', desc: 'React + TypeScript · Интернет-магазин', score: 90, icon: '' },
-        { name: 'API Gateway', desc: 'Node.js · Микросервисы', score: 84, icon: '' }
-      ],
-      stats: { projects: 11, skills: 7, matches: 4 },
-      level: 7,
-      isOnline: false
-    },
-    { 
-      rank: 4, 
-      name: 'Айсулу Бекмуратова', 
-      school: 'НИШ ХМ, Астана', 
-      avatar: 'АБ', 
-      score: 85.3, 
-      change: 3, 
-      skills: ['Design', 'Figma'],
-      bio: 'UI/UX дизайнер. Создаю красивые и функциональные интерфейсы. Любую работу с пользователями.',
-      projects: [
-        { name: 'Banking App UI', desc: 'Figma · Мобильный банкинг', score: 92, icon: '' },
-        { name: 'E-commerce Design', desc: 'Figma · Дизайн магазина', score: 88, icon: '' },
-        { name: 'Social Media UI', desc: 'Figma · Соцсеть дизайн', score: 85, icon: '' }
-      ],
-      stats: { projects: 15, skills: 5, matches: 6 },
-      level: 6,
-      isOnline: true
-    },
-    { 
-      rank: 5, 
-      name: 'Ерлан Смагулов', 
-      school: 'Школа №12, Шымкент', 
-      avatar: 'ЕС', 
-      score: 83.7, 
-      change: -2, 
-      skills: ['Python', 'Django'],
-      bio: 'Backend разработчик. Работаю с Python и Django. Создаю надежные и быстрые API.',
-      projects: [
-        { name: 'Blog Platform', desc: 'Django · Блоговая платформа', score: 87, icon: '' },
-        { name: 'REST API', desc: 'Django REST · API сервис', score: 82, icon: '' },
-        { name: 'Task Scheduler', desc: 'Python · Планировщик задач', score: 79, icon: '' }
-      ],
-      stats: { projects: 8, skills: 4, matches: 2 },
-      level: 5,
-      isOnline: false
-    }
-  ],
-  schools: [
-    { rank: 1, name: 'НИШ Физмат-IT', city: 'Астана', avgReputation: 78.5, totalStudents: 234, achievements: 15, topStudents: [
-      { name: 'Алия Нурсултанова', avatar: 'АН', score: 89.2 },
-      { name: 'Тимур Жумабек', avatar: 'ТЖ', score: 82.4 },
-      { name: 'Мадина Сулейменова', avatar: 'МС', score: 79.8 }
-    ]},
-    { rank: 2, name: 'Школа №45', city: 'Алматы', avgReputation: 72.3, totalStudents: 198, achievements: 12, topStudents: [
-      { name: 'Марат Алиев', avatar: 'МА', score: 92.5 },
-      { name: 'Данияр Омаров', avatar: 'ДО', score: 87.8 },
-      { name: 'Карина Абдуллаева', avatar: 'КА', score: 76.2 }
-    ]}
-  ],
-  skills: {
-    react: [
-      { rank: 1, name: 'Марат Алиев', school: 'Школа №45, Алматы', avatar: 'МА', score: 95.2, change: 1 },
-      { rank: 2, name: 'Данияр Омаров', school: 'Гимназия №7, Алматы', avatar: 'ДО', score: 91.8, change: -1 },
-      { rank: 3, name: 'Айнур Касымов', school: 'Гимназия №7', avatar: 'АК', score: 88.4, change: 0 }
-    ],
-    python: [
-      { rank: 1, name: 'Алия Нурсултанова', school: 'НИШ', avatar: 'АН', score: 94.6, change: 0 },
-      { rank: 2, name: 'Ерлан Смагулов', school: 'Школа №12', avatar: 'ЕС', score: 90.3, change: 2 },
-      { rank: 3, name: 'Марат Алиев', school: 'Школа №45', avatar: 'МА', score: 87.9, change: -1 }
-    ],
-    ml: [
-      { rank: 1, name: 'Алия Нурсултанова', school: 'НИШ', avatar: 'АН', score: 96.1, change: 2 },
-      { rank: 2, name: 'Тимур Жумабек', school: 'НИШ', avatar: 'ТЖ', score: 89.7, change: -1 },
-      { rank: 3, name: 'Мадина Сулейменова', school: 'НИШ', avatar: 'МС', score: 85.2, change: 0 }
-    ]
-  },
-  competitions: [
-    { name: 'React Challenge 2024', prize: 'MacBook Air + стажировка', participants: 156, daysLeft: 12, description: 'Создай лучшее React приложение и выиграй ценные призы' },
-    { name: 'AI Innovation Hackathon', prize: 'Грант на развитие проекта', participants: 89, daysLeft: 8, description: 'Разработи AI решение для образования и получи поддержку' },
-    { name: 'School Battle: IT Edition', prize: 'Кубок чемпиона + мерч', participants: 234, daysLeft: 5, description: 'Соревнование между школами Алматы за звание лучшей IT-площадки' }
-  ]
-};
-
-// ════════════ USER PROFILES & MESSENGER ════════════
-let currentChatUser = null;
-let chatMessages = {};
-
-// Initialize chat storage
-function initializeChats() {
-  const saved=store.get('chats',null);
-  rankingsData.users.forEach(user => {
-    chatMessages[user.name] = (saved&&Array.isArray(saved[user.name]))?saved[user.name]:[
-      { text: 'Привет! Рад пообщаться с тобой', time: '10:30', sent: false }
-    ];
-  });
+// Уведомления — ближайшие дедлайны возможностей, которые ученик отметил матчем
+function openNotifications(){
+  const ids=new Set(store.get('matches',[]).map(m=>m.id));
+  const soon=OPPS.filter(o=>ids.has(o.id)&&o.deadline).map(o=>({o,d:daysLeft(o.deadline)})).filter(x=>x.d!==null&&x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
+  modalShell('Уведомления',soon.length?`<div style="display:flex;flex-direction:column;gap:8px;">${soon.map(({o})=>`<a class="proj" href="${esc(o.url||'#')}" target="_blank" rel="noopener noreferrer"><div style="flex:1;min-width:0"><div class="proj-name">${esc(o.title)}</div><div class="proj-desc">${esc(o.org)} · ${esc(fmtDeadline(o.deadline))}</div></div></a>`).join('')}</div>`
+    :`<div class="hint">Пока нет уведомлений. Отметь возможности в TalentMatch — здесь появятся их ближайшие дедлайны.</div>`);
 }
-function saveChats(){store.set('chats',chatMessages);}
-
-// Open user profile modal
-function openUserProfile(userId) {
-  const user = rankingsData.users.find(u => u.rank === userId);
-  if (!user) return;
-  
-  const modal = document.getElementById('modal-overlay');
-  const content = document.getElementById('modal-content');
-  
-  const skillsHtml = user.skills.map(skill => 
-    `<span class="user-profile-skill-tag">${skill}</span>`
-  ).join('');
-  
-  const projectsHtml = user.projects.map(project => `
-    <div class="user-profile-project">
-      <div class="user-profile-project-ico" style="background:var(--s3)">${project.icon}</div>
-      <div class="user-profile-project-info">
-        <div class="user-profile-project-name">${project.name}</div>
-        <div class="user-profile-project-desc">${project.desc}</div>
-      </div>
-      <div class="user-profile-project-score">${project.score}</div>
-    </div>
-  `).join('');
-  
-  content.innerHTML = `
-    <div class="user-profile-modal">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <div style="font-size:18px;font-weight:600;">Профиль ученика</div>
-        <span onclick="closeModal()" style="cursor:pointer;font-size:24px;color:var(--muted);padding:4px;">×</span>
-      </div>
-      
-      <div class="user-profile-header">
-        <div class="user-profile-avatar">${user.avatar}</div>
-        <div class="user-profile-info">
-          <div class="user-profile-name">${user.name}</div>
-          <div class="user-profile-school">${user.school}</div>
-          <div class="user-profile-bio">${user.bio}</div>
-        </div>
-      </div>
-      
-      <div class="user-profile-stats">
-        <div class="user-profile-stat">
-          <div class="user-profile-stat-val">${user.stats.projects}</div>
-          <div class="user-profile-stat-lbl">Проектов</div>
-        </div>
-        <div class="user-profile-stat">
-          <div class="user-profile-stat-val">${user.stats.skills}</div>
-          <div class="user-profile-stat-lbl">Навыков</div>
-        </div>
-        <div class="user-profile-stat">
-          <div class="user-profile-stat-val">${user.stats.matches}</div>
-          <div class="user-profile-stat-lbl">Матчей</div>
-        </div>
-      </div>
-      
-      <div class="user-profile-skills">
-        <div class="user-profile-skills-title">Навыки</div>
-        <div class="user-profile-skill-tags">${skillsHtml}</div>
-      </div>
-      
-      <div class="user-profile-projects">
-        <div class="user-profile-projects-title">Топ проекты</div>
-        ${projectsHtml}
-      </div>
-      
-      <div class="user-profile-actions">
-        <button class="contact-btn" onclick="openMessenger('${user.name}')">
-          Написать сообщение
-        </button>
-        <button class="contact-btn secondary" onclick="viewFullProfile('${user.name}')">
-          Полный профиль
-        </button>
-      </div>
-    </div>
-  `;
-  
-  modal.classList.add('show');
+function openShare(){
+  modalShell('Поделиться профилем',`<div class="hint" style="margin-bottom:12px;">Публичных страниц профилей пока нет: аккаунт хранится в этом браузере. Сохрани профиль в PDF и приложи к заявке — в нём видны навыки, подтверждённые по коду.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="go-btn" onclick="closeModal();setTimeout(()=>window.print(),150)">Сохранить профиль в PDF</button>
+      <button class="outline-btn" style="margin:0;" onclick="shareProfile()">Поделиться ссылкой на Verix</button>
+    </div>`);
 }
-
-// Open messenger
-function openMessenger(userName) {
-  const user = rankingsData.users.find(u => u.name === userName);
-  if (!user) return;
-  
-  currentChatUser = userName;
-  const modal = document.getElementById('modal-overlay');
-  const content = document.getElementById('modal-content');
-  
-  const messages = chatMessages[userName] || [];
-  const messagesHtml = messages.map(msg => `
-    <div class="messenger-message ${msg.sent ? 'message-sent' : 'message-received'}">
-      <div class="message-avatar">${msg.sent ? 'Я' : user.avatar}</div>
-      <div class="message-content">
-        <div class="message-text">${esc(msg.text)}</div>
-        <div class="message-time">${msg.time}</div>
-      </div>
-    </div>
-  `).join('');
-  
-  content.innerHTML = `
-    <div class="messenger-modal">
-      <div class="messenger-header">
-        <div class="messenger-avatar">${user.avatar}</div>
-        <div class="messenger-info">
-          <div class="messenger-name">${user.name}</div>
-          <div class="messenger-status">Демо-собеседник · ответы автоматические</div>
-        </div>
-        <div class="messenger-close" onclick="closeModal()">×</div>
-      </div>
-      
-      <div class="messenger-messages" id="chatMessages">
-        ${messagesHtml}
-      </div>
-      
-      <div class="messenger-input">
-        <input type="text" id="messageInput" maxlength="500" aria-label="Сообщение" placeholder="Напиши сообщение..." onkeydown="handleMessageKeypress(event)">
-        <button onclick="sendMessage()">Отправить</button>
-      </div>
-    </div>
-  `;
-  
-  modal.classList.add('show');
-  
-  // Focus input and scroll to bottom
-  setTimeout(() => {
-    document.getElementById('messageInput').focus();
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }, 100);
-}
-
-// Send message
-function sendMessage() {
-  const input = document.getElementById('messageInput');
-  const text = input.value.trim();
-  
-  if (!text || !currentChatUser) return;
-  
-  const now = new Date();
-  const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  
-  // Add message to chat
-  if (!chatMessages[currentChatUser]) {
-    chatMessages[currentChatUser] = [];
-  }
-  
-  chatMessages[currentChatUser].push({
-    text: text,
-    time: time,
-    sent: true
-  });
-  
-  saveChats();
-  // Clear input
-  input.value = '';
-  
-  // Re-render messages
-  openMessenger(currentChatUser);
-  
-  // Simulate response after 2 seconds
-  setTimeout(() => {
-    if (chatMessages[currentChatUser]) {
-      const responses = [
-        'Спасибо за сообщение!',
-        'Интересно! Расскажи подробнее.',
-        'Круто! Давай обсудим это.',
-        'Согласен! Отличная идея.',
-        'Я тоже думаю об этом.'
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      const responseTime = new Date();
-      const responseTimeStr = `${responseTime.getHours().toString().padStart(2, '0')}:${responseTime.getMinutes().toString().padStart(2, '0')}`;
-      
-      chatMessages[currentChatUser].push({
-        text: randomResponse,
-        time: responseTimeStr,
-        sent: false
-      });
-      saveChats();
-      
-      // Update if still in chat
-      if (currentChatUser === rankingsData.users.find(u => u.name === currentChatUser)?.name) {
-        openMessenger(currentChatUser);
-        toast('Новое сообщение!');
-      }
-    }
-  }, 2000);
-  
-  toast('Сообщение отправлено!');
-}
-
-// Handle enter key in message input
-function handleMessageKeypress(event) {
-  if (event.key === 'Enter') {
-    sendMessage();
-  }
-}
-
-// View full profile (placeholder)
-function viewFullProfile(userName) {
-  toast(`Открыт полный профиль: ${userName}`);
-  closeModal();
-  // In real app, this would navigate to full profile page
-}
-
-// Render functions (used for dynamic updates)
-function renderUserRankings() {
-  // This would be called when data updates
-  // For now, the HTML is static, but in real app this would be dynamic
-  console.log('User rankings updated');
-}
-
-// ════════════ SHARE ════════════
 function profileUrl(){return location.origin+location.pathname;}
 async function shareProfile(){
-  const p=loadP();const data={title:'Verix — '+p.name,text:p.name+' на Verix — платформе цифровой репутации школьников',url:profileUrl()};
+  const data={title:'Verix',text:'Verix — платформа цифровой репутации школьников',url:profileUrl()};
   try{
     if(navigator.share){await navigator.share(data);closeModal();return;}
     await navigator.clipboard.writeText(data.url);toast('Ссылка скопирована!');closeModal();
@@ -963,7 +551,6 @@ renderProfile();
 renderSavedSkills();
 renderMatches();
 renderOpp();loadOpps();
-initializeChats();
 
 // Смена языка: перерисовываем части, где даты и числа формируются в коде
 window.addEventListener('vx:lang',()=>{try{renderOpp();renderSavedSkills();if(lastResult)renderRepoProof(lastResult);}catch(e){console.warn(e);}});

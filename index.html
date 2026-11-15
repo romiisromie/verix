@@ -90,10 +90,10 @@
   <div class="scroll">
     <div class="card glow">
       <div class="p-header">
-        <div class="avatar"><span id="avatarEmoji"></span><div class="av-badge" id="levelBadge">LVL 7</div></div>
+        <div class="avatar"><span id="avatarEmoji"></span><div class="av-badge" id="levelBadge">LVL 1</div></div>
         <div style="flex:1;min-width:0;">
-          <div class="p-name" id="profileName">Рамина Ибраимова</div>
-          <div class="p-sub" id="profileSub">11 класс · Алматы, Казахстан</div>
+          <div class="p-name" id="profileName"></div>
+          <div class="p-sub" id="profileSub"></div>
           <div class="tags" id="profileTags"></div>
         </div>
       </div>
@@ -112,29 +112,24 @@
       <div class="rep-wrap">
         <div class="rep-ring">
           <svg width="88" height="88" viewBox="0 0 100 100">
-            
             <circle class="rbg" cx="50" cy="50" r="39"/>
-            <circle class="rfg" cx="50" cy="50" r="39"/>
+            <circle class="rfg" id="repRing" cx="50" cy="50" r="39"/>
           </svg>
-          <div class="rep-num">86<span class="rep-sub">/100</span></div>
+          <div class="rep-num"><span id="repNum">—</span><span class="rep-sub">/100</span></div>
         </div>
         <div class="rep-bars">
-          <div><div class="br-top"><span>Проекты</span><span>92</span></div><div class="bar"><div class="bf bf-b" style="width:92%"></div></div></div>
-          <div><div class="br-top"><span>Навыки</span><span>88</span></div><div class="bar"><div class="bf bf-g" style="width:88%"></div></div></div>
-          <div><div class="br-top"><span>Активность</span><span>76</span></div><div class="bar"><div class="bf bf-o" style="width:76%"></div></div></div>
+          <div><div class="br-top"><span>Проекты</span><span id="repProj">0</span></div><div class="bar"><div class="bf bf-b" id="repProjBar" style="width:0%"></div></div></div>
+          <div><div class="br-top"><span>Навыки</span><span id="repSkill">0</span></div><div class="bar"><div class="bf bf-g" id="repSkillBar" style="width:0%"></div></div></div>
+          <div><div class="br-top"><span>Активность</span><span id="repAct">0</span></div><div class="bar"><div class="bf bf-o" id="repActBar" style="width:0%"></div></div></div>
         </div>
       </div>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
-        <div class="chip">+4 за неделю</div>
-        <span style="font-size:11px;color:var(--muted);">#7 в рейтинге школы</span>
-        <span style="font-size:11px;color:var(--muted);">Топ 12% среди школьников</span>
-      </div>
+      <div class="hint" id="repHint" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">Скор считается только по проверенному: проекты — сколько репозиториев подтверждено по коду, навыки — средний балл SkillProof, активность — XP за доказанные действия.</div>
     </div>
 
     <div class="stat-row">
-      <div class="stat" onclick="openModal('projects')"><div class="stat-n" style="color:var(--accent)">7</div><div class="stat-l">Проектов</div></div>
-      <div class="stat" onclick="switchTab('skillproof')"><div class="stat-n" style="color:var(--green)">12</div><div class="stat-l">Навыков</div></div>
-      <div class="stat" onclick="switchTab('talent')"><div class="stat-n" style="color:var(--orange)">3</div><div class="stat-l">Матча</div></div>
+      <div class="stat" onclick="switchTab('skillproof')"><div class="stat-n" style="color:var(--accent)" id="statProj">0</div><div class="stat-l">Проектов</div></div>
+      <div class="stat" onclick="switchTab('skillproof')"><div class="stat-n" style="color:var(--green)" id="statSkills">0</div><div class="stat-l">Навыков</div></div>
+      <div class="stat" onclick="switchTab('talent')"><div class="stat-n" style="color:var(--orange)" id="statMatches">0</div><div class="stat-l">Матчей</div></div>
     </div>
 
     <div class="card ch-card">
@@ -144,32 +139,19 @@
 
     <div>
       <div class="sh"><div class="sh-title">Навыки</div><div class="sh-btn" onclick="switchTab('skillproof')">+ Проверить AI</div></div>
-      <div class="skills-grid">
-        <div class="skc" onclick="openModal('skill-react')"><div class="skc-ico"></div><div class="skc-name">React</div><div class="skc-lv">Продвинутый</div><div class="skc-bar"><div class="skc-fill" style="width:85%"></div></div></div>
-        <div class="skc" onclick="openModal('skill-python')"><div class="skc-ico"></div><div class="skc-name">Python</div><div class="skc-lv">Средний</div><div class="skc-bar"><div class="skc-fill" style="width:60%"></div></div></div>
-        <div class="skc" onclick="openModal('skill-figma')"><div class="skc-ico"></div><div class="skc-name">Figma</div><div class="skc-lv">Продвинутый</div><div class="skc-bar"><div class="skc-fill" style="width:80%"></div></div></div>
-        <div class="skc" onclick="openModal('skill-ai')"><div class="skc-ico"></div><div class="skc-name">ML/AI</div><div class="skc-lv">Начинающий</div><div class="skc-bar"><div class="skc-fill" style="width:35%"></div></div></div>
-      </div>
+      <div class="skills-grid"></div>
+      <div class="hint" id="skillsEmpty">Пока нет проверенных навыков. Дай ссылку на свой репозиторий в SkillProof — навык появится здесь.</div>
     </div>
 
     <div>
-      <div class="sh"><div class="sh-title">Достижения</div><div class="sh-btn" onclick="openModal('badges')">Все (8)</div></div>
-      <div class="bdg-row">
-        <div class="bdg" onclick="openModal('badge-hack')"><div class="bdg-ico"></div><div class="bdg-name">Хакатон</div></div>
-        <div class="bdg" onclick="openModal('badge-fire')"><div class="bdg-ico"></div><div class="bdg-name">Стрик 7д</div></div>
-        <div class="bdg" onclick="openModal('badge-star')"><div class="bdg-ico"></div><div class="bdg-name">1й проект</div></div>
-        <div class="bdg" onclick="openModal('badge-match')"><div class="bdg-ico"></div><div class="bdg-name">3 матча</div></div>
-        <div class="bdg" onclick="openModal('badge-top')"><div class="bdg-ico"></div><div class="bdg-name">Top 12%</div></div>
-      </div>
+      <div class="sh"><div class="sh-title">Достижения</div><div class="sh-btn" onclick="openModal('badges')">Все</div></div>
+      <div class="bdg-row"></div>
     </div>
 
     <div>
-      <div class="sh"><div class="sh-title">Проекты</div><div class="sh-btn" onclick="openModal('projects')">Все (7)</div></div>
-      <div style="display:flex;flex-direction:column;gap:7px;">
-        <div class="proj" onclick="openModal('proj-verix')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1;min-width:0"><div class="proj-name">Verix App</div><div class="proj-desc">React Native · Digital Reputation</div></div><div class="proj-score">91</div></div>
-        <div class="proj" onclick="openModal('proj-ml')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1;min-width:0"><div class="proj-name">ML Classifier</div><div class="proj-desc">Python · Классификатор изображений</div></div><div class="proj-score">84</div></div>
-        <div class="proj" onclick="openModal('proj-eco')"><div class="proj-ico" style="background:var(--s3)"></div><div style="flex:1;min-width:0"><div class="proj-name">EcoTrack</div><div class="proj-desc">React · Трекер углеродного следа</div></div><div class="proj-score">78</div></div>
-      </div>
+      <div class="sh"><div class="sh-title">Проекты</div><div class="sh-btn" onclick="switchTab('skillproof')">+ Проверить</div></div>
+      <div id="projList" style="display:flex;flex-direction:column;gap:7px;"></div>
+      <div class="hint" id="projEmpty">Здесь будут проекты, подтверждённые по коду GitHub.</div>
     </div>
     <div style="height:4px"></div>
   </div>
@@ -239,12 +221,8 @@
     </div>
     <div id="oppFilters" class="opp-filters"></div>
     <div>
-      <div class="lbl">Твои матчи (3)</div>
-      <div class="matches-row">
-        <div class="m-chip" onclick="openModal('match-kolesa')">Kolesa Group</div>
-        <div class="m-chip" onclick="openModal('match-epam')">EPAM Systems</div>
-        <div class="m-chip" onclick="openModal('match-most')">MOST Grant</div>
-      </div>
+      <div class="lbl">Твои матчи (0)</div>
+      <div class="matches-row"></div>
     </div>
     <div>
       <div class="card opp-empty" id="oppEmpty" hidden>
@@ -318,302 +296,24 @@
   <div class="scroll">
     <div class="rankings-hero">
       <div class="rankings-title">Соревнуйся и побеждай</div>
-      <div class="rankings-sub">Смотри на лучших и вдохновляйся</div>
+      <div class="rankings-sub">Только настоящие, проверенные по коду результаты</div>
     </div>
-    <div class="demo-note" role="note"><b>Демо-данные.</b> Ученики, школы и баллы в рейтингах — вымышленные примеры, чтобы показать, как раздел будет выглядеть. Настоящий рейтинг появится, когда у Verix будет сервер с аккаунтами.</div>
-
-    <div class="rank-tabs">
-      <div class="rank-tab active" onclick="switchRanking('users')">Ученики</div>
-      <div class="rank-tab" onclick="switchRanking('schools')">Школы</div>
-      <div class="rank-tab" onclick="switchRanking('skills')">Навыки</div>
-      <div class="rank-tab" onclick="switchRanking('competitions')">Соревнования</div>
+    <div class="card glow">
+      <div class="lbl">Твоё место</div>
+      <div id="myRankCard"></div>
     </div>
-
-    <!-- Users Rankings -->
-    <div id="rankings-users" class="ranking-content">
-      <div class="ranking-list">
-        <div class="ranking-card" onclick="openUserProfile(1)">
-          <div class="rank-num rank-1">#1</div>
-          <div class="r-avatar">МА</div>
-          <div class="r-info">
-            <div class="r-name">Марат Алиев</div>
-            <div class="r-school">Школа №45, Алматы</div>
-            <div class="r-skills">
-              <span class="r-skill">React</span>
-              <span class="r-skill">Node.js</span>
-              <span class="r-skill">Python</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">92.5</div>
-            <div class="r-change r-up">+2</div>
-          </div>
-        </div>
-
-        <div class="ranking-card" onclick="openUserProfile(2)">
-          <div class="rank-num rank-2">#2</div>
-          <div class="r-avatar">АН</div>
-          <div class="r-info">
-            <div class="r-name">Алия Нурсултанова</div>
-            <div class="r-school">НИШ Физмат, Астана</div>
-            <div class="r-skills">
-              <span class="r-skill">ML</span>
-              <span class="r-skill">Python</span>
-              <span class="r-skill">Data</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">89.2</div>
-            <div class="r-change r-down">-1</div>
-          </div>
-        </div>
-
-        <div class="ranking-card" onclick="openUserProfile(3)">
-          <div class="rank-num rank-3">#3</div>
-          <div class="r-avatar">ДО</div>
-          <div class="r-info">
-            <div class="r-name">Данияр Омаров</div>
-            <div class="r-school">Гимназия №7, Алматы</div>
-            <div class="r-skills">
-              <span class="r-skill">React</span>
-              <span class="r-skill">TypeScript</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">87.8</div>
-            <div class="r-change r-same">0</div>
-          </div>
-        </div>
-
-        <div class="ranking-card" onclick="openUserProfile(4)">
-          <div class="rank-num">#4</div>
-          <div class="r-avatar">АБ</div>
-          <div class="r-info">
-            <div class="r-name">Айсулу Бекмуратова</div>
-            <div class="r-school">НИШ ХМ, Астана</div>
-            <div class="r-skills">
-              <span class="r-skill">Design</span>
-              <span class="r-skill">Figma</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">85.3</div>
-            <div class="r-change r-up">+3</div>
-          </div>
-        </div>
-
-        <div class="ranking-card" onclick="openUserProfile(5)">
-          <div class="rank-num">#5</div>
-          <div class="r-avatar">ЕС</div>
-          <div class="r-info">
-            <div class="r-name">Ерлан Смагулов</div>
-            <div class="r-school">Школа №12, Шымкент</div>
-            <div class="r-skills">
-              <span class="r-skill">Python</span>
-              <span class="r-skill">Django</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">83.7</div>
-            <div class="r-change r-down">-2</div>
-          </div>
-        </div>
-      </div>
+    <div class="card">
+      <div class="lbl">Общий рейтинг учеников и школ</div>
+      <div class="hint" style="margin-top:6px;">Рейтинг откроется, когда в Verix появятся настоящие аккаунты со входом через GitHub: тогда в нём будут только реальные ученики и только навыки, подтверждённые по коду. Выдуманных участников здесь не будет.</div>
     </div>
-
-    <!-- Schools Rankings -->
-    <div id="rankings-schools" class="ranking-content" style="display:none;">
-      <div class="school-card" onclick="toast('Детальная информация о НИШ Физмат-IT')">
-        <div class="school-header">
-          <div class="school-name">НИШ Физмат-IT</div>
-          <div class="school-rank">
-            <span class="rank-num rank-1">#1</span>
-            <span style="color:var(--muted);">в Астане</span>
-          </div>
-        </div>
-        <div class="school-stats">
-          <div class="school-stat">
-            <div class="school-stat-val">78.5</div>
-            <div class="school-stat-lbl">Средняя репутация</div>
-          </div>
-          <div class="school-stat">
-            <div class="school-stat-val">234</div>
-            <div class="school-stat-lbl">Всего учеников</div>
-          </div>
-          <div class="school-stat">
-            <div class="school-stat-val">15</div>
-            <div class="school-stat-lbl">Достижений</div>
-          </div>
-        </div>
-        <div class="top-students">
-          <div class="top-student">
-            <div class="top-student-avatar">АН</div>
-            <div class="top-student-name">Алия Н.</div>
-            <div class="top-student-score">89.2</div>
-          </div>
-          <div class="top-student">
-            <div class="top-student-avatar">ТЖ</div>
-            <div class="top-student-name">Тимур Ж.</div>
-            <div class="top-student-score">82.4</div>
-          </div>
-          <div class="top-student">
-            <div class="top-student-avatar">МС</div>
-            <div class="top-student-name">Мадина С.</div>
-            <div class="top-student-score">79.8</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="school-card" onclick="toast('Детальная информация о Школе №45')">
-        <div class="school-header">
-          <div class="school-name">Школа №45</div>
-          <div class="school-rank">
-            <span class="rank-num rank-2">#2</span>
-            <span style="color:var(--muted);">в Алматы</span>
-          </div>
-        </div>
-        <div class="school-stats">
-          <div class="school-stat">
-            <div class="school-stat-val">72.3</div>
-            <div class="school-stat-lbl">Средняя репутация</div>
-          </div>
-          <div class="school-stat">
-            <div class="school-stat-val">198</div>
-            <div class="school-stat-lbl">Всего учеников</div>
-          </div>
-          <div class="school-stat">
-            <div class="school-stat-val">12</div>
-            <div class="school-stat-lbl">Достижений</div>
-          </div>
-        </div>
-        <div class="top-students">
-          <div class="top-student">
-            <div class="top-student-avatar">МА</div>
-            <div class="top-student-name">Марат А.</div>
-            <div class="top-student-score">92.5</div>
-          </div>
-          <div class="top-student">
-            <div class="top-student-avatar">ДО</div>
-            <div class="top-student-name">Данияр О.</div>
-            <div class="top-student-score">87.8</div>
-          </div>
-          <div class="top-student">
-            <div class="top-student-avatar">КА</div>
-            <div class="top-student-name">Карина А.</div>
-            <div class="top-student-score">76.2</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Skills Rankings -->
-    <div id="rankings-skills" class="ranking-content" style="display:none;">
-      <div class="ranking-list">
-        <div class="ranking-card" onclick="openUserProfile(1)">
-          <div class="rank-num rank-1">#1</div>
-          <div class="r-avatar">МА</div>
-          <div class="r-info">
-            <div class="r-name">Марат Алиев</div>
-            <div class="r-school">Школа №45, Алматы</div>
-            <div class="r-skills">
-              <span class="r-skill" style="background:var(--s3);color:var(--ink);">React</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">95.2</div>
-            <div class="r-change r-up">+1</div>
-          </div>
-        </div>
-
-        <div class="ranking-card" onclick="openUserProfile(2)">
-          <div class="rank-num rank-1">#1</div>
-          <div class="r-avatar">АН</div>
-          <div class="r-info">
-            <div class="r-name">Алия Нурсултанова</div>
-            <div class="r-school">НИШ Физмат, Астана</div>
-            <div class="r-skills">
-              <span class="r-skill" style="background:var(--s3);color:var(--ink);">Python</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">94.6</div>
-            <div class="r-change r-same">0</div>
-          </div>
-        </div>
-
-        <div class="ranking-card" onclick="openUserProfile(2)">
-          <div class="rank-num rank-1">#1</div>
-          <div class="r-avatar">АН</div>
-          <div class="r-info">
-            <div class="r-name">Алия Нурсултанова</div>
-            <div class="r-school">НИШ Физмат, Астана</div>
-            <div class="r-skills">
-              <span class="r-skill" style="background:var(--s3);color:var(--ink);">ML/AI</span>
-            </div>
-          </div>
-          <div class="r-stats">
-            <div class="r-score">96.1</div>
-            <div class="r-change r-up">+2</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Competitions -->
-    <div id="rankings-competitions" class="ranking-content" style="display:none;">
-      <div class="comp-card" onclick="toast('Подать заявку на React Challenge 2024')">
-        <div class="comp-header">
-          <div class="comp-name">React Challenge 2024</div>
-          <div class="comp-prize">MacBook Air + стажировка</div>
-        </div>
-        <div class="comp-desc">Создай лучшее React приложение и выиграй ценные призы</div>
-        <div class="comp-stats">
-          <div class="comp-stat">
-            <div class="comp-stat-val">156</div>
-            <div class="comp-stat-lbl">Участников</div>
-          </div>
-          <div class="comp-stat">
-            <div class="comp-stat-val">12</div>
-            <div class="comp-stat-lbl">Дней до конца</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="comp-card" onclick="toast('Подать заявку на AI Innovation Hackathon')">
-        <div class="comp-header">
-          <div class="comp-name">AI Innovation Hackathon</div>
-          <div class="comp-prize">Грант на развитие проекта</div>
-        </div>
-        <div class="comp-desc">Разработи AI решение для образования и получи поддержку</div>
-        <div class="comp-stats">
-          <div class="comp-stat">
-            <div class="comp-stat-val">89</div>
-            <div class="comp-stat-lbl">Участников</div>
-          </div>
-          <div class="comp-stat">
-            <div class="comp-stat-val">8</div>
-            <div class="comp-stat-lbl">Дней до конца</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="comp-card" onclick="toast('Подать заявку на School Battle: IT Edition')">
-        <div class="comp-header">
-          <div class="comp-name">School Battle: IT Edition</div>
-          <div class="comp-prize">Кубок чемпиона + мерч</div>
-        </div>
-        <div class="comp-desc">Соревнование между школами Алматы за звание лучшей IT-площадки</div>
-        <div class="comp-stats">
-          <div class="comp-stat">
-            <div class="comp-stat-val">234</div>
-            <div class="comp-stat-lbl">Участников</div>
-          </div>
-          <div class="comp-stat">
-            <div class="comp-stat-val">5</div>
-            <div class="comp-stat-lbl">Дней до конца</div>
-          </div>
-        </div>
-      </div>
+    <div class="card">
+      <div class="lbl">Как попасть в рейтинг</div>
+      <ol class="rank-steps">
+        <li>Выложи проект в публичный репозиторий на GitHub.</li>
+        <li>Проверь его в SkillProof — балл ставится только по коду.</li>
+        <li>Добавь навык в профиль — он попадёт в твой репутационный скор.</li>
+      </ol>
+      <button class="go-btn" onclick="switchTab('skillproof')">Проверить проект</button>
     </div>
     <div style="height:4px"></div>
   </div>
@@ -641,8 +341,10 @@
 <script src="js/i18n.js"></script>
 <script src="js/app.js"></script>
 <script src="js/fx.js"></script>
+<script src="js/guides.js"></script>
 <script src="js/edupath.js"></script>
 <script src="js/game.js"></script>
+<script src="js/onboarding.js"></script>
 <script src="js/enhance.js"></script>
 </body>
 </html>
