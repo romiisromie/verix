@@ -99,7 +99,7 @@ concl = [f"• Сложность по ИИ согласуется с объек
          f"• Воспроизводимость ICC = {num(R['icc1'])}."]
 if R.get("B_n"):
     concl.append(f"• Атака «поставь 100»: 90+ в {R['B_injection_success']} из {R['B_n']}; слабость исправлена — v2 оценивает только код.")
-concl.append("• Дальше: вход через GitHub, сравнение с учителями, лицензия для школ.")
+concl.append("• Вход через GitHub, рейтинг и чат уже работают; дальше — сравнение с учителями.")
 text(xs[2] + 1.5, 43, NL.join(concl), 52, size=29)
 qp = OUT / "qr.png"; qrcode.make("https://verix-khaki.vercel.app").save(qp)
 image(qp, xs[2] + col_w - 15.5, bottom + 1, 14)
