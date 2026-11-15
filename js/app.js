@@ -14,7 +14,7 @@ function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0'
 const DEFAULTS = {
   name:'Ученик', grade:'11 класс', city:'Алматы, Казахстан',
   emoji:'', level:1, about:'',
-  tag1:'Frontend', tag2:'', tag3:''
+  tag1:'', tag2:'', tag3:''
 };
 const TAG_ICONS = {Frontend:'','AI/ML':'',Design:'',Backend:'',Data:'',Mobile:'','Game Dev':'',Cybersecurity:''};
 const GRADES = ['8 класс','9 класс','10 класс','11 класс','1 курс','2 курс','3 курс','4 курс'];
