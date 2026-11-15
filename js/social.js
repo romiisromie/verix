@@ -25,12 +25,12 @@
   function mergeServer(data) {
     const p = loadP(), sp = data.profile || {};
     const tags = Array.isArray(sp.tags) ? sp.tags : [];
-    if (sp.name) Object.assign(p, {
+    if (sp.name && sp.name !== 'Ученик') Object.assign(p, {
       name: sp.name, grade: sp.grade || p.grade, city: sp.city || p.city, goal: sp.goal || p.goal,
       tag1: tags[0] || '', tag2: tags[1] || '', tag3: tags[2] || '', onboarded: p.onboarded || Date.now(),
     });
     p.public = sp.public !== false; p.dm = sp.dm !== false; p.github = 'https://github.com/' + data.user.login;
-    if (!sp.name && !p.onboarded) p.name = data.user.name || data.user.login;
+    if ((!sp.name || sp.name === 'Ученик') && (!p.name || p.name === 'Ученик')) p.name = data.user.name || data.user.login;
     saveP(p);
     // навыки с сервера (только свои репозитории) — главный источник правды
     const server = (data.skills || []).map((s) => ({ skill: s.skill, score: s.score, level: s.level, source: 'github', repo: s.repo, date: s.at, owner: s.ownership }));
@@ -41,6 +41,7 @@
   async function syncProfile() {
     if (!loggedIn()) return;
     const p = loadP();
+    if (!p.onboarded || !p.name || p.name === 'Ученик') return; // имя по умолчанию на сервер не отправляем
     try {
       await postJSON('/api/profile', { name: p.name, grade: p.grade, city: p.city, tags: [p.tag1, p.tag2, p.tag3].filter(Boolean), goal: p.goal || '', public: p.public !== false, dm: p.dm !== false });
       await refreshMe();

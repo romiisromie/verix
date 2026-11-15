@@ -108,7 +108,7 @@ export function cleanProfile(p) {
   if (!p || typeof p !== "object") throw new HttpError(400, "Пустой профиль");
   const tags = (Array.isArray(p.tags) ? p.tags : []).filter((t) => TAGS.includes(t)).slice(0, 3);
   const name = str(p.name, 60).replace(/[<>]/g, "");
-  if (name.length < 2) throw new HttpError(400, "Укажи имя");
+  if (name.length < 2 || name === "Ученик") throw new HttpError(400, "Укажи имя");
   return {
     name, tags,
     grade: GRADES.includes(p.grade) ? p.grade : DEFAULT_PROFILE.grade,
