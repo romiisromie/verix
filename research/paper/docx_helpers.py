@@ -47,7 +47,7 @@ def new_document():
     return doc
 
 
-def para(doc, text="", *, bold=False, italic=False, align="justify", indent=True, size=None, space_after=0, keep=False):
+def para(doc, text="", *, bold=False, italic=False, align="justify", indent=True, size=None, space_after=0, keep=False, sub=False):
     p = doc.add_paragraph()
     p.alignment = {"justify": WD_ALIGN_PARAGRAPH.JUSTIFY, "center": WD_ALIGN_PARAGRAPH.CENTER,
                    "left": WD_ALIGN_PARAGRAPH.LEFT, "right": WD_ALIGN_PARAGRAPH.RIGHT}[align]
@@ -56,21 +56,36 @@ def para(doc, text="", *, bold=False, italic=False, align="justify", indent=True
     p.paragraph_format.space_after = Pt(space_after)
     if keep:
         p.paragraph_format.keep_with_next = True
-    add_runs(p, text, bold=bold, italic=italic, size=size)
+    add_runs(p, text, bold=bold, italic=italic, size=size, sub=sub)
     return p
 
 
-def add_runs(p, text, *, bold=False, italic=False, size=None):
-    # **жирный** внутри текста
+_SUB = _re.compile(r"([A-Za-zА-Яа-яΔμσ])_([A-Za-zА-Яа-я0-9]+)")
+
+
+def add_runs(p, text, *, bold=False, italic=False, size=None, sub=False):
+    # **жирный** внутри текста; при sub=True запись вида X_y выводится как X с нижним индексом y
     parts = fill(text).split("**")
     for i, part in enumerate(parts):
         if not part:
             continue
-        r = p.add_run(part)
-        r.bold = bold or (i % 2 == 1)
-        r.italic = italic
-        if size:
-            r.font.size = Pt(size)
+        pieces = [(part, False)]
+        if sub:
+            pieces, pos = [], 0
+            for m in _SUB.finditer(part):
+                pieces.append((part[pos:m.start()] + m.group(1), False))
+                pieces.append((m.group(2), True))
+                pos = m.end()
+            pieces.append((part[pos:], False))
+        for chunk, is_sub in pieces:
+            if not chunk:
+                continue
+            r = p.add_run(chunk)
+            r.bold = bold or (i % 2 == 1)
+            r.italic = italic
+            r.font.subscript = is_sub
+            if size:
+                r.font.size = Pt(size)
     return p
 
 
