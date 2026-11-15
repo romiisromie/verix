@@ -471,3 +471,6 @@ a.proj{text-decoration:none;color:inherit;}
 .chat-input{display:flex;gap:8px;align-items:flex-end;margin-top:8px;}
 .chat-input .inp{flex:1;resize:none;}
 .chat-input .go-btn{width:auto;padding:10px 14px;margin:0;}
+/* Экран входа: по центру, если помещается; если нет — начинается сверху и прокручивается (верх не обрезается) */
+#loginScreen > :first-child{margin-top:auto;}
+#loginScreen > :last-child{margin-bottom:auto;}

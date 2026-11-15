@@ -24,6 +24,7 @@
     ["Зарегистрироваться", "Тіркелу", "Sign up"],
     ["Как это работает", "Бұл қалай жұмыс істейді", "How it works"],
     ["Вход:", "Кіру:", "Sign-in:"],
+    ["через GitHub — настоящий аккаунт, рейтинг и сообщения; или любой email и пароль от 6 символов — аккаунт хранится только в этом браузере", "GitHub арқылы — нақты аккаунт, рейтинг және хабарламалар; немесе кез келген email және 6 таңбадан құпиясөз — аккаунт тек осы браузерде сақталады", "with GitHub — a real account, ranking and messages; or any email and a 6+ character password — the account stays in this browser only"],
     ["любой email и пароль от 6 символов — аккаунт создастся сам и хранится только в этом браузере", "кез келген email және 6 таңбадан құпиясөз — аккаунт өзі ашылады және тек осы браузерде сақталады", "any email and a 6+ character password — the account is created automatically and stored only in this browser"],
     ["AI оценивает твои проекты", "AI жобаларыңды бағалайды", "AI rates your projects"],
     ["стажировки, гранты и хакатоны", "тағылымдамалар, гранттар мен хакатондар", "internships, grants and hackathons"],
