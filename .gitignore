@@ -8,3 +8,6 @@ node_modules/
 .vercel
 .env*
 .claude/
+research/paper/authors.local.json
+research/paper/out/
+research-*.log

@@ -1,4 +1,4 @@
-# Финальная сборка документов РКНП (Windows + Microsoft Word):
+﻿# Финальная сборка документов РКНП (Windows + Microsoft Word):
 #   1) статистика и графики  2) docx-документы и стенд  3) оглавление 12 пт, номера страниц, PDF.
 # Запуск из корня репозитория:  powershell -File research/paper/finalize.ps1
 $ErrorActionPreference = "Stop"
@@ -12,7 +12,7 @@ python research/paper/build_poster.py
 $out = (Resolve-Path "research/paper/out").Path
 $w = New-Object -ComObject Word.Application
 $w.Visible = $false
-foreach ($n in "Verix_научная_работа", "Verix_подготовка_к_защите", "Verix_дневник_исследования", "Verix_отзыв_руководителя_шаблон") {
+foreach ($n in "Verix_научная_работа", "Verix_подготовка_к_защите", "Verix_дневник_исследования", "Verix_отзыв_руководителя") {
   $d = $w.Documents.Open("$out\$n.docx")
   if ($d.TablesOfContents.Count -gt 0) {
     $toc = $d.TablesOfContents.Item(1); $toc.Update()

@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 import matplotlib.image as mpimg
 import qrcode
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).parent))
+from docx_helpers import fill
 
 ROOT = Path(__file__).resolve().parents[1]
 R = json.loads(Path(os.environ.get("VX_RESULTS", ROOT / "data/results.json")).read_text(encoding="utf-8"))
@@ -32,7 +35,7 @@ def panel(x, y, w, h, title, color="#f1f5ff"):
 
 
 def text(x, y, s, width, size=31, **kw):
-    wrapped = NL.join(textwrap.fill(par, width) for par in s.split(NL))
+    wrapped = NL.join(textwrap.fill(par, width) for par in fill(s).split(NL))
     ax.text(x, y, wrapped, fontsize=size, va="top", color=INK, linespacing=1.35, **kw)
 
 
@@ -46,7 +49,7 @@ def image(path, x, y, w):
 ax.add_patch(FancyBboxPatch((0, H - 24), W, 24, boxstyle="square,pad=0", fc=BLUE, ec="none"))
 ax.text(3, H - 2.5, "VERIX", fontsize=120, weight="bold", color="white", va="top")
 ax.text(3, H - 12.5, "Цифровая платформа подтверждения IT-навыков школьников" + NL + "с помощью искусственного интеллекта по реальному коду", fontsize=40, color="white", va="top", linespacing=1.25)
-ax.text(3, H - 21.3, "Ибраимова Рамина, [__] лет · Бердіқұл Рахат, [__] лет · [школа] · [город], [область] · Руководитель: [ФИО] · Информатика", fontsize=26, color="#dbe6ff", va="top")
+ax.text(3, H - 21.3, fill("Ибраимова Рамина, ⟦AGE_RAMINA⟧ лет · Бердіқұл Рахат, ⟦AGE_RAKHAT⟧ лет · ⟦CLASS⟧, филиал НАО «РФМШ» · г. Алматы · Руководитель: ⟦TEACHER_SHORT⟧ · Информатика"), fontsize=24, color="#dbe6ff", va="top")
 abstract = (f"Абстракт. Цель — подтверждать IT-навыки школьников не по словам, а по коду на GitHub, и проверить надёжность такой оценки. "
             f"Гипотеза: ИИ, получающий факты из репозитория и работающий по строгой рубрике, согласуется с объективными метриками, воспроизводится и не поддаётся обману. "
             f"Апробация на {R['n_repos']} репозиториях трёх уровней (×3 прогона): ρ = {num(spc['rho'])} с объективным индексом ({pf(spc['p'])}), "

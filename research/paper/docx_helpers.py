@@ -10,6 +10,15 @@ from docx.shared import Cm, Pt, RGBColor
 
 FONT = "Times New Roman"
 
+# Личные данные (школа, класс, руководитель, директор, возраст) не хранятся в публичном коде:
+# они лежат в research/paper/authors.local.json (в .gitignore) и подставляются вместо ⟦МЕТОК⟧.
+import json as _json, re as _re
+from pathlib import Path as _Path
+_LOCAL = _Path(__file__).with_name("authors.local.json")
+PERSONAL = _json.loads(_LOCAL.read_text(encoding="utf-8")) if _LOCAL.exists() else {}
+def fill(text):
+    return _re.sub(r"⟦([A-Z_]+)⟧", lambda m: PERSONAL.get(m.group(1), "[" + m.group(1) + "]"), str(text))
+
 
 def new_document():
     doc = Document()
@@ -53,7 +62,7 @@ def para(doc, text="", *, bold=False, italic=False, align="justify", indent=True
 
 def add_runs(p, text, *, bold=False, italic=False, size=None):
     # **жирный** внутри текста
-    parts = text.split("**")
+    parts = fill(text).split("**")
     for i, part in enumerate(parts):
         if not part:
             continue
@@ -128,7 +137,7 @@ def placeholder(doc, text):
     # заметный блок «заполнить»: жёлтая заливка
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    r = p.add_run("[ЗАПОЛНИТЬ] " + text)
+    r = p.add_run("[ЗАПОЛНИТЬ] " + fill(text))
     r.italic = True
     rPr = r._r.get_or_add_rPr()
     hl = OxmlElement("w:highlight"); hl.set(qn("w:val"), "yellow"); rPr.append(hl)
