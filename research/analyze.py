@@ -112,9 +112,11 @@ if complete:
 ms = sorted(r["ms"] for r in ok)
 res["latency_median_s"] = round(st.median(ms) / 1000, 1)
 res["latency_p90_s"] = round(ms[int(0.9 * (len(ms) - 1))] / 1000, 1)
-res["success_rate"] = round(len(ok) / len(runs), 3)
+# надёжность считаем по всем попыткам, включая неудачные и повторённые позже
+res["success_rate"] = round(sum(1 for r in attempts if r["status"] == 200) / len(attempts), 3)
+res["n_attempts_total"] = len(attempts)
 res["errors"] = {}
-for r in runs:
+for r in attempts:
     if r["status"] != 200:
         res["errors"][str(r["status"])] = res["errors"].get(str(r["status"]), 0) + 1
 

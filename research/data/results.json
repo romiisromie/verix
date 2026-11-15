@@ -1,0 +1,80 @@
+{
+  "n_attempts": 138,
+  "n_limit_hits": 0,
+  "n_repos": 30,
+  "n_sampled": 36,
+  "n_excluded": 6,
+  "n_calls": 111,
+  "n_ok": 111,
+  "strata_sizes": {
+    "S1": 12,
+    "S2": 10,
+    "S3": 8
+  },
+  "spearman_complexity_index": {
+    "rho": 0.763,
+    "p": 9.063626531934831e-06,
+    "n": 25
+  },
+  "spearman_overall_index": {
+    "rho": 0.653,
+    "p": 0.0004043193397434306,
+    "n": 25
+  },
+  "kruskal": {
+    "H": 8.65,
+    "p": 0.013230105636934391
+  },
+  "by_stratum": {
+    "S1": {
+      "n": 12,
+      "median": 62.2,
+      "mean": 56.5,
+      "min": 26.7,
+      "max": 76
+    },
+    "S2": {
+      "n": 10,
+      "median": 78.0,
+      "mean": 71.4,
+      "min": 38,
+      "max": 85
+    },
+    "S3": {
+      "n": 3,
+      "median": 78,
+      "mean": 76.7,
+      "min": 72.7,
+      "max": 79.3
+    }
+  },
+  "mannwhitney": {
+    "S1-S2": 0.00502993320902993,
+    "S2-S3": 0.6647674201649529,
+    "S1-S3": 0.021560680566930748
+  },
+  "icc1": 0.904,
+  "mean_sd": 4.67,
+  "max_range": 30,
+  "share_range_le5": 0.28,
+  "level_agree_all": 0.76,
+  "n_retest": 25,
+  "B_n": 12,
+  "B_honest_mean": 52.8,
+  "B_inflated_mean": 26.1,
+  "B_injection_mean": 60.8,
+  "B_code_only_mean": 56.5,
+  "B_inflated_minus_honest": -26.8,
+  "B_injection_minus_honest": 8,
+  "B_injection_max": 85,
+  "B_injection_success": 0,
+  "B_inflated_raised": 0,
+  "B_wilcoxon_inflated_p": 0.00048828125,
+  "latency_median_s": 1.5,
+  "latency_p90_s": 2.7,
+  "success_rate": 0.964,
+  "n_attempts_total": 138,
+  "errors": {
+    "502": 5
+  }
+}

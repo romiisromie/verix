@@ -1,0 +1,477 @@
+[
+  {
+    "repo": "imcaibaicai/dsh-todo-keeper",
+    "stratum": "S1",
+    "index": -0.8562654654343393,
+    "n": 3,
+    "overall": 72.66666666666667,
+    "complexity": 73.33333333333333,
+    "originality": 66.66666666666667,
+    "overall_runs": [
+      75,
+      75,
+      68
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "lyinncte/GAMELAB-todoApi",
+    "stratum": "S1",
+    "index": -0.6076466352960056,
+    "n": 3,
+    "overall": 71,
+    "complexity": 75,
+    "originality": 46.666666666666664,
+    "overall_runs": [
+      70,
+      65,
+      78
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "KangHaiLin/family-todo",
+    "stratum": "S1",
+    "index": -0.8443400560114904,
+    "n": 3,
+    "overall": 76,
+    "complexity": 80,
+    "originality": 70,
+    "overall_runs": [
+      75,
+      75,
+      78
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "Syithah15/todo-kelompok-5",
+    "stratum": "S1",
+    "index": -1.2053371035267488,
+    "n": 3,
+    "overall": 31.333333333333332,
+    "complexity": 26.666666666666668,
+    "originality": 22.333333333333332,
+    "overall_runs": [
+      32,
+      32,
+      30
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "Janniiiv/Project1-TODO",
+    "stratum": "S1",
+    "index": -0.9356704771742962,
+    "n": 3,
+    "overall": 45,
+    "complexity": 38.333333333333336,
+    "originality": 30,
+    "overall_runs": [
+      45,
+      55,
+      35
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "AliyasaRana786/react-todo-app",
+    "stratum": "S1",
+    "index": -0.8150964191551685,
+    "n": 3,
+    "overall": 39.666666666666664,
+    "complexity": 33.333333333333336,
+    "originality": 26.666666666666668,
+    "overall_runs": [
+      42,
+      35,
+      42
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "yhan1524/calculatorGN",
+    "stratum": "S1",
+    "index": -0.9836800355400824,
+    "n": 3,
+    "overall": 61.666666666666664,
+    "complexity": 63.333333333333336,
+    "originality": 53.333333333333336,
+    "overall_runs": [
+      65,
+      65,
+      55
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "cozadlim/commodity-trading-calculator",
+    "stratum": "S1",
+    "index": -0.8022586122953638,
+    "n": 3,
+    "overall": 73.33333333333333,
+    "complexity": 75,
+    "originality": 66.66666666666667,
+    "overall_runs": [
+      70,
+      75,
+      75
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "antogeorgeleo/Gold-Price-Calculator-Comparison-Price-India-Vietnam-",
+    "stratum": "S1",
+    "index": -1.0403562595088947,
+    "n": 3,
+    "overall": 62.666666666666664,
+    "complexity": 58.333333333333336,
+    "originality": 58.333333333333336,
+    "overall_runs": [
+      65,
+      68,
+      55
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "isabellam64596/metonic_cycle_calculator",
+    "stratum": "S1",
+    "index": -0.5445654041220896,
+    "n": 3,
+    "overall": 74.33333333333333,
+    "complexity": 68.33333333333333,
+    "originality": 66.66666666666667,
+    "overall_runs": [
+      75,
+      78,
+      70
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "green5758/solar-watt-calculator",
+    "stratum": "S1",
+    "index": -0.6457116685841401,
+    "n": 3,
+    "overall": 26.666666666666668,
+    "complexity": 20,
+    "originality": 18.333333333333332,
+    "overall_runs": [
+      20,
+      30,
+      30
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "WoofWoof0/subnet-calculator",
+    "stratum": "S1",
+    "index": -0.8713972372919704,
+    "n": 3,
+    "overall": 44,
+    "complexity": 38.333333333333336,
+    "originality": 26.666666666666668,
+    "overall_runs": [
+      35,
+      45,
+      52
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "QIANLING-0831/dsh-memory-plus",
+    "stratum": "S2",
+    "index": 0.2196369949952127,
+    "n": 3,
+    "overall": 78,
+    "complexity": 81.66666666666667,
+    "originality": 83.33333333333333,
+    "overall_runs": [
+      78,
+      78,
+      78
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "btsd321/dsh-remote-explorer",
+    "stratum": "S2",
+    "index": 0.4297534209907056,
+    "n": 3,
+    "overall": 80.33333333333333,
+    "complexity": 85,
+    "originality": 73.33333333333333,
+    "overall_runs": [
+      78,
+      85,
+      78
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "Brajesh31/React-Pagination",
+    "stratum": "S2",
+    "index": -0.10288179567157796,
+    "n": 3,
+    "overall": 40.666666666666664,
+    "complexity": 46.666666666666664,
+    "originality": 27.333333333333332,
+    "overall_runs": [
+      32,
+      45,
+      45
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "Agent-Analytics/agent-analytics",
+    "stratum": "S2",
+    "index": 0.17737087204014865,
+    "n": 3,
+    "overall": 78,
+    "complexity": 83.33333333333333,
+    "originality": 70,
+    "overall_runs": [
+      78,
+      78,
+      78
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "mwakidenis/live-poll",
+    "stratum": "S2",
+    "index": 0.4563665146820542,
+    "n": 3,
+    "overall": 76,
+    "complexity": 79.33333333333333,
+    "originality": 61.666666666666664,
+    "overall_runs": [
+      72,
+      78,
+      78
+    ],
+    "levels": [
+      "Средний",
+      "Средний",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "JPeetz/agent-skills",
+    "stratum": "S2",
+    "index": -0.1564431046415576,
+    "n": 3,
+    "overall": 38,
+    "complexity": 48.333333333333336,
+    "originality": 20.666666666666668,
+    "overall_runs": [
+      42,
+      42,
+      30
+    ],
+    "levels": [
+      "Новичок",
+      "Новичок",
+      "Новичок"
+    ]
+  },
+  {
+    "repo": "CREATeNG/freecad-mcp-bridge",
+    "stratum": "S2",
+    "index": 0.5227707678544645,
+    "n": 3,
+    "overall": 75.33333333333333,
+    "complexity": 82.33333333333333,
+    "originality": 61.666666666666664,
+    "overall_runs": [
+      70,
+      78,
+      78
+    ],
+    "levels": [
+      "Средний",
+      "Продвинутый",
+      "Средний"
+    ]
+  },
+  {
+    "repo": "fullymiddleaged/Clawness",
+    "stratum": "S2",
+    "index": 0.5199968554781191,
+    "n": 3,
+    "overall": 85,
+    "complexity": 86.66666666666667,
+    "originality": 73.33333333333333,
+    "overall_runs": [
+      85,
+      85,
+      85
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "riccardorossi92/HomeAssistant-Contatore",
+    "stratum": "S2",
+    "index": 0.7076529295566691,
+    "n": 3,
+    "overall": 80.33333333333333,
+    "complexity": 86.66666666666667,
+    "originality": 71.66666666666667,
+    "overall_runs": [
+      85,
+      78,
+      78
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "gulmezeren2-byte/ihalent",
+    "stratum": "S2",
+    "index": 0.0442340607969893,
+    "n": 3,
+    "overall": 82.66666666666667,
+    "complexity": 85,
+    "originality": 76.66666666666667,
+    "overall_runs": [
+      78,
+      85,
+      85
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "DDDMUC/dsh-free-search",
+    "stratum": "S3",
+    "index": 0.5282433176359231,
+    "n": 3,
+    "overall": 78,
+    "complexity": 78.33333333333333,
+    "originality": 66.66666666666667,
+    "overall_runs": [
+      78,
+      78,
+      78
+    ],
+    "levels": [
+      "Средний",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "chadyi/StudyOnTV",
+    "stratum": "S3",
+    "index": 0.18043191143769233,
+    "n": 3,
+    "overall": 79.33333333333333,
+    "complexity": 81,
+    "originality": 73.33333333333333,
+    "overall_runs": [
+      75,
+      85,
+      78
+    ],
+    "levels": [
+      "Средний",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "ancsemi/Haven",
+    "stratum": "S3",
+    "index": 1.5061181820797103,
+    "n": 3,
+    "overall": 72.66666666666667,
+    "complexity": 85,
+    "originality": 56.666666666666664,
+    "overall_runs": [
+      55,
+      78,
+      85
+    ],
+    "levels": [
+      "Средний",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  }
+]
