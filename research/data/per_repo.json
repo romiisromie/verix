@@ -497,17 +497,76 @@
     "repo": "justlovemaki/AIClient2API",
     "stratum": "S3",
     "index": 1.2051820208614212,
-    "n": 2,
+    "n": 3,
     "overall": 78,
     "complexity": 85,
-    "originality": 62.5,
+    "originality": 65,
     "overall_runs": [
+      78,
       78,
       78
     ],
     "levels": [
       "Продвинутый",
+      "Продвинутый",
       "Продвинутый"
+    ]
+  },
+  {
+    "repo": "3441293738/creatorhub",
+    "stratum": "S3",
+    "index": 0.8540888074977779,
+    "n": 3,
+    "overall": 82.66666666666667,
+    "complexity": 85,
+    "originality": 70,
+    "overall_runs": [
+      85,
+      78,
+      85
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "ShenSeanChen/waku-agent",
+    "stratum": "S3",
+    "index": 1.2009892837824547,
+    "n": 3,
+    "overall": 85,
+    "complexity": 90,
+    "originality": 70,
+    "overall_runs": [
+      85,
+      85,
+      85
+    ],
+    "levels": [
+      "Продвинутый",
+      "Продвинутый",
+      "Продвинутый"
+    ]
+  },
+  {
+    "repo": "UniXNU/UniXNU",
+    "stratum": "S3",
+    "index": 0.8793703277640805,
+    "n": 3,
+    "overall": 44.333333333333336,
+    "complexity": 56.333333333333336,
+    "originality": 34,
+    "overall_runs": [
+      35,
+      78,
+      20
+    ],
+    "levels": [
+      "Новичок",
+      "Продвинутый",
+      "Новичок"
     ]
   }
 ]
