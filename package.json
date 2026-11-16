@@ -2,6 +2,7 @@
   "name": "verix",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "description": "Verix — платформа цифровой репутации для школьников в IT",
   "scripts": {
