@@ -503,3 +503,11 @@ a.proj{text-decoration:none;color:inherit;}
 .adm-list{display:flex;flex-direction:column;gap:7px;max-height:60vh;overflow-y:auto;}
 .adm-row{align-items:center;gap:10px;}
 .adm-row a{font-size:12px;font-weight:600;color:var(--accent);}
+.adm-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.adm-chip{border:2px solid var(--ink);border-radius:999px;background:var(--s1);padding:5px 10px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;color:inherit;}
+.adm-chip.on{background:var(--yellow);}
+.adm-row[hidden]{display:none;}
+.adm-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;margin:3px 0;border:1.5px solid var(--ink);}
+.st-login{background:#eee;}
+.st-survey{background:#dbeafe;}
+.st-skill{background:#bbf7d0;}

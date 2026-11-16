@@ -258,3 +258,32 @@ test("админ-панель: видит только администрато�
   assert.equal(m.user.admin, true);
   delete process.env.ADMIN_LOGINS;
 });
+
+test("чат: очистить у себя и у обоих; админ видит, кто только вошёл", async () => {
+  for (const [id, login] of [["1", "ramina"], ["2", "rakhat"], ["3", "aru"]]) db.set(`user:${id}`, new Map([["login", login], ["created", String(Date.now())]]));
+  await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "раз" }));
+  await call(social.chat, as("1", "ramina", { action: "send", with: "2", text: "два" }));
+  await new Promise((r) => setTimeout(r, 5));
+  await call(social.chat, as("1", "ramina", { action: "clear", with: "2" }));
+  let [, m] = await call(social.chat, as("1", "ramina", { action: "messages", with: "2" }));
+  assert.equal(m.messages.length, 0);
+  [, m] = await call(social.chat, as("2", "rakhat", { action: "messages", with: "1" }));
+  assert.equal(m.messages.length, 2); // у собеседника осталось
+  await new Promise((r) => setTimeout(r, 5));
+  await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "три" }));
+  [, m] = await call(social.chat, as("1", "ramina", { action: "messages", with: "2" }));
+  assert.deepEqual(m.messages.map((x) => x.text), ["три"]); // новые после очистки видны
+  await call(social.chat, as("2", "rakhat", { action: "clear", with: "1", for_all: true }));
+  assert.equal(db.has("chat:1:2"), false);
+  // админ: статусы активности и последний визит
+  process.env.ADMIN_LOGINS = "ramina";
+  db.set("profile:2", JSON.stringify({ name: "Рахат" }));
+  db.set("skills:3", new Map([["Web|x", "{}"]]));
+  await call(social.me, as("1", "ramina", null, "GET"));
+  const [, d] = await call(social.admin, as("1", "ramina", null, "GET"));
+  const st = Object.fromEntries(d.users.map((u) => [u.login, u.status]));
+  assert.deepEqual(st, { ramina: "login", rakhat: "survey", aru: "skill" });
+  assert.equal(d.only_login, 1);
+  assert.ok(d.users.find((u) => u.login === "ramina").seen >= d.users.find((u) => u.login === "ramina").created);
+  delete process.env.ADMIN_LOGINS;
+});

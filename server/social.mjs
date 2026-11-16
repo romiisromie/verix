@@ -179,7 +179,7 @@ export const me = api(async (request) => {
   const u = currentUser(request);
   if (!u) return { user: null, ready: oauthReady() };
   const [profile, skills, rawName] = await Promise.all([loadProfile(u.uid), loadSkills(u.uid), kv("HGET", `user:${u.uid}`, "name")]);
-  const pos = await kv("ZREVRANK", "rank", u.uid);
+  const [pos] = await pipeline([["ZREVRANK", "rank", u.uid], ["HSET", `user:${u.uid}`, "seen", String(Date.now())]]); // последний визит — для админ-панели
   return { user: { uid: u.uid, login: u.login, name: rawName || u.login, admin: isAdmin(u) }, profile, skills, rep: computeRep(skills), place: pos === null ? null : +pos + 1, ready: true };
 }, { method: "GET" });
 
@@ -275,11 +275,11 @@ export const chat = api(async (request, body) => {
   if (!validUid(other) || other === u.uid) throw new HttpError(400, "Неверный собеседник");
 
   if (action === "messages") {
-    const [list, hidden] = await Promise.all([loadChat(u.uid, other), kv("SMEMBERS", `hidden:${u.uid}:${pair(u.uid, other)}`)]);
-    const hide = new Set(hidden || []);
+    const [list, hidden, cleared] = await Promise.all([loadChat(u.uid, other), kv("SMEMBERS", `hidden:${u.uid}:${pair(u.uid, other)}`), kv("GET", `cleared:${u.uid}:${pair(u.uid, other)}`)]);
+    const hide = new Set(hidden || []), since = +cleared || 0; // «очистить у меня» прячет всё, что было до этого момента
     const gone = new Set(list.filter(({ m }) => m.deleted).map(({ m }) => msgId(m))); // цитата удалённого сообщения тоже скрывается
     return {
-      messages: list.slice(0, 100).reverse().filter(({ m }) => !hide.has(msgId(m))).map(({ m }) => (m.deleted
+      messages: list.slice(0, 100).reverse().filter(({ m }) => !hide.has(msgId(m)) && m.at > since).map(({ m }) => (m.deleted
         ? { id: msgId(m), at: m.at, mine: m.from === u.uid, deleted: true }
         : { id: msgId(m), text: m.text, at: m.at, mine: m.from === u.uid, reply: m.reply ? { id: m.reply.id, mine: m.reply.from === u.uid, text: gone.has(m.reply.id) ? "" : m.reply.text } : null, fwd: m.fwd || null })),
     };
@@ -320,6 +320,16 @@ export const chat = api(async (request, body) => {
       ]);
     } else {
       await kv("SADD", `hidden:${u.uid}:${pair(u.uid, other)}`, id);
+    }
+    return { ok: true };
+  }
+  if (action === "clear") {
+    const key = pair(u.uid, other);
+    if (body.for_all) {
+      // очистить у обоих: переписка удаляется из базы целиком
+      await pipeline([["DEL", `chat:${key}`], ["DEL", `hidden:${u.uid}:${key}`], ["DEL", `hidden:${other}:${key}`]]);
+    } else {
+      await kv("SET", `cleared:${u.uid}:${key}`, String(Date.now()));
     }
     return { ok: true };
   }
@@ -377,19 +387,22 @@ export const admin = api(async (request) => {
     const h = {}; for (let i = 0; i < (user || []).length; i += 2) h[user[i]] = user[i + 1];
     const p = parse(prof) || {};
     return {
-      uid: id, login: h.login || "", gh_name: h.name || "", created: +h.created || null,
+      uid: id, login: h.login || "", gh_name: h.name || "", created: +h.created || null, seen: +h.seen || +h.created || null,
       name: p.name || "", grade: p.grade || "", city: p.city || "", goal: p.goal || "", tags: p.tags || [],
       onboarded: !!p.name, public: p.public !== false, skills: +nSkills || 0,
       place: pos === null || pos === undefined ? null : +pos + 1, score: score === null || score === undefined ? 0 : +score,
       chats: +threads || 0,
     };
   }));
+  // уровень активности: только вошёл → прошёл опрос → проверил навык
+  rows.forEach((r) => { r.status = r.skills > 0 ? "skill" : r.onboarded ? "survey" : "login"; });
   rows.sort((a, b) => (b.created || 0) - (a.created || 0));
   const reports = ((await kv("LRANGE", "reports", 0, 49)) || []).map(parse).filter(Boolean);
   const day = Date.now() - 86_400_000, week = Date.now() - 7 * 86_400_000;
   return {
     total: rows.length, today: rows.filter((r) => r.created > day).length, week: rows.filter((r) => r.created > week).length,
-    with_skills: rows.filter((r) => r.skills > 0).length, users: rows, reports,
+    with_skills: rows.filter((r) => r.skills > 0).length, only_login: rows.filter((r) => r.status === "login").length,
+    active_week: rows.filter((r) => r.seen > week).length, users: rows, reports,
   };
 }, { method: "GET" });
 

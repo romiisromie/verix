@@ -224,6 +224,7 @@
       <div id="replyBar" class="reply-bar" hidden></div>
       <div class="chat-input"><label class="sr-only" for="chatText">${esc('Сообщение')}</label><textarea id="chatText" class="inp" maxlength="500" rows="2" placeholder="${esc('Напиши сообщение...')}"></textarea><button class="go-btn" id="chatSend" onclick="vxSend()">${esc('Отправить')}</button></div>
       <div class="hint" style="font-size:11px;margin-top:6px">${esc('Нажми на сообщение: ответить, переслать, перевести или удалить.')}</div>
+      <button class="outline-btn" style="margin:8px 0 0;width:100%" onclick="vxClearChat()">${esc('🧹 Очистить чат')}</button>
       <div style="display:flex;gap:8px;margin-top:8px;"><button class="outline-btn" style="margin:0;flex:1" onclick="vxBlock(false)">${esc('Заблокировать')}</button><button class="outline-btn danger-btn" style="margin:0;flex:1" onclick="vxBlock(true)">${esc('Пожаловаться')}</button></div>
       </div>`);
     loadMessages('bottom');
@@ -260,6 +261,28 @@
     btn.disabled = false; ta.focus();
   };
 
+  // Очистить чат: у себя (собеседник всё видит) или у обоих (переписка удаляется из базы)
+  window.vxClearChat = function () {
+    const wrap = document.getElementById('chatWrap'); if (!wrap || !chatWith) return;
+    const old = document.getElementById('fwdSheet'); if (old) old.remove();
+    const sheet = document.createElement('div'); sheet.className = 'fwd-sheet'; sheet.id = 'fwdSheet';
+    sheet.innerHTML = `<div class="fwd-head"><b>${esc(T('Очистить чат?'))}</b><button type="button" class="nbtn" data-c="cancel" aria-label="${esc(T('Закрыть'))}">×</button></div>
+      <div class="hint">${esc(T('Это действие нельзя отменить.'))}</div>
+      <button type="button" class="outline-btn" style="margin:0" data-c="me">${esc(T('Очистить у меня'))}</button>
+      <button type="button" class="outline-btn danger-btn" style="margin:0" data-c="all">${esc(T('Очистить у меня и у'))} ${esc(chatWith.name)}</button>
+      <button type="button" class="outline-btn" style="margin:0" data-c="cancel">${esc(T('Отмена'))}</button>`;
+    wrap.appendChild(sheet);
+    sheet.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-c]'); if (!b) return;
+      if (b.dataset.c === 'cancel') { sheet.remove(); return; }
+      try {
+        await postJSON('/api/chat', { action: 'clear', with: chatWith.uid, for_all: b.dataset.c === 'all' });
+        sheet.remove(); replyTo = null; showReplyBar(); toast(T('Чат очищен')); await loadMessages(true);
+      } catch (err) { toast(err.message); }
+    });
+    sheet.querySelector('[data-c="me"]').focus();
+  };
+
   // ── админ-панель: кто зарегистрировался ──
   window.vxOpenAdmin = async function () {
     const title = 'Кто зарегистрировался';
@@ -271,14 +294,26 @@
     } catch (e) { shell(title, `<div class="hint">${esc(e.message)}</div>`); return; }
     const date = (t) => (t ? new Date(t).toLocaleString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
     const stat = (n, l) => `<div class="adm-stat"><b>${esc(n)}</b><span>${esc(l)}</span></div>`;
-    const rows = d.users.map((u) => `<div class="proj adm-row">
+    const ST = { login: ['Только вошёл', 'st-login'], survey: ['Прошёл опрос', 'st-survey'], skill: ['Проверил навык', 'st-skill'] };
+    const row = (u) => `<div class="proj adm-row" data-st="${esc(u.status)}">
         <div style="flex:1;min-width:0"><div class="proj-name">${esc(u.name || u.gh_name || u.login)} <a href="${esc(safeUrl('https://github.com/' + u.login))}" target="_blank" rel="noopener">@${esc(u.login)}</a></div>
+        <div><span class="adm-badge ${ST[u.status][1]}">${esc(ST[u.status][0])}</span></div>
         <div class="proj-desc">${esc([u.grade, u.city, u.goal].filter(Boolean).join(' · ') || 'опрос не пройден')}</div>
-        <div class="proj-desc">${esc('Регистрация')}: ${esc(date(u.created))} · ${esc('навыков')}: ${esc(u.skills)} · ${esc('переписок')}: ${esc(u.chats)}${u.public ? '' : ' · ' + esc('скрыт из рейтинга')}</div></div>
-        <div class="proj-score">${u.place ? '#' + esc(u.place) : '—'}</div></div>`).join('');
+        <div class="proj-desc">${esc('Регистрация')}: ${esc(date(u.created))} · ${esc('последний визит')}: ${esc(date(u.seen))}</div>
+        <div class="proj-desc">${esc('навыков')}: ${esc(u.skills)} · ${esc('переписок')}: ${esc(u.chats)}${u.public ? '' : ' · ' + esc('скрыт из рейтинга')}</div></div>
+        <div class="proj-score">${u.place ? '#' + esc(u.place) : '—'}</div></div>`;
     const reports = d.reports.length ? `<div class="lbl" style="margin-top:12px">${esc('Жалобы')} (${esc(d.reports.length)})</div>` + d.reports.map((r) => `<div class="proj-desc">${esc(date(r.at))}: uid ${esc(r.from)} → uid ${esc(r.about)}${r.note ? ' — ' + esc(r.note) : ''}</div>`).join('') : '';
-    shell(title, `<div class="adm-stats">${stat(d.total, 'всего')}${stat(d.today, 'за сутки')}${stat(d.week, 'за неделю')}${stat(d.with_skills, 'с навыками')}</div>
-      <div class="adm-list">${rows || `<div class="hint">${esc('Пока никто не зарегистрировался.')}</div>`}</div>${reports}`);
+    const n = (st) => d.users.filter((u) => u.status === st).length;
+    const chips = [['all', 'Все', d.total], ['login', 'Только вошли', n('login')], ['survey', 'Прошли опрос', n('survey')], ['skill', 'Проверили навык', n('skill')]]
+      .map(([k, l, c], i) => `<button type="button" class="adm-chip${i ? '' : ' on'}" data-f="${k}">${esc(l)} · ${esc(c)}</button>`).join('');
+    shell(title, `<div class="adm-stats">${stat(d.total, 'всего')}${stat(d.today, 'за сутки')}${stat(d.week, 'за неделю')}${stat(d.active_week, 'заходили за неделю')}</div>
+      <div class="adm-chips">${chips}</div>
+      <div class="adm-list" id="admList">${d.users.map(row).join('') || `<div class="hint">${esc('Пока никто не зарегистрировался.')}</div>`}</div>${reports}`);
+    document.querySelector('.adm-chips').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-f]'); if (!b) return;
+      document.querySelectorAll('.adm-chip').forEach((x) => x.classList.toggle('on', x === b));
+      document.querySelectorAll('#admList .adm-row').forEach((r) => { r.hidden = b.dataset.f !== 'all' && r.dataset.st !== b.dataset.f; });
+    });
   };
 
   window.vxBlock = async function (report) {
