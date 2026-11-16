@@ -1,5 +1,5 @@
 {
-  "n_attempts": 160,
+  "n_attempts": 162,
   "n_limit_hits": 0,
   "n_repos": 30,
   "n_sampled": 36,
@@ -73,7 +73,7 @@
   "latency_median_s": 1.6,
   "latency_p90_s": 2.7,
   "success_rate": 0.969,
-  "n_attempts_total": 160,
+  "n_attempts_total": 162,
   "errors": {
     "502": 5
   }
