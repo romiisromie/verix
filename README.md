@@ -17,7 +17,6 @@
 
 > **English summary.** Verix lets school students prove IT skills with an AI review of their real GitHub code (not self-descriptions), find real internships, grants and competitions, follow a personal learning roadmap, and appear in an honest ranking. The reliability of the AI score was tested in an open experiment on 30 repositories (Spearman ρ = 0.61 with an objective complexity index, ICC = 0.85). Interface: Kazakh, Russian, English.
 
-Проект для республиканского конкурса научных проектов (РКНП), секция «Информатика».
 Авторы: **Ramina Ibraimova** ([@romiisromie](https://github.com/romiisromie)) и **Rakhat Berdikul** ([@rkht111](https://github.com/rkht111)).
 
 ## Возможности
@@ -127,4 +126,4 @@ npm test           # автотесты
 ## Лицензия
 
 © 2026 Ramina Ibraimova, Rakhat Berdikul. Все права защищены — см. [LICENSE](LICENSE).
-Код открыт для просмотра и проверки (например, экспертами конкурса), но копировать, публиковать и использовать его без письменного разрешения авторов нельзя.
+Код открыт для просмотра и проверки (например, экспертами и преподавателями), но копировать, публиковать и использовать его без письменного разрешения авторов нельзя.
