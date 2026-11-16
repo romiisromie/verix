@@ -84,6 +84,7 @@
     } else if (mine && !loggedIn()) {
       if (!mine.querySelector('.gh-btn')) mine.insertAdjacentHTML('beforeend', `<button class="go-btn gh-btn" style="margin-top:10px" onclick="vxGithubLogin()">${esc('Войти через GitHub')}</button>`);
     }
+    const ac = document.getElementById('adminCard'); if (ac) ac.hidden = !(ME && ME.user && ME.user.admin);
     if (window.a11yRefresh) a11yRefresh(box);
   }
   window.vxRenderRankings = renderRankings;
@@ -93,7 +94,7 @@
     document.getElementById('modal-content').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h2 style="font-family:var(--display);font-size:17px;">${esc(title)}</h2><button class="nbtn" onclick="vxCloseChat()" aria-label="Закрыть">×</button></div>${body}`;
     document.getElementById('modal-overlay').classList.add('show');
   }
-  window.vxCloseChat = function () { clearInterval(pollTimer); pollTimer = null; chatWith = null; closeModal(); };
+  window.vxCloseChat = function () { clearInterval(pollTimer); pollTimer = null; chatWith = null; replyTo = null; closeModal(); };
 
   window.vxOpenInbox = async function () {
     if (!loggedIn()) { toast('Войди через GitHub, чтобы писать ученикам'); return; }
@@ -105,39 +106,179 @@
     } catch (e) { shell('Сообщения', `<div class="hint">${esc(e.message)}</div>`); }
   };
 
-  async function loadMessages() {
+  // ── сообщения: ответ, пересылка, удаление, перевод (как в мессенджерах) ──
+  let lastRender = '', replyTo = null, msgs = [];
+  const trans = {};          // id → { text, lang, show }
+  const T = (s) => (window.vxT ? vxT(s) : s);
+  const hhmm = (at) => new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  function bubble(m) {
+    if (m.deleted) return `<div class="msg msg-del${m.mine ? ' msg-mine' : ''}" data-id="${esc(m.id)}"><div class="msg-t">🚫 ${esc(T('Сообщение удалено'))}</div><div class="msg-at">${esc(hhmm(m.at))}</div></div>`;
+    const tr = trans[m.id];
+    const body = tr && tr.show
+      ? `<div class="msg-t">${esc(tr.text)}</div><button type="button" class="msg-tr" data-act="orig" data-id="${esc(m.id)}">${esc(T('Перевод · показать оригинал'))}</button>`
+      : `<div class="msg-t">${esc(m.text)}</div>`;
+    const who = (mine) => (mine ? T('Ты') : chatWith.name);
+    return `<div class="msg${m.mine ? ' msg-mine' : ''}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-haspopup="menu" aria-label="${esc(T('Действия с сообщением'))}">`
+      + (m.fwd ? `<div class="msg-fwd">↪ ${esc(T('Переслано от'))} ${esc(m.fwd.name)}</div>` : '')
+      + (m.reply ? `<div class="msg-reply" data-act="jump" data-id="${esc(m.reply.id)}"><b>${esc(who(m.reply.mine))}</b><span>${esc(m.reply.text || T('Сообщение удалено'))}</span></div>` : '')
+      + `${body}<div class="msg-at">${esc(hhmm(m.at))}</div></div>`;
+  }
+
+  async function loadMessages(force) {
     if (!chatWith) return;
     try {
       const { messages } = await postJSON('/api/chat', { action: 'messages', with: chatWith.uid });
       const box = document.getElementById('chatBox'); if (!box) return;
+      msgs = messages;
+      const html = messages.length ? messages.map(bubble).join('') : `<div class="hint">${esc(T('Начни разговор: расскажи о своём проекте или предложи сделать что-то вместе.'))}</div>`;
+      if (!force && html === lastRender) return; // ничего не изменилось — не сбиваем меню и прокрутку
       const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
-      box.innerHTML = messages.length ? messages.map((m) => `<div class="msg${m.mine ? ' msg-mine' : ''}"><div class="msg-t">${esc(m.text)}</div><div class="msg-at">${esc(new Date(m.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</div></div>`).join('')
-        : `<div class="hint">${esc('Начни разговор: расскажи о своём проекте или предложи сделать что-то вместе.')}</div>`;
-      if (atBottom) box.scrollTop = box.scrollHeight;
+      closeMenu();
+      box.innerHTML = html; lastRender = html;
+      if (atBottom || force === 'bottom') box.scrollTop = box.scrollHeight;
     } catch (e) { /* временная ошибка сети — попробуем при следующем опросе */ }
+  }
+  function rerender() {
+    const box = document.getElementById('chatBox'); if (!box) return;
+    const top = box.scrollTop; box.innerHTML = lastRender = msgs.map(bubble).join(''); box.scrollTop = top;
+  }
+
+  function closeMenu() { const m = document.getElementById('msgMenu'); if (m) m.remove(); }
+  function openMenu(id, el) {
+    closeMenu();
+    const m = msgs.find((x) => x.id === id); if (!m || m.deleted) return;
+    const items = [['reply', '↩ ' + T('Ответить')], ['forward', '↪ ' + T('Переслать')], ['translate', '🌐 ' + T('Перевести')], ['copy', '⧉ ' + T('Копировать')], ['del_me', '🗑 ' + T('Удалить у меня')]];
+    if (m.mine) items.push(['del_all', '🗑 ' + T('Удалить у всех')]);
+    const menu = document.createElement('div');
+    menu.id = 'msgMenu'; menu.className = 'msg-menu'; menu.setAttribute('role', 'menu');
+    menu.innerHTML = items.map(([a, l]) => `<button type="button" role="menuitem" data-act="${a}"${a.startsWith('del') ? ' class="danger"' : ''}>${esc(l)}</button>`).join('');
+    const wrap = document.getElementById('chatWrap'); wrap.appendChild(menu);
+    const r = el.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    menu.style.top = Math.max(4, Math.min(r.bottom - w.top + 4, w.height - menu.offsetHeight - 4)) + 'px';
+    menu.style[m.mine ? 'right' : 'left'] = '8px';
+    menu.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { closeMenu(); doAction(b.dataset.act, m); } });
+    menu.querySelector('button').focus();
+  }
+
+  async function doAction(act, m) {
+    try {
+      if (act === 'reply') { replyTo = m; showReplyBar(); document.getElementById('chatText').focus(); }
+      else if (act === 'copy') { await navigator.clipboard.writeText(m.text); toast(T('Скопировано')); }
+      else if (act === 'translate') {
+        const lang = window.vxLang ? vxLang() : 'ru';
+        if (!trans[m.id] || trans[m.id].lang !== lang) {
+          toast(T('Переводим…'));
+          const r = await postJSON('/api/chat', { action: 'translate', with: chatWith.uid, id: m.id, lang });
+          trans[m.id] = { text: r.text, lang, show: true };
+        } else trans[m.id].show = true;
+        rerender();
+      } else if (act === 'del_me' || act === 'del_all') {
+        const all = act === 'del_all';
+        if (!confirm(T(all ? 'Удалить сообщение у всех? Собеседник тоже его не увидит.' : 'Удалить сообщение только у тебя? У собеседника оно останется.'))) return;
+        await postJSON('/api/chat', { action: 'delete', with: chatWith.uid, id: m.id, for_all: all });
+        if (replyTo && replyTo.id === m.id) { replyTo = null; showReplyBar(); }
+        await loadMessages(true);
+      } else if (act === 'forward') openForward(m);
+    } catch (e) { toast(e.message); }
+  }
+
+  function showReplyBar() {
+    const bar = document.getElementById('replyBar'); if (!bar) return;
+    bar.hidden = !replyTo;
+    bar.innerHTML = replyTo ? `<div class="rb-text"><b>${esc(T('Ответ'))}: ${esc(replyTo.mine ? T('Ты') : chatWith.name)}</b><span>${esc(replyTo.text)}</span></div><button type="button" class="nbtn" onclick="vxCancelReply()" aria-label="${esc(T('Отменить ответ'))}">×</button>` : '';
+  }
+  window.vxCancelReply = () => { replyTo = null; showReplyBar(); };
+
+  // Переслать: выбрать получателя из своих переписок или из рейтинга
+  async function openForward(m) {
+    const wrap = document.getElementById('chatWrap');
+    const old = document.getElementById('fwdSheet'); if (old) old.remove();
+    const sheet = document.createElement('div'); sheet.className = 'fwd-sheet'; sheet.id = 'fwdSheet';
+    sheet.innerHTML = `<div class="fwd-head"><b>${esc(T('Переслать кому?'))}</b><button type="button" class="nbtn" aria-label="${esc(T('Закрыть'))}">×</button></div><div class="fwd-list"><div class="hint">${esc(T('Загружаем…'))}</div></div>`;
+    wrap.appendChild(sheet);
+    sheet.querySelector('.fwd-head button').onclick = () => sheet.remove();
+    const [th, rk] = await Promise.all([postJSON('/api/chat', { action: 'threads' }).catch(() => ({ threads: [] })), getJSON('/api/rank')]);
+    const seen = new Set(), people = [];
+    (th.threads || []).concat(((rk && rk.list) || []).filter((r) => !r.me && r.dm)).forEach((p) => { if (!seen.has(p.uid)) { seen.add(p.uid); people.push(p); } });
+    const list = sheet.querySelector('.fwd-list');
+    list.innerHTML = people.length ? people.map((p) => `<button type="button" class="proj" data-uid="${esc(p.uid)}" style="text-align:left"><div class="proj-name">${esc(p.name)}</div></button>`).join('') : `<div class="hint">${esc(T('Пока некому переслать.'))}</div>`;
+    list.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-uid]'); if (!b) return;
+      try {
+        await postJSON('/api/chat', { action: 'forward', with: chatWith.uid, id: m.id, to: b.dataset.uid });
+        sheet.remove(); toast(T('Переслано') + ': ' + b.textContent.trim());
+        if (b.dataset.uid === chatWith.uid) loadMessages('bottom');
+      } catch (err) { toast(err.message); }
+    });
   }
 
   window.vxOpenChat = function (uid, name) {
     if (!loggedIn()) { toast('Войди через GitHub, чтобы писать ученикам'); return; }
     chatWith = { uid: String(uid), name: String(name || '') };
+    replyTo = null; lastRender = ''; msgs = [];
     shell(chatWith.name, `
+      <div id="chatWrap" class="chat-wrap">
       <div class="chat-safety">${esc('Не делись телефоном, адресом и паролями. Если кто-то ведёт себя неприятно — нажми «Пожаловаться».')}</div>
       <div id="chatBox" class="chat-box" aria-live="polite"></div>
+      <div id="replyBar" class="reply-bar" hidden></div>
       <div class="chat-input"><label class="sr-only" for="chatText">${esc('Сообщение')}</label><textarea id="chatText" class="inp" maxlength="500" rows="2" placeholder="${esc('Напиши сообщение...')}"></textarea><button class="go-btn" id="chatSend" onclick="vxSend()">${esc('Отправить')}</button></div>
-      <div style="display:flex;gap:8px;margin-top:8px;"><button class="outline-btn" style="margin:0;flex:1" onclick="vxBlock(false)">${esc('Заблокировать')}</button><button class="outline-btn danger-btn" style="margin:0;flex:1" onclick="vxBlock(true)">${esc('Пожаловаться')}</button></div>`);
-    loadMessages();
+      <div class="hint" style="font-size:11px;margin-top:6px">${esc('Нажми на сообщение: ответить, переслать, перевести или удалить.')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px;"><button class="outline-btn" style="margin:0;flex:1" onclick="vxBlock(false)">${esc('Заблокировать')}</button><button class="outline-btn danger-btn" style="margin:0;flex:1" onclick="vxBlock(true)">${esc('Пожаловаться')}</button></div>
+      </div>`);
+    loadMessages('bottom');
     clearInterval(pollTimer); pollTimer = setInterval(loadMessages, 5000);
-    const ta = document.getElementById('chatText');
-    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.vxSend(); } });
+    const ta = document.getElementById('chatText'), box = document.getElementById('chatBox');
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.vxSend(); }
+      if (e.key === 'Escape') window.vxCancelReply();
+    });
+    box.addEventListener('click', (e) => {
+      const act = e.target.closest('[data-act]');
+      if (act && act.dataset.act === 'orig') { trans[act.dataset.id].show = false; rerender(); return; }
+      if (act && act.dataset.act === 'jump') {
+        const t = box.querySelector(`.msg[data-id="${CSS.escape(act.dataset.id)}"]`);
+        if (t) { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); t.classList.add('msg-flash'); setTimeout(() => t.classList.remove('msg-flash'), 1200); }
+        return;
+      }
+      const el = e.target.closest('.msg[data-id]');
+      if (el && !el.classList.contains('msg-del')) openMenu(el.dataset.id, el);
+    });
+    box.addEventListener('keydown', (e) => { const el = e.target.closest('.msg[data-id]'); if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openMenu(el.dataset.id, el); } });
+    box.addEventListener('scroll', closeMenu);
+    document.getElementById('chatWrap').addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
   };
 
   window.vxSend = async function () {
     const ta = document.getElementById('chatText'), btn = document.getElementById('chatSend');
     const text = ta.value.trim(); if (!text || !chatWith) return;
     btn.disabled = true;
-    try { await postJSON('/api/chat', { action: 'send', with: chatWith.uid, text }); ta.value = ''; await loadMessages(); const b = document.getElementById('chatBox'); if (b) b.scrollTop = b.scrollHeight; }
-    catch (e) { toast(e.message); }
+    try {
+      await postJSON('/api/chat', { action: 'send', with: chatWith.uid, text, reply_to: replyTo ? replyTo.id : undefined });
+      ta.value = ''; replyTo = null; showReplyBar(); await loadMessages('bottom');
+    } catch (e) { toast(e.message); }
     btn.disabled = false; ta.focus();
+  };
+
+  // ── админ-панель: кто зарегистрировался ──
+  window.vxOpenAdmin = async function () {
+    const title = 'Кто зарегистрировался';
+    shell(title, `<div class="hint">${esc('Загружаем…')}</div>`);
+    let d;
+    try {
+      const r = await fetch('/api/admin', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+      d = await r.json(); if (!r.ok) throw new Error(d.error || 'Ошибка сервера');
+    } catch (e) { shell(title, `<div class="hint">${esc(e.message)}</div>`); return; }
+    const date = (t) => (t ? new Date(t).toLocaleString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
+    const stat = (n, l) => `<div class="adm-stat"><b>${esc(n)}</b><span>${esc(l)}</span></div>`;
+    const rows = d.users.map((u) => `<div class="proj adm-row">
+        <div style="flex:1;min-width:0"><div class="proj-name">${esc(u.name || u.gh_name || u.login)} <a href="${esc(safeUrl('https://github.com/' + u.login))}" target="_blank" rel="noopener">@${esc(u.login)}</a></div>
+        <div class="proj-desc">${esc([u.grade, u.city, u.goal].filter(Boolean).join(' · ') || 'опрос не пройден')}</div>
+        <div class="proj-desc">${esc('Регистрация')}: ${esc(date(u.created))} · ${esc('навыков')}: ${esc(u.skills)} · ${esc('переписок')}: ${esc(u.chats)}${u.public ? '' : ' · ' + esc('скрыт из рейтинга')}</div></div>
+        <div class="proj-score">${u.place ? '#' + esc(u.place) : '—'}</div></div>`).join('');
+    const reports = d.reports.length ? `<div class="lbl" style="margin-top:12px">${esc('Жалобы')} (${esc(d.reports.length)})</div>` + d.reports.map((r) => `<div class="proj-desc">${esc(date(r.at))}: uid ${esc(r.from)} → uid ${esc(r.about)}${r.note ? ' — ' + esc(r.note) : ''}</div>`).join('') : '';
+    shell(title, `<div class="adm-stats">${stat(d.total, 'всего')}${stat(d.today, 'за сутки')}${stat(d.week, 'за неделю')}${stat(d.with_skills, 'с навыками')}</div>
+      <div class="adm-list">${rows || `<div class="hint">${esc('Пока никто не зарегистрировался.')}</div>`}</div>${reports}`);
   };
 
   window.vxBlock = async function (report) {

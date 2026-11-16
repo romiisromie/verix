@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 process.env.SESSION_SECRET = "test-secret-test-secret-test-secret-123";
 process.env.KV_REST_API_URL = "https://kv.test";
 process.env.KV_REST_API_TOKEN = "t";
+process.env.GROQ_API_KEY = "test";
 
 const { sign, verify, sessionCookie } = await import("../server/session.mjs");
 const social = await import("../server/social.mjs");
@@ -20,11 +21,19 @@ function redis(cmd) {
     case "EXISTS": return db.has(k) ? 1 : 0;
     case "INCR": { const v = (+db.get(k) || 0) + 1; db.set(k, String(v)); return v; }
     case "EXPIRE": return 1;
+    case "DEL": return db.delete(k) ? 1 : 0;
     case "HSET": { const h = get("h"); for (let i = 0; i < a.length; i += 2) h.set(a[i], a[i + 1]); db.set(k, h); return 1; }
     case "HSETNX": { const h = get("h"); if (!h.has(a[0])) h.set(a[0], a[1]); db.set(k, h); return 1; }
     case "HGET": return (db.get(k) || new Map()).get(a[0]) ?? null;
     case "HGETALL": return [...(db.get(k) || new Map())].flat();
-    case "ZADD": { const z = get("z"); z.set(a[1], +a[0]); db.set(k, z); return 1; }
+    case "ZADD": { const z = get("z"); const nx = a[0] === "NX"; const [sc, m] = nx ? a.slice(1) : a; if (nx && z.has(m)) return 0; z.set(m, +sc); db.set(k, z); return 1; }
+    case "ZRANGE": return [...(db.get(k) || new Map())].sort((x, y) => x[1] - y[1]).map(([m]) => m);
+    case "ZSCORE": { const v = (db.get(k) || new Map()).get(a[0]); return v === undefined ? null : String(v); }
+    case "HLEN": return (db.get(k) || new Map()).size;
+    case "SMEMBERS": return [...(db.get(k) || new Set())];
+    case "LINDEX": return (db.get(k) || [])[+a[0]] ?? null;
+    case "LSET": { const l = db.get(k); l[+a[0]] = a[1]; return "OK"; }
+    case "SCAN": { const re = new RegExp("^" + a[1].replace("*", ".*") + "$"); return ["0", [...db.keys()].filter((x) => re.test(x))]; }
     case "ZREM": { (db.get(k) || new Map()).delete(a[0]); return 1; }
     case "ZCARD": return (db.get(k) || new Map()).size;
     case "ZREVRANGE": { const arr = [...(db.get(k) || new Map())].sort((x, y) => y[1] - x[1]).slice(+a[0], +a[1] + 1); return a[2] ? arr.flatMap(([m, s]) => [m, String(s)]) : arr.map(([m]) => m); }
@@ -37,7 +46,7 @@ function redis(cmd) {
     default: throw new Error("нет команды " + op);
   }
 }
-let ghContributors = [];
+let ghContributors = [], groqCalls = 0;
 globalThis.fetch = async (url, init = {}) => {
   url = String(url);
   if (url.startsWith("https://kv.test")) {
@@ -45,6 +54,7 @@ globalThis.fetch = async (url, init = {}) => {
     if (url.endsWith("/pipeline")) return Response.json(body.map((c) => ({ result: redis(c) })));
     return Response.json({ result: redis(body) });
   }
+  if (url.includes("api.groq.com")) { groqCalls++; const sys = JSON.parse(init.body).messages[0].content; return Response.json({ choices: [{ message: { content: JSON.stringify({ text: (sys.includes("English") ? "EN: " : "KK: ") + JSON.parse(init.body).messages[1].content }) } }] }); }
   if (url.includes("/contributors")) return Response.json(ghContributors.map((login) => ({ login })));
   throw new Error("неожиданный запрос " + url);
 };
@@ -171,4 +181,80 @@ test("вход через GitHub: перенаправление со state, cal
   const bad = await social.authCallback(new Request(`https://verix.test/api/auth/callback?code=x&state=${state}`, { headers: { cookie: "vx_state=other" } }));
   assert.match(bad.headers.get("location"), /login=error/);
   delete process.env.GITHUB_CLIENT_ID; delete process.env.GITHUB_CLIENT_SECRET;
+});
+
+test("чат: ответ на сообщение, пересылка, удаление у себя и у всех", async () => {
+  for (const [id, login] of [["1", "ramina"], ["2", "rakhat"], ["3", "aru"]]) db.set(`user:${id}`, new Map([["login", login]]));
+  db.set("profile:1", JSON.stringify({ name: "Рамина" }));
+  const [, a] = await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "Посмотри мой репозиторий" }));
+  // ответ
+  let [s, r] = await call(social.chat, as("1", "ramina", { action: "send", with: "2", text: "Круто!", reply_to: a.id }));
+  assert.equal(s, 200);
+  let [, m] = await call(social.chat, as("2", "rakhat", { action: "messages", with: "1" }));
+  assert.equal(m.messages[1].reply.text, "Посмотри мой репозиторий");
+  assert.equal(m.messages[1].reply.mine, true);
+  // ответ на чужую переписку не пройдёт
+  [s] = await call(social.chat, as("3", "aru", { action: "send", with: "2", text: "хм", reply_to: a.id }));
+  assert.equal(s, 404);
+  // пересылка: только из своей переписки, с подписью автора
+  [s] = await call(social.chat, as("1", "ramina", { action: "forward", with: "2", id: a.id, to: "3" }));
+  assert.equal(s, 200);
+  [, m] = await call(social.chat, as("3", "aru", { action: "messages", with: "1" }));
+  assert.equal(m.messages[0].text, "Посмотри мой репозиторий");
+  assert.equal(m.messages[0].fwd.name, "rakhat");
+  [s] = await call(social.chat, as("3", "aru", { action: "forward", with: "2", id: a.id, to: "1" }));
+  assert.equal(s, 404);
+  // удалить у меня: у собеседника остаётся
+  await call(social.chat, as("1", "ramina", { action: "delete", with: "2", id: a.id }));
+  [, m] = await call(social.chat, as("1", "ramina", { action: "messages", with: "2" }));
+  assert.ok(!m.messages.some((x) => x.id === a.id));
+  [, m] = await call(social.chat, as("2", "rakhat", { action: "messages", with: "1" }));
+  assert.ok(m.messages.some((x) => x.id === a.id && x.text));
+  // удалить у всех: только своё, текст стирается из базы
+  [s] = await call(social.chat, as("1", "ramina", { action: "delete", with: "2", id: a.id, for_all: true }));
+  assert.equal(s, 403);
+  [s] = await call(social.chat, as("1", "ramina", { action: "delete", with: "2", id: r.id, for_all: true }));
+  assert.equal(s, 200);
+  [, m] = await call(social.chat, as("2", "rakhat", { action: "messages", with: "1" }));
+  const del = m.messages.find((x) => x.id === r.id);
+  assert.equal(del.deleted, true);
+  assert.equal(del.text, undefined);
+  assert.ok(!JSON.stringify(db.get("chat:1:2")).includes("Круто!"));
+  // цитата удалённого у всех сообщения тоже пропадает
+  const [, q] = await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "ок", reply_to: r.id }));
+  [, m] = await call(social.chat, as("1", "ramina", { action: "messages", with: "2" }));
+  assert.equal(m.messages.find((x) => x.id === q.id).reply.text, "");
+});
+
+test("чат: перевод на язык читателя, кэш и защита", async () => {
+  groqCalls = 0;
+  for (const [id, login] of [["1", "ramina"], ["2", "rakhat"], ["3", "aru"]]) db.set(`user:${id}`, new Map([["login", login]]));
+  const [, a] = await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "Сәлем! Бірге жоба жасайық" }));
+  let [s, t] = await call(social.chat, as("1", "ramina", { action: "translate", with: "2", id: a.id, lang: "en" }));
+  assert.equal(s, 200);
+  assert.equal(t.text, "EN: Сәлем! Бірге жоба жасайық");
+  [, t] = await call(social.chat, as("1", "ramina", { action: "translate", with: "2", id: a.id, lang: "en" }));
+  assert.equal(groqCalls, 1); // второй раз — из кэша
+  [s] = await call(social.chat, as("1", "ramina", { action: "translate", with: "2", id: a.id, lang: "de" }));
+  assert.equal(s, 400);
+  [s] = await call(social.chat, as("3", "aru", { action: "translate", with: "2", id: a.id, lang: "en" })); // чужая переписка
+  assert.equal(s, 404);
+});
+
+test("админ-панель: видит только администратор, старые аккаунты тоже в списке", async () => {
+  process.env.ADMIN_LOGINS = "Ramina";
+  db.set("user:1", new Map([["login", "ramina"], ["created", String(Date.now())]]));
+  db.set("user:2", new Map([["login", "rakhat"], ["created", String(Date.now() - 10 * 86_400_000)]]));
+  db.set("profile:2", JSON.stringify({ name: "Рахат", grade: "11 класс", city: "Алматы" }));
+  db.set("users", new Map([["1", 1]]));  // второй аккаунт создан до индекса users
+  const [s1] = await call(social.admin, as("2", "rakhat", null, "GET"));
+  assert.equal(s1, 403);
+  const [s2, d] = await call(social.admin, as("1", "ramina", null, "GET"));
+  assert.equal(s2, 200);
+  assert.equal(d.total, 2);
+  assert.equal(d.week, 1);
+  assert.equal(d.users.find((u) => u.uid === "2").city, "Алматы");
+  const [, m] = await call(social.me, as("1", "ramina", null, "GET"));
+  assert.equal(m.user.admin, true);
+  delete process.env.ADMIN_LOGINS;
 });
