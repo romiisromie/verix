@@ -54,6 +54,7 @@
       <div style="margin-bottom:12px;">
         <label for="passwordInput" style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">Пароль</label>
         <input type="password" id="passwordInput" class="inp" placeholder="минимум 6 символов" autocomplete="current-password" minlength="6" required aria-describedby="loginError">
+        <label class="f-check show-pass"><input type="checkbox" id="showPass" onchange="document.getElementById('passwordInput').type=this.checked?'text':'password'"> Показать пароль</label>
       </div>
       <div id="loginError" class="form-error" role="alert" aria-live="assertive"></div>
       <button type="button" class="go-btn gh-btn gh-only" hidden style="width:100%;margin-bottom:10px;" onclick="vxGithubLogin()">Войти через GitHub</button>

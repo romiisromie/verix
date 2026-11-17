@@ -512,3 +512,4 @@ a.proj{text-decoration:none;color:inherit;}
 .st-survey{background:#dbeafe;}
 .st-skill{background:#bbf7d0;}
 .rank-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.show-pass{margin-top:10px;font-weight:500;}

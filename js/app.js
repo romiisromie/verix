@@ -505,7 +505,7 @@ async function checkLogin(){
   const isNew=!acc||acc.email!==email;
   if(isNew)store.set('account',{email,hash:h,created:Date.now()});
   store.set('session',{email,at:Date.now()});
-  document.getElementById('passwordInput').value='';
+  document.getElementById('passwordInput').value='';const sp=document.getElementById('showPass');if(sp){sp.checked=false;document.getElementById('passwordInput').type='password';}
   const box=document.getElementById('loginError');if(box)box.textContent='';
   showApp();
   toast(isNew?'Аккаунт создан. Добро пожаловать!':'С возвращением!');
