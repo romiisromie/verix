@@ -9,7 +9,7 @@ import { promisify } from "node:util";
 const scrypt = promisify(_scrypt);
 
 const GRADES = ["8 класс", "9 класс", "10 класс", "11 класс", "1 курс", "2 курс", "3 курс", "4 курс"];
-const TAGS = ["Frontend", "Backend", "AI/ML", "Data", "Design", "Mobile", "Game Dev", "Cybersecurity"];
+const TAGS = ["Software Engineering", "Frontend", "Backend", "AI/ML", "Data", "UX/UI Design", "Design", "Mobile", "Game Dev", "Cybersecurity", "Mechanical Engineering"];
 const MSG_MAX = 500;
 const MSG_PER_MIN = 20;
 

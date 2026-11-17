@@ -360,3 +360,8 @@ test("вход по email: защита от подбора пароля", async
   for (let i = 0; i < 12; i++) last = await social.authEmail(emailReq({ mode: "login", email: "a@b.kz", password: "bad" + i + "xxx" }));
   assert.equal(last.status, 429);
 });
+
+test("профиль: новые направления принимаются сервером", () => {
+  const p = social.cleanProfile({ name: "Рамина", tags: ["Software Engineering", "UX/UI Design", "Mechanical Engineering"] });
+  assert.deepEqual(p.tags, ["Software Engineering", "UX/UI Design", "Mechanical Engineering"]);
+});

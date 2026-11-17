@@ -16,9 +16,9 @@ const DEFAULTS = {
   emoji:'', level:1, about:'',
   tag1:'', tag2:'', tag3:''
 };
-const TAG_ICONS = {Frontend:'','AI/ML':'',Design:'',Backend:'',Data:'',Mobile:'','Game Dev':'',Cybersecurity:''};
+const TAG_ICONS = {Frontend:'','AI/ML':'',Design:'',Backend:'',Data:'',Mobile:'','Game Dev':'',Cybersecurity:'','Software Engineering':'','Mechanical Engineering':'','UX/UI Design':''};
 const GRADES = ['8 класс','9 класс','10 класс','11 класс','1 курс','2 курс','3 курс','4 курс'];
-const SKILL_TAGS = ['Frontend','AI/ML','Design','Backend','Data','Mobile','Game Dev','Cybersecurity'];
+const SKILL_TAGS = ['Software Engineering','Frontend','Backend','AI/ML','Data','UX/UI Design','Design','Mobile','Game Dev','Cybersecurity','Mechanical Engineering'];
 
 function loadP(){const v=store.get('p',null);return v&&typeof v==='object'?{...DEFAULTS,...v}:{...DEFAULTS};}
 function saveP(d){store.set('p',d);}
@@ -328,11 +328,14 @@ const OPP_TYPES=[['all','Все'],['Стажировка','Стажировки'
 const SKILL_MAP={React:'Frontend',Web:'Frontend',Python:'Backend','ML/AI':'AI/ML',Design:'Design',Data:'Data'};
 function gradeNum(g){const n=parseInt(g,10)||10;return /курс/.test(g)?11+n:n;}
 function oppFilter(){return {type:'all',city:'all',mine:true,skill:'all',...store.get('opp_filter',{})};}
-const OPP_SKILLS=['Frontend','Backend','AI/ML','Data','Design','Cybersecurity','Game Dev'];
+const OPP_SKILLS=['Software Engineering','Frontend','Backend','AI/ML','Data','UX/UI Design','Cybersecurity','Game Dev'];
+// Широкие направления совпадают с более узкими навыками в карточках возможностей
+const TAG_ALIASES={'Software Engineering':['Frontend','Backend','Mobile','Game Dev','Web'],'UX/UI Design':['Design'],'Design':['UX/UI Design']};
+const expandTags=(list)=>{const out=new Set();list.forEach(t=>{out.add(t);(TAG_ALIASES[t]||[]).forEach(x=>out.add(x));});return out;};
 
 function matchScore(o){
   const p=loadP();
-  const mine=new Set([p.tag1,p.tag2,p.tag3].filter(Boolean));
+  const mine=expandTags([p.tag1,p.tag2,p.tag3].filter(Boolean));
   const skills=store.get('skills',[]);
   skills.forEach(s=>{mine.add(s.skill);if(SKILL_MAP[s.skill])mine.add(SKILL_MAP[s.skill]);});
   const overlap=(o.skills||[]).filter(s=>mine.has(s)).length;
@@ -358,7 +361,7 @@ function buildDeck(){
     if(f.type!=='all'&&o.type!==f.type)return false;
     if(f.city!=='all'&&o.city!==f.city&&o.city!=='Онлайн')return false;
     if(f.mine){const [lo,hi]=o.grades||[8,12];if(g<lo||g>hi)return false;}
-    if(f.skill&&f.skill!=='all'&&!(o.skills||[]).includes(f.skill))return false;
+    if(f.skill&&f.skill!=='all'){const want=expandTags([f.skill]);if(!(o.skills||[]).some(k=>want.has(k)))return false;}
     return true;
   }).map(o=>({...o,match:matchScore(o)})).sort((a,b)=>b.match-a.match);
   oppIdx=0;
