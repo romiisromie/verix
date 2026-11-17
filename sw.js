@@ -1,5 +1,5 @@
 // Verix service worker: офлайн-режим и быстрая загрузка
-const VERSION = 'verix-v10';
+const VERSION = 'verix-v11';
 const SHELL = [
   './', 'index.html', 'css/styles.css', 'js/i18n.js', 'js/app.js', 'js/fx.js', 'js/guides.js', 'js/edupath.js', 'js/game.js', 'js/onboarding.js', 'js/social.js', 'js/enhance.js',
   'data/opportunities.json',

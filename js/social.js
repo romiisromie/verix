@@ -82,7 +82,7 @@
     box.innerHTML = data.list.length ? data.list.map(row).join('') : `<div class="hint">${esc('Пока в рейтинге никого нет — стань первым: войди через GitHub и проверь свой проект.')}</div>`;
     if (mine && loggedIn()) {
       // как в таблице лидеров: ты и соседи сверху и снизу
-      if (data.around && data.around.length) mine.innerHTML = `<div class="rank-list">${data.around.map(row).join('')}</div><div class="hint" style="margin-top:8px">${esc(T('из'))} ${esc(data.total)} · ${esc('Скор по коду из своих репозиториев')}</div>`;
+      if (data.around && data.around.length) mine.innerHTML = `<div class="rank-list">${data.around.map(row).join('')}</div><div class="hint" style="margin-top:8px">${esc(T('Всего в рейтинге'))}: ${esc(data.total)} · ${esc('Скор по коду из своих репозиториев')}</div>`;
       else if (ME.rep && loadP().public === false) mine.innerHTML = `<div class="hint">${esc('Ты скрыт из рейтинга. Включить: Профиль → Редактировать → «Показывать меня в рейтинге».')}</div>`;
       else mine.innerHTML = `<div class="hint">${esc('Проверь в SkillProof свой репозиторий — и ты появишься в рейтинге.')}</div>`;
     } else if (mine && !loggedIn()) {
