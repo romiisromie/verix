@@ -71,16 +71,20 @@
     const data = await getJSON('/api/rank');
     if (!data || !Array.isArray(data.list)) return; // сервер не настроен — остаётся пояснение
     document.getElementById('rankHint').hidden = true;
-    box.innerHTML = data.list.length ? data.list.map((r) => `
+    const T = (x) => (window.vxT ? vxT(x) : x);
+    const row = (r) => `
       <div class="proj rank-row${r.me ? ' rank-me' : ''}">
-        <div class="rank-place">${r.place}</div>
-        <div style="flex:1;min-width:0"><div class="proj-name">${esc(r.name)}${r.me ? ' · ' + esc('ты') : ''}</div><div class="proj-desc">${esc(r.grade)}${r.city ? ' · ' + esc(r.city) : ''}</div></div>
+        <div class="rank-place">${esc(r.place)}</div>
+        <div class="proj-name rank-name">${r.me ? esc(T('Ты')) + ' · ' : ''}${esc(r.name)}</div>
         <div class="proj-score">${esc(r.score)}</div>
         ${loggedIn() && !r.me && r.dm ? `<button type="button" class="nbtn rank-msg" data-uid="${esc(r.uid)}" data-name="${esc(r.name)}" onclick="vxOpenChat(this.dataset.uid,this.dataset.name)" aria-label="Написать">✉</button>` : ''}
-      </div>`).join('') : `<div class="hint">${esc('Пока в рейтинге никого нет — стань первым: войди через GitHub и проверь свой проект.')}</div>`;
+      </div>`;
+    box.innerHTML = data.list.length ? data.list.map(row).join('') : `<div class="hint">${esc('Пока в рейтинге никого нет — стань первым: войди через GitHub и проверь свой проект.')}</div>`;
     if (mine && loggedIn()) {
-      mine.innerHTML = ME.rep ? `<div class="proj rank-me"><div class="rank-place">${ME.place || '—'}</div><div style="flex:1;min-width:0"><div class="proj-name">${esc(loadP().name)}</div><div class="proj-desc">${esc('Скор по коду из своих репозиториев')}</div></div><div class="proj-score">${esc(ME.rep)}</div></div>`
-        : `<div class="hint">${esc('Проверь в SkillProof свой репозиторий — и ты появишься в рейтинге.')}</div>`;
+      // как в таблице лидеров: ты и соседи сверху и снизу
+      if (data.around && data.around.length) mine.innerHTML = `<div class="rank-list">${data.around.map(row).join('')}</div><div class="hint" style="margin-top:8px">${esc(T('из'))} ${esc(data.total)} · ${esc('Скор по коду из своих репозиториев')}</div>`;
+      else if (ME.rep && loadP().public === false) mine.innerHTML = `<div class="hint">${esc('Ты скрыт из рейтинга. Включить: Профиль → Редактировать → «Показывать меня в рейтинге».')}</div>`;
+      else mine.innerHTML = `<div class="hint">${esc('Проверь в SkillProof свой репозиторий — и ты появишься в рейтинге.')}</div>`;
     } else if (mine && !loggedIn()) {
       if (!mine.querySelector('.gh-btn')) mine.insertAdjacentHTML('beforeend', `<button class="go-btn gh-btn" style="margin-top:10px" onclick="vxGithubLogin()">${esc('Войти через GitHub')}</button>`);
     }

@@ -287,3 +287,19 @@ test("чат: очистить у себя и у обоих; админ види
   assert.ok(d.users.find((u) => u.login === "ramina").seen >= d.users.find((u) => u.login === "ramina").created);
   delete process.env.ADMIN_LOGINS;
 });
+
+test("рейтинг: наружу только место, имя и балл; «твоё место» с соседями", async () => {
+  for (let i = 1; i <= 5; i++) {
+    db.set(`user:${i}`, new Map([["login", "u" + i], ["name", "GH " + i]]));
+    db.set(`profile:${i}`, JSON.stringify({ name: "Ученик " + i, grade: "11 класс", city: "Алматы", dm: true }));
+    await social.recordProof(as(String(i), "u" + i, {}), { skill: "Web", repo: `https://github.com/u${i}/p`, result: { scored_by: "code", overall_score: 50 + i * 5, level_name: "Средний" } });
+  }
+  const [, r] = await call(social.rank, as("3", "u3", null, "GET"));
+  assert.deepEqual(Object.keys(r.list[0]).sort(), ["dm", "me", "name", "place", "score", "uid"]);
+  assert.ok(!JSON.stringify(r).includes("Алматы"));
+  assert.deepEqual(r.around.map((x) => [x.place, x.uid, x.me]), [[2, "4", false], [3, "3", true], [4, "2", false]]);
+  const [, first] = await call(social.rank, as("5", "u5", null, "GET"));
+  assert.deepEqual(first.around.map((x) => x.place), [1, 2]);
+  const [, anon] = await call(social.rank, new Request("https://verix.test/api/rank"));
+  assert.deepEqual(anon.around, []);
+});

@@ -183,20 +183,28 @@ export const me = api(async (request) => {
   return { user: { uid: u.uid, login: u.login, name: rawName || u.login, admin: isAdmin(u) }, profile, skills, rep: computeRep(skills), place: pos === null ? null : +pos + 1, ready: true };
 }, { method: "GET" });
 
+// Публичный рейтинг: только место, имя и балл (класс, город и логин не раскрываются)
+async function rankRows(start, stop, u) {
+  const flat = (await kv("ZREVRANGE", "rank", start, stop, "WITHSCORES")) || [];
+  const ids = [];
+  for (let i = 0; i < flat.length; i += 2) ids.push([flat[i], +flat[i + 1]]);
+  if (!ids.length) return [];
+  const data = await pipeline(ids.flatMap(([id]) => [["GET", `profile:${id}`], ["HGET", `user:${id}`, "name"], ["HGET", `user:${id}`, "login"]]));
+  return ids.map(([id, score], i) => {
+    const p = { ...DEFAULT_PROFILE, ...(parse(data[i * 3]) || {}) };
+    const name = (p.name && p.name !== "Ученик" ? p.name : "") || data[i * 3 + 1] || data[i * 3 + 2] || "Ученик";
+    return { uid: id, place: start + i + 1, score, name, dm: !!p.dm, me: !!u && u.uid === id };
+  });
+}
+
 export const rank = api(async (request) => {
   const u = currentUser(request);
-  const top = (await kv("ZREVRANGE", "rank", 0, 49, "WITHSCORES")) || [];
-  const ids = [];
-  for (let i = 0; i < top.length; i += 2) ids.push([top[i], +top[i + 1]]);
-  const profiles = await pipeline(ids.map(([id]) => ["GET", `profile:${id}`]));
-  const logins = await pipeline(ids.map(([id]) => ["HGET", `user:${id}`, "login"]));
-  const ghNames = await pipeline(ids.map(([id]) => ["HGET", `user:${id}`, "name"]));
-  const list = ids.map(([id, score], i) => {
-    const p = { ...DEFAULT_PROFILE, ...(parse(profiles[i]) || {}) };
-    return { uid: id, place: i + 1, score, name: (p.name && p.name !== "Ученик" ? p.name : "") || ghNames[i] || logins[i] || "Ученик", login: logins[i] || "", grade: p.grade, city: p.city, tags: p.tags, dm: !!p.dm, me: !!u && u.uid === id };
-  });
-  const total = await kv("ZCARD", "rank");
-  return { list, total: +total || 0 };
+  const [list, total, pos] = await Promise.all([
+    rankRows(0, 49, u), kv("ZCARD", "rank"), u ? kv("ZREVRANK", "rank", u.uid) : null,
+  ]);
+  // «Твоё место» вместе с соседями сверху и снизу
+  const around = pos === null || pos === undefined ? [] : await rankRows(Math.max(0, +pos - 1), +pos + 1, u);
+  return { list, around, total: +total || 0 };
 }, { method: "GET" });
 
 // ═══════════ ЧАТ ═══════════
