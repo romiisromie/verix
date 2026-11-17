@@ -11,9 +11,16 @@
     {id:'mobile',name:'Mobile Developer',hint:'Flutter / React Native'},
     {id:'game',name:'Game Developer',hint:'Unity / Godot'},
     {id:'security',name:'Cybersecurity',hint:'сети, CTF, безопасность'},
+    {id:'explore',name:'Ещё выбираю',hint:'попробую разные направления'},
   ];
   const T=(title,desc,tasks)=>({title,desc,tasks});
   const TEMPLATES={
+    explore:{months:6,phases:[
+      T('Основы программирования','Как думает программист',['Первые уроки CS50','Задачи на Python','Завести GitHub и первый репозиторий']),
+      T('Пробую направления','По мини-проекту в трёх областях',['Мини-сайт (веб)','Анализ таблицы (данные)','Простая игра (геймдев)']),
+      T('Выбираю своё','Что понравилось больше всего',['Сравнить три мини-проекта','Посмотреть роадмапы на roadmap.sh','Выбрать цель в EduPath']),
+      T('Первый настоящий проект','Проект в выбранном направлении',['Проект с README','Проверить проект в SkillProof','Откликнуться на 1 возможность']),
+    ]},
     frontend:{months:8,phases:[
       T('Основы веба','HTML, CSS, JavaScript — фундамент',['HTML & CSS основы','JavaScript основы','Первая страница на GitHub Pages']),
       T('React & компоненты','Компонентный подход, хуки, состояние',['Компоненты и пропсы','useState & useEffect','Роутинг (React Router)','API запросы (fetch)']),
@@ -71,7 +78,9 @@
 
   function render(){
     const r=load(),s=stats(r),cur=current(r);
-    document.getElementById('rmGoal').textContent=r.goal_title;
+    const exploring=r.goal_title==='Ещё выбираю';
+    document.getElementById('rmBecome').hidden=exploring;
+    document.getElementById('rmGoal').textContent=exploring?'Найти своё направление':r.goal_title;
     document.getElementById('rmMeta').textContent=`${r.months} ${plural(r.months,'месяц','месяца','месяцев')} · Прогресс ${s.pct}% · ${s.done}/${s.total} задач`;
     const fill=document.getElementById('rmFill');fill.style.width=s.pct+'%';fill.dataset.w=s.pct+'%';
     document.getElementById('rmAdviceHead').textContent=r.source==='ai'?'AI рекомендация':'Подсказка';

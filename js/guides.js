@@ -15,11 +15,30 @@
     'Mobile Developer': [L('Flutter: Get started', 'https://docs.flutter.dev/get-started'), L('React Native: Getting started', 'https://reactnative.dev/docs/getting-started')],
     'Game Developer': [L('Godot — документация на русском', 'https://docs.godotengine.org/ru/4.x/'), L('Геймджемы на itch.io', 'https://itch.io/jams')],
     'Cybersecurity': [L('picoCTF', 'https://picoctf.org/'), L('OverTheWire: Bandit', 'https://overthewire.org/wargames/bandit/'), L('OWASP Top 10', 'https://owasp.org/www-project-top-ten/')],
+    'Ещё выбираю': [L('CS50 (Harvard)', 'https://cs50.harvard.edu/x/'), L('roadmap.sh', 'https://roadmap.sh/'), L('GitHub Skills', 'https://skills.github.com/')],
     _: [L('CS50 (Harvard)', 'https://cs50.harvard.edu/x/'), L('roadmap.sh', 'https://roadmap.sh/'), L('GitHub Skills', 'https://skills.github.com/')],
   };
 
   // Гиды для фаз шаблонов: ключ — id шаблона, индекс — номер фазы
   const PHASES = {
+    explore: [
+      G('Не нужно сразу выбирать профессию. Начни с основ: первые лекции CS50 (есть субтитры) и простые задачи на Python. Заведи аккаунт на GitHub и сохраняй туда всё, что делаешь.',
+        'Мамандықты бірден таңдаудың қажеті жоқ. Негіздерден баста: CS50-дің алғашқы дәрістері (субтитрлері бар) және Python-дағы қарапайым есептер. GitHub-та аккаунт ашып, жасағаныңның бәрін сонда сақта.',
+        'You don’t have to pick a career right away. Start with the basics: the first CS50 lectures (with subtitles) and simple Python tasks. Create a GitHub account and save everything you make there.',
+        [L('CS50 (Harvard)', 'https://cs50.harvard.edu/x/'), L('Kaggle Learn: Python', 'https://www.kaggle.com/learn/python'), L('GitHub Skills', 'https://skills.github.com/')]),
+      G('Сделай по одному маленькому проекту в трёх разных областях: страничку о себе (веб), анализ таблицы с оценками (данные) и простую игру (геймдев). На каждый — 1–2 вечера. Так ты почувствуешь, что тебе интереснее.',
+        'Үш түрлі салада бір-бір шағын жоба жаса: өзің туралы бет (веб), бағалар кестесін талдау (деректер) және қарапайым ойын (геймдев). Әрқайсысына 1–2 кеш. Солай саған не қызықтырақ екенін сезінесің.',
+        'Make one small project in three different areas: a page about yourself (web), an analysis of a grades table (data) and a simple game (game dev). Spend 1–2 evenings on each. This shows you what you enjoy most.',
+        [L('MDN: учебник веб-разработки', 'https://developer.mozilla.org/ru/docs/Learn_web_development'), L('Kaggle Learn: Pandas', 'https://www.kaggle.com/learn/pandas'), L('Godot — документация на русском', 'https://docs.godotengine.org/ru/4.x/')]),
+      G('Сравни три проекта: что было интереснее, где хотелось сделать больше, что получилось лучше. Открой роадмапы этих профессий на roadmap.sh, а потом выбери цель в EduPath — Verix построит под неё новый план.',
+        'Үш жобаны салыстыр: қайсысы қызығырақ болды, қайсысында көбірек жасағың келді, қайсысы жақсырақ шықты. Осы мамандықтардың роадмаптарын roadmap.sh-тан аш, содан кейін EduPath-та мақсат таңда — Verix соған жаңа жоспар құрады.',
+        'Compare the three projects: which was more interesting, where you wanted to do more, what turned out best. Look at those careers on roadmap.sh, then choose a goal in EduPath and Verix will build a new plan for it.',
+        [L('roadmap.sh', 'https://roadmap.sh/')]),
+      G('Сделай первый настоящий проект в выбранном направлении: решай задачу, которая нужна тебе или знакомым. Напиши README, проверь проект в SkillProof и откликнись на одну возможность из TalentMatch.',
+        'Таңдаған бағытыңда алғашқы нақты жобаны жаса: өзіңе немесе таныстарыңа керек мәселені шеш. README жаз, жобаны SkillProof-та тексер және TalentMatch-тағы бір мүмкіндікке өтінім жібер.',
+        'Build your first real project in the direction you chose: solve a problem you or people you know actually have. Write a README, check the project in SkillProof and apply to one opportunity in TalentMatch.',
+        [L('GitHub Skills', 'https://skills.github.com/'), L('Vercel: первый деплой', 'https://vercel.com/docs/getting-started-with-vercel')]),
+    ],
     frontend: [
       G('Сделай одну страницу о себе: разметка на HTML, оформление на CSS (flexbox), немного JavaScript — например, переключатель темы. Опубликуй её на GitHub Pages: это и будет первая задача, которую можно проверить в SkillProof.',
         'Өзің туралы бір бет жаса: HTML-де белгілеу, CSS-те безендіру (flexbox), аздап JavaScript — мысалы, тақырыпты ауыстыру. Оны GitHub Pages-те жарияла: бұл SkillProof-та тексеруге болатын алғашқы жұмыс.',

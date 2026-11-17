@@ -5,7 +5,7 @@
   'use strict';
   // Города республиканского значения и все областные центры Казахстана (по алфавиту после трёх крупнейших)
   const CITIES = ['Алматы', 'Астана', 'Шымкент', 'Актау', 'Актобе', 'Атырау', 'Жезказган', 'Караганда', 'Кокшетау', 'Конаев', 'Костанай', 'Кызылорда', 'Павлодар', 'Петропавловск', 'Семей', 'Талдыкорган', 'Тараз', 'Туркестан', 'Уральск', 'Усть-Каменогорск', 'Другой город'];
-  const GOALS = ['Frontend Engineer', 'Backend Developer', 'Data Scientist', 'ML Engineer', 'UI/UX Designer', 'Mobile Developer', 'Game Developer', 'Cybersecurity'];
+  const GOALS = ['Frontend Engineer', 'Backend Developer', 'Data Scientist', 'ML Engineer', 'UI/UX Designer', 'Mobile Developer', 'Game Developer', 'Cybersecurity', 'Ещё выбираю'];
   const GOAL_TAG = { 'Frontend Engineer': 'Frontend', 'Backend Developer': 'Backend', 'Data Scientist': 'Data', 'ML Engineer': 'AI/ML', 'UI/UX Designer': 'UX/UI Design', 'Mobile Developer': 'Mobile', 'Game Developer': 'Game Dev', 'Cybersecurity': 'Cybersecurity' };
   const TAGS = ['Software Engineering', 'Frontend', 'Backend', 'AI/ML', 'Data', 'UX/UI Design', 'Mobile', 'Game Dev', 'Cybersecurity', 'Mechanical Engineering'];
   const LEVELS = ['Только начинаю', 'Делал(а) учебные проекты', 'Есть свой проект'];
@@ -68,7 +68,7 @@
     if (!grade) { toast('Выбери класс'); return; }
     if (!goal) { toast('Выбери, кем хочешь стать'); return; }
     if (gh && !/^https:\/\/github\.com\/[A-Za-z0-9-]{1,39}\/?$/.test(gh)) { toast('Ссылка на GitHub должна быть вида https://github.com/имя'); return; }
-    if (!tags.length) tags = [GOAL_TAG[goal]];
+    if (!tags.length) tags = [GOAL_TAG[goal] || 'Software Engineering'];
     const cityRaw = document.getElementById('obCity').value;
     const p = loadP();
     Object.assign(p, {
