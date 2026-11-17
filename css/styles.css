@@ -516,3 +516,15 @@ a.proj{text-decoration:none;color:inherit;}
 .adm-mail{font-size:12px;font-weight:600;color:var(--accent);word-break:break-all;}
 .st-mail{background:#fde68a;}
 .st-gh{background:#e5e7eb;}
+
+/* Значок непрочитанных */
+.inbox-btn,.tab{position:relative;}
+.badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#e53935;color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;border:2px solid var(--bg,#fff);box-sizing:content-box;}
+.badge[hidden]{display:none;}
+.tab-badge{top:2px;right:calc(50% - 22px);}
+.thread-badge{position:static;margin-left:8px;}
+/* Кабинет учителя */
+.class-code{font-family:monospace;font-size:16px;letter-spacing:2px;}
+.class-code-box{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border:2px dashed var(--accent);border-radius:12px;margin-bottom:10px;}
+.tc-skills{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.tc-skill{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;border:1.5px solid var(--ink);background:#bbf7d0;color:inherit;text-decoration:none;}

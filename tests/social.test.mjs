@@ -30,6 +30,11 @@ function redis(cmd) {
     case "ZRANGE": return [...(db.get(k) || new Map())].sort((x, y) => x[1] - y[1]).map(([m]) => m);
     case "ZSCORE": { const v = (db.get(k) || new Map()).get(a[0]); return v === undefined ? null : String(v); }
     case "HLEN": return (db.get(k) || new Map()).size;
+    case "HINCRBY": { const h = get("h"); h.set(a[0], String((+h.get(a[0]) || 0) + +a[1])); db.set(k, h); return +h.get(a[0]); }
+    case "HVALS": return [...(db.get(k) || new Map()).values()];
+    case "HDEL": { const h = db.get(k); return h && h.delete(a[0]) ? 1 : 0; }
+    case "SREM": { const st = db.get(k); return st && st.delete(a[0]) ? 1 : 0; }
+    case "SCARD": return (db.get(k) || new Set()).size;
     case "SMEMBERS": return [...(db.get(k) || new Set())];
     case "LINDEX": return (db.get(k) || [])[+a[0]] ?? null;
     case "LSET": { const l = db.get(k); l[+a[0]] = a[1]; return "OK"; }
@@ -364,4 +369,68 @@ test("вход по email: защита от подбора пароля", async
 test("профиль: новые направления принимаются сервером", () => {
   const p = social.cleanProfile({ name: "Рамина", tags: ["Software Engineering", "UX/UI Design", "Mechanical Engineering"] });
   assert.deepEqual(p.tags, ["Software Engineering", "UX/UI Design", "Mechanical Engineering"]);
+});
+
+test("чат: непрочитанные сообщения считаются и сбрасываются при открытии", async () => {
+  for (const [id, login] of [["1", "ramina"], ["2", "rakhat"]]) db.set(`user:${id}`, new Map([["login", login]]));
+  await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "раз" }));
+  await call(social.chat, as("2", "rakhat", { action: "send", with: "1", text: "два" }));
+  let [, u] = await call(social.chat, as("1", "ramina", { action: "unread" }));
+  assert.equal(u.total, 2);
+  const [, t] = await call(social.chat, as("1", "ramina", { action: "threads" }));
+  assert.equal(t.threads[0].unread, 2);
+  [, u] = await call(social.chat, as("2", "rakhat", { action: "unread" }));
+  assert.equal(u.total, 0); // у отправителя своих непрочитанных нет
+  await call(social.chat, as("1", "ramina", { action: "messages", with: "2" }));
+  [, u] = await call(social.chat, as("1", "ramina", { action: "unread" }));
+  assert.equal(u.total, 0);
+});
+
+test("кабинет учителя: роль от админа, класс по коду, учитель видит только свой класс", async () => {
+  process.env.ADMIN_LOGINS = "ramina";
+  for (const [id, login] of [["1", "ramina"], ["2", "teacher"], ["3", "aru"], ["4", "dana"], ["5", "otherteacher"]]) db.set(`user:${id}`, new Map([["login", login], ["created", String(Date.now())]]));
+  db.set("profile:3", JSON.stringify({ name: "Ару", grade: "11 класс", goal: "Frontend Engineer" }));
+  // без роли — нет доступа
+  let [s] = await call(social.classApi, as("2", "teacher", { action: "list" }));
+  assert.equal(s, 403);
+  // ученик не может выдать роль
+  [s] = await call(social.classApi, as("3", "aru", { action: "grant", uid: "3" }));
+  assert.equal(s, 403);
+  [s] = await call(social.classApi, as("1", "ramina", { action: "grant", uid: "2" }));
+  assert.equal(s, 200);
+  let [, me] = await call(social.me, as("2", "teacher", null, "GET"));
+  assert.equal(me.user.teacher, true);
+  // учитель создаёт класс
+  const [, c] = await call(social.classApi, as("2", "teacher", { action: "create", name: "11 А <b>" }));
+  assert.match(c.code, /^[A-Z2-9]{6}$/);
+  // ученики вступают по коду (регистр и пробелы не важны)
+  [s] = await call(social.classApi, as("3", "aru", { action: "join", code: " " + c.code.toLowerCase() + " " }));
+  assert.equal(s, 200);
+  [s] = await call(social.classApi, as("4", "dana", { action: "join", code: "ZZZZZZ" }));
+  assert.equal(s, 404);
+  await call(social.classApi, as("4", "dana", { action: "join", code: c.code }));
+  db.set("skills:3", new Map([["Web|x", JSON.stringify({ skill: "Web", repo: "https://github.com/aru/site", score: 80, level: "Продвинутый", at: 1 })]]));
+  [, me] = await call(social.me, as("3", "aru", null, "GET"));
+  assert.equal(me.my_class.name, "11 А b");
+  // учитель видит класс
+  const [, cls] = await call(social.classApi, as("2", "teacher", { action: "class", code: c.code }));
+  assert.equal(cls.summary.total, 2);
+  assert.equal(cls.summary.with_skills, 1);
+  assert.equal(cls.students[0].name, "Ару");
+  assert.equal(cls.students[0].skills[0].score, 80);
+  assert.ok(!JSON.stringify(cls).includes("pass"));
+  // другой учитель чужой класс не видит
+  await call(social.classApi, as("1", "ramina", { action: "grant", uid: "5" }));
+  [s] = await call(social.classApi, as("5", "otherteacher", { action: "class", code: c.code }));
+  assert.equal(s, 403);
+  // ученик выходит, учитель убирает второго
+  await call(social.classApi, as("3", "aru", { action: "leave" }));
+  await call(social.classApi, as("2", "teacher", { action: "remove", code: c.code, uid: "4" }));
+  const [, empty] = await call(social.classApi, as("2", "teacher", { action: "class", code: c.code }));
+  assert.equal(empty.summary.total, 0);
+  // снять роль
+  await call(social.classApi, as("1", "ramina", { action: "grant", uid: "2", on: false }));
+  [s] = await call(social.classApi, as("2", "teacher", { action: "list" }));
+  assert.equal(s, 403);
+  delete process.env.ADMIN_LOGINS;
 });

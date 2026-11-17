@@ -293,7 +293,7 @@
 <div class="screen" id="screen-rankings">
   <nav>
     <div class="nav-logo">Рейтинги</div>
-    <div class="nav-right"><div class="nbtn" role="button" tabindex="0" aria-label="Сообщения" onclick="vxOpenInbox()">✉</div><div class="nbtn" onclick="openModal('rankings-info')">?</div></div>
+    <div class="nav-right"><div class="nbtn inbox-btn" role="button" tabindex="0" aria-label="Сообщения" onclick="vxOpenInbox()">✉<span class="badge" id="inboxBadge" hidden></span></div><div class="nbtn" onclick="openModal('rankings-info')">?</div></div>
   </nav>
   <div class="scroll">
     <div class="rankings-hero">
@@ -304,6 +304,12 @@
       <div class="lbl">Твоё место</div>
       <div id="myRankCard"></div>
     </div>
+    <div class="card" id="teacherCard" hidden>
+      <div class="lbl">Кабинет учителя</div>
+      <div class="hint" style="margin:6px 0 10px;">Создай класс, раздай ученикам код и следи за их прогрессом: проверенные навыки, баллы, активность.</div>
+      <button class="go-btn" onclick="vxOpenTeacher()">Открыть кабинет</button>
+    </div>
+    <div class="card" id="classCard" hidden></div>
     <div class="card" id="adminCard" hidden>
       <div class="lbl">Админ-панель</div>
       <div class="hint" style="margin:6px 0 10px;">Видна только администраторам Verix.</div>
@@ -332,7 +338,7 @@
   <div class="tab active" id="tab-profile" onclick="switchTab('profile')"><div class="tab-ico"></div><div class="tab-lbl">Профиль</div></div>
   <div class="tab" id="tab-skillproof" onclick="switchTab('skillproof')"><div class="tab-ico"></div><div class="tab-lbl">SkillProof</div></div>
   <div class="tab" id="tab-talent" onclick="switchTab('talent')"><div class="tab-ico"></div><div class="tab-lbl">Матчинг</div></div>
-  <div class="tab" id="tab-rankings" onclick="switchTab('rankings')"><div class="tab-ico"></div><div class="tab-lbl">Рейтинги</div></div>
+  <div class="tab" id="tab-rankings" onclick="switchTab('rankings')"><div class="tab-ico"></div><div class="tab-lbl">Рейтинги</div><span class="badge tab-badge" id="tabBadge" hidden></span></div>
   <div class="tab" id="tab-edupath" onclick="switchTab('edupath')"><div class="tab-ico"></div><div class="tab-lbl">EduPath</div></div>
 </nav>
 </main>

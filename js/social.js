@@ -90,6 +90,8 @@
       if (!mine.querySelector('.gh-btn')) mine.insertAdjacentHTML('beforeend', `<button class="go-btn gh-btn" style="margin-top:10px" onclick="vxGithubLogin()">${esc('Войти через GitHub')}</button>`);
     }
     const ac = document.getElementById('adminCard'); if (ac) ac.hidden = !(ME && ME.user && ME.user.admin);
+    const tc = document.getElementById('teacherCard'); if (tc) tc.hidden = !(ME && ME.user && ME.user.teacher);
+    renderClassCard();
     if (window.a11yRefresh) a11yRefresh(box);
   }
   window.vxRenderRankings = renderRankings;
@@ -106,7 +108,7 @@
     shell('Сообщения', `<div class="hint">${esc('Загружаем…')}</div>`);
     try {
       const { threads } = await postJSON('/api/chat', { action: 'threads' });
-      shell('Сообщения', threads.length ? `<div style="display:flex;flex-direction:column;gap:7px;">${threads.map((t) => `<button type="button" class="proj" data-uid="${esc(t.uid)}" data-name="${esc(t.name)}" onclick="vxOpenChat(this.dataset.uid,this.dataset.name)" style="text-align:left"><div class="proj-name">${esc(t.name)}</div></button>`).join('')}</div>`
+      shell('Сообщения', threads.length ? `<div style="display:flex;flex-direction:column;gap:7px;">${threads.map((t) => `<button type="button" class="proj" data-uid="${esc(t.uid)}" data-name="${esc(t.name)}" onclick="vxOpenChat(this.dataset.uid,this.dataset.name)" style="text-align:left"><div class="proj-name" style="flex:1">${esc(t.name)}</div>${t.unread ? `<span class="badge thread-badge">${esc(t.unread)}</span>` : ''}</button>`).join('')}</div>`
         : `<div class="hint">${esc('Пока нет переписок. Напиши ученику из рейтинга — кнопка ✉ рядом с его баллом.')}</div>`);
     } catch (e) { shell('Сообщения', `<div class="hint">${esc(e.message)}</div>`); }
   };
@@ -136,6 +138,7 @@
       const { messages } = await postJSON('/api/chat', { action: 'messages', with: chatWith.uid });
       const box = document.getElementById('chatBox'); if (!box) return;
       msgs = messages;
+      if (window.vxRefreshUnread && force) vxRefreshUnread();
       const html = messages.length ? messages.map(bubble).join('') : `<div class="hint">${esc(T('Начни разговор: расскажи о своём проекте или предложи сделать что-то вместе.'))}</div>`;
       if (!force && html === lastRender) return; // ничего не изменилось — не сбиваем меню и прокрутку
       const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
@@ -306,7 +309,7 @@
         <div class="proj-desc">${esc([u.grade, u.city, u.goal].filter(Boolean).join(' · ') || 'опрос не пройден')}</div>
         <div class="proj-desc">${esc('Регистрация')}: ${esc(date(u.created))} · ${esc('последний визит')}: ${esc(date(u.seen))}</div>
         <div class="proj-desc">${esc('навыков')}: ${esc(u.skills)} · ${esc('переписок')}: ${esc(u.chats)}${u.public ? '' : ' · ' + esc('скрыт из рейтинга')}</div></div>
-        <div class="proj-score">${u.place ? '#' + esc(u.place) : '—'}</div></div>`;
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="proj-score">${u.place ? '#' + esc(u.place) : '—'}</div><button type="button" class="adm-chip${u.teacher ? ' on' : ''}" onclick="vxToggleTeacher('${esc(u.uid)}', ${!u.teacher})">${esc(u.teacher ? 'Учитель ✓' : 'Сделать учителем')}</button></div></div>`;
     const reports = d.reports.length ? `<div class="lbl" style="margin-top:12px">${esc('Жалобы')} (${esc(d.reports.length)})</div>` + d.reports.map((r) => `<div class="proj-desc">${esc(date(r.at))}: uid ${esc(r.from)} → uid ${esc(r.about)}${r.note ? ' — ' + esc(r.note) : ''}</div>`).join('') : '';
     const n = (st) => d.users.filter((u) => u.status === st).length;
     const chips = [['all', 'Все', d.total], ['login', 'Только вошли', n('login')], ['survey', 'Прошли опрос', n('survey')], ['skill', 'Проверили навык', n('skill')], ['email', 'Вход по email', d.by_email || 0], ['github', 'GitHub', d.total - (d.by_email || 0)]]
@@ -327,6 +330,113 @@
     if (!confirm(window.vxT ? vxT(q) : q)) return;
     try { await postJSON('/api/chat', { action: report ? 'report' : 'block', with: chatWith.uid }); toast(report ? 'Жалоба отправлена, ученик заблокирован' : 'Ученик заблокирован'); window.vxCloseChat(); }
     catch (e) { toast(e.message); }
+  };
+
+
+  // ════════════ НЕПРОЧИТАННЫЕ СООБЩЕНИЯ ════════════
+  let unreadTimer = null;
+  function setBadge(n) {
+    ['inboxBadge', 'tabBadge'].forEach((id) => {
+      const b = document.getElementById(id); if (!b) return;
+      b.hidden = !n; b.textContent = n > 99 ? '99+' : String(n || '');
+    });
+    const ib = document.querySelector('.inbox-btn');
+    if (ib) ib.setAttribute('aria-label', (window.vxT ? vxT('Сообщения') : 'Сообщения') + (n ? ` (${n})` : ''));
+  }
+  async function refreshUnread() {
+    if (!loggedIn()) { setBadge(0); return; }
+    try { const r = await postJSON('/api/chat', { action: 'unread' }); setBadge(r.total || 0); } catch (e) { /* сеть — попробуем позже */ }
+  }
+  window.vxRefreshUnread = refreshUnread;
+  function startUnread() {
+    refreshUnread(); clearInterval(unreadTimer);
+    unreadTimer = setInterval(() => { if (!document.hidden) refreshUnread(); }, 30000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshUnread(); });
+  }
+
+  // ════════════ КЛАСС УЧЕНИКА ════════════
+  function renderClassCard() {
+    const card = document.getElementById('classCard'); if (!card) return;
+    if (!loggedIn()) { card.hidden = true; return; }
+    card.hidden = false;
+    const T = (x) => (window.vxT ? vxT(x) : x);
+    const c = ME.my_class;
+    card.innerHTML = c
+      ? `<div class="lbl">${esc('Мой класс')}</div>
+         <div class="proj" style="margin-top:8px"><div style="flex:1;min-width:0"><div class="proj-name">${esc(c.name)}</div><div class="proj-desc">${esc(T('Учитель'))}: ${esc(c.teacher)}</div></div></div>
+         <div class="hint" style="margin-top:8px">${esc('Учитель видит твоё имя, класс, проверенные навыки, баллы и последний визит. Сообщения и пароль он не видит.')}</div>
+         <button class="outline-btn" style="margin-top:8px" onclick="vxLeaveClass()">${esc('Выйти из класса')}</button>`
+      : `<div class="lbl">${esc('Мой класс')}</div>
+         <div class="hint" style="margin:6px 0 8px">${esc('Учитель дал код класса? Введи его — учитель будет видеть твой прогресс: имя, класс, проверенные навыки, баллы и последний визит. Сообщения и пароль он не видит.')}</div>
+         <div class="chat-input" style="margin-top:0"><label class="sr-only" for="classCode">${esc('Код класса')}</label><input id="classCode" class="inp" maxlength="8" placeholder="${esc(T('Код класса, например K7PQ2M'))}" style="text-transform:uppercase"><button class="go-btn" onclick="vxJoinClass()">${esc('Вступить')}</button></div>`;
+  }
+  window.vxJoinClass = async function () {
+    const code = (document.getElementById('classCode').value || '').trim();
+    if (!code) return;
+    try { const r = await postJSON('/api/class', { action: 'join', code }); ME.my_class = r.my_class; renderClassCard(); toast((window.vxT ? vxT('Ты в классе') : 'Ты в классе') + ': ' + r.my_class.name); }
+    catch (e) { toast(e.message); }
+  };
+  window.vxLeaveClass = async function () {
+    if (!confirm(window.vxT ? vxT('Выйти из класса? Учитель перестанет видеть твой прогресс.') : 'Выйти из класса? Учитель перестанет видеть твой прогресс.')) return;
+    try { await postJSON('/api/class', { action: 'leave' }); ME.my_class = null; renderClassCard(); toast('Ты вышел из класса'); }
+    catch (e) { toast(e.message); }
+  };
+
+  // ════════════ КАБИНЕТ УЧИТЕЛЯ ════════════
+  const fmtDate = (t) => (t ? new Date(t).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—');
+  window.vxOpenTeacher = async function () {
+    const T = (x) => (window.vxT ? vxT(x) : x);
+    const title = 'Кабинет учителя';
+    shell(title, `<div class="hint">${esc('Загружаем…')}</div>`);
+    let d;
+    try { d = await postJSON('/api/class', { action: 'list' }); } catch (e) { shell(title, `<div class="hint">${esc(e.message)}</div>`); return; }
+    const list = d.classes.map((c) => `<button type="button" class="proj" style="text-align:left" onclick="vxOpenClass('${esc(c.code)}')">
+        <div style="flex:1;min-width:0"><div class="proj-name">${esc(c.name)}</div><div class="proj-desc">${esc(T('Код'))}: <b class="class-code">${esc(c.code)}</b> · ${esc(T('учеников'))}: ${esc(c.students)}</div></div><div class="proj-score">›</div></button>`).join('');
+    shell(title, `
+      <div class="lbl">${esc('Новый класс')}</div>
+      <div class="chat-input" style="margin-top:6px"><label class="sr-only" for="newClass">${esc('Название класса')}</label><input id="newClass" class="inp" maxlength="60" placeholder="${esc(T('Например: 11 А, информатика'))}"><button class="go-btn" onclick="vxCreateClass()">${esc('Создать')}</button></div>
+      <div class="lbl" style="margin-top:14px">${esc('Мои классы')}</div>
+      <div class="adm-list" style="margin-top:6px">${list || `<div class="hint">${esc('Пока нет классов. Создай первый — Verix даст код, который нужно раздать ученикам.')}</div>`}</div>
+      <div class="hint" style="margin-top:10px">${esc('Как это работает: ученик входит в Verix, открывает «Рейтинги → Мой класс» и вводит код. Без кода учитель ничего не видит.')}</div>`);
+  };
+  window.vxCreateClass = async function () {
+    const name = (document.getElementById('newClass').value || '').trim();
+    try { const r = await postJSON('/api/class', { action: 'create', name }); toast((window.vxT ? vxT('Класс создан. Код') : 'Класс создан. Код') + ': ' + r.code); window.vxOpenClass(r.code); }
+    catch (e) { toast(e.message); }
+  };
+  window.vxOpenClass = async function (code) {
+    const T = (x) => (window.vxT ? vxT(x) : x);
+    shell('Класс', `<div class="hint">${esc('Загружаем…')}</div>`);
+    let d;
+    try { d = await postJSON('/api/class', { action: 'class', code }); } catch (e) { shell('Класс', `<div class="hint">${esc(e.message)}</div>`); return; }
+    const s = d.summary;
+    const stat = (n, l) => `<div class="adm-stat"><b>${esc(n)}</b><span>${esc(l)}</span></div>`;
+    const rows = d.students.map((st) => `<div class="proj adm-row">
+        <div style="flex:1;min-width:0">
+          <div class="proj-name">${esc(st.name)}${st.github ? ` <a href="${esc(safeUrl('https://github.com/' + st.github))}" target="_blank" rel="noopener">@${esc(st.github)}</a>` : ''}</div>
+          <div class="proj-desc">${esc([st.grade, st.goal].filter(Boolean).join(' · ') || 'опрос не пройден')}</div>
+          <div class="proj-desc">${esc(T('навыков'))}: ${esc(st.skills.length)}${st.skills.length ? ` · ${esc(T('средний балл'))}: ${esc(st.avg)}` : ''} · ${esc(T('последний визит'))}: ${esc(fmtDate(st.seen))}</div>
+          ${st.skills.length ? `<div class="tc-skills">${st.skills.slice(0, 4).map((k) => `<a class="tc-skill" href="${esc(safeUrl(k.repo))}" target="_blank" rel="noopener">${esc(k.skill)} · ${esc(k.score)}</a>`).join('')}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="proj-score">${esc(st.rep)}</div><button type="button" class="nbtn" title="${esc(T('Убрать из класса'))}" aria-label="${esc(T('Убрать из класса'))}" onclick="vxRemoveStudent('${esc(d.code)}','${esc(st.uid)}')">×</button></div>
+      </div>`).join('');
+    shell(d.name, `
+      <button class="outline-btn" style="margin:0 0 10px" onclick="vxOpenTeacher()">← ${esc('Мои классы')}</button>
+      <div class="class-code-box">${esc(T('Код для учеников'))}: <b class="class-code">${esc(d.code)}</b> <button type="button" class="nbtn" onclick="navigator.clipboard.writeText('${esc(d.code)}').then(()=>toast(window.vxT?vxT('Скопировано'):'Скопировано'))" aria-label="${esc(T('Копировать'))}">⧉</button></div>
+      <div class="adm-stats">${stat(s.total, 'учеников')}${stat(s.with_skills, 'с проверенным кодом')}${stat(s.avg_score || '—', 'средний балл')}${stat(s.active_week, 'заходили за неделю')}</div>
+      <div class="adm-list">${rows || `<div class="hint">${esc('В классе пока нет учеников. Раздай код — ученики введут его в «Рейтинги → Мой класс».')}</div>`}</div>
+      <button class="outline-btn danger-btn" style="margin-top:12px" onclick="vxDeleteClass('${esc(d.code)}')">${esc('Удалить класс')}</button>`);
+  };
+  window.vxRemoveStudent = async function (code, uid) {
+    if (!confirm(window.vxT ? vxT('Убрать ученика из класса?') : 'Убрать ученика из класса?')) return;
+    try { await postJSON('/api/class', { action: 'remove', code, uid }); window.vxOpenClass(code); } catch (e) { toast(e.message); }
+  };
+  window.vxDeleteClass = async function (code) {
+    if (!confirm(window.vxT ? vxT('Удалить класс? Ученики выйдут из него, их аккаунты останутся.') : 'Удалить класс? Ученики выйдут из него, их аккаунты останутся.')) return;
+    try { await postJSON('/api/class', { action: 'delete_class', code }); window.vxOpenTeacher(); } catch (e) { toast(e.message); }
+  };
+  window.vxToggleTeacher = async function (uid, on) {
+    try { await postJSON('/api/class', { action: 'grant', uid, on }); toast(on ? 'Роль учителя выдана' : 'Роль учителя снята'); window.vxOpenAdmin(); } catch (e) { toast(e.message); }
   };
 
   // ── запуск ──
@@ -350,6 +460,7 @@
       renderProfile(); renderSavedSkills();
       // профиль из опроса, заполненный до входа, отправляем на сервер
       if (!(data.profile && data.profile.name) && loadP().onboarded) syncProfile();
+      startUnread();
     } else if (data && data.ready) {
       const sess = store.get('session', null), acc = store.get('account', null);
       if (sess && sess.server) {

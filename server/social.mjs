@@ -244,7 +244,8 @@ export const me = api(async (request) => {
   if (!u) return { user: null, ready: oauthReady() };
   const [profile, skills, rawName] = await Promise.all([loadProfile(u.uid), loadSkills(u.uid), kv("HGET", `user:${u.uid}`, "name")]);
   const [pos] = await pipeline([["ZREVRANK", "rank", u.uid], ["HSET", `user:${u.uid}`, "seen", String(Date.now())]]); // последний визит — для админ-панели
-  return { user: { uid: u.uid, login: u.login || "", email: u.email || "", provider: u.login ? "github" : "email", name: rawName || u.login || "", admin: isAdmin(u) }, profile, skills, rep: computeRep(skills), place: pos === null ? null : +pos + 1, ready: true };
+  const [teacher, myClass] = await Promise.all([isTeacher(u), studentClass(u.uid)]);
+  return { user: { uid: u.uid, login: u.login || "", email: u.email || "", provider: u.login ? "github" : "email", name: rawName || u.login || "", admin: isAdmin(u), teacher }, my_class: myClass, profile, skills, rep: computeRep(skills), place: pos === null ? null : +pos + 1, ready: true };
 }, { method: "GET" });
 
 // Публичный рейтинг: только место, имя и балл (класс, город и логин не раскрываются)
@@ -317,6 +318,7 @@ async function deliver(u, other, msg) {
   await pipeline([
     ["LPUSH", key, JSON.stringify(rec)], ["LTRIM", key, 0, 199],
     ["ZADD", `threads:${u.uid}`, now, other], ["ZADD", `threads:${other}`, now, u.uid],
+    ["HINCRBY", `unread:${other}`, u.uid, 1], // у получателя +1 непрочитанное от отправителя
   ]);
   return rec;
 }
@@ -340,13 +342,20 @@ export const chat = api(async (request, body) => {
   const other = str(body?.with, 30);
 
   if (action === "threads") {
-    const t = (await kv("ZREVRANGE", `threads:${u.uid}`, 0, 49)) || [];
-    const names = await Promise.all(t.map(displayName));
-    return { threads: t.map((id, i) => ({ uid: id, name: names[i] })) };
+    const [t, un] = await Promise.all([kv("ZREVRANGE", `threads:${u.uid}`, 0, 49), kv("HGETALL", `unread:${u.uid}`)]);
+    const unread = {}; for (let i = 0; i < (un || []).length; i += 2) unread[un[i]] = +un[i + 1] || 0;
+    const names = await Promise.all((t || []).map(displayName));
+    return { threads: (t || []).map((id, i) => ({ uid: id, name: names[i], unread: unread[id] || 0 })) };
+  }
+  if (action === "unread") {
+    // сколько всего непрочитанных — для значка на кнопке ✉
+    const vals = (await kv("HVALS", `unread:${u.uid}`)) || [];
+    return { total: vals.reduce((a, v) => a + (+v || 0), 0) };
   }
   if (!validUid(other) || other === u.uid) throw new HttpError(400, "Неверный собеседник");
 
   if (action === "messages") {
+    await kv("HDEL", `unread:${u.uid}`, other); // открыл переписку — всё прочитано
     const [list, hidden, cleared] = await Promise.all([loadChat(u.uid, other), kv("SMEMBERS", `hidden:${u.uid}:${pair(u.uid, other)}`), kv("GET", `cleared:${u.uid}:${pair(u.uid, other)}`)]);
     const hide = new Set(hidden || []), since = +cleared || 0; // «очистить у меня» прячет всё, что было до этого момента
     const gone = new Set(list.filter(({ m }) => m.deleted).map(({ m }) => msgId(m))); // цитата удалённого сообщения тоже скрывается
@@ -403,6 +412,7 @@ export const chat = api(async (request, body) => {
     } else {
       await kv("SET", `cleared:${u.uid}:${key}`, String(Date.now()));
     }
+    await kv("HDEL", `unread:${u.uid}`, other);
     return { ok: true };
   }
   if (action === "translate") {
@@ -451,6 +461,7 @@ export const admin = api(async (request) => {
   const u = requireUser(request);
   if (!isAdmin(u)) throw new HttpError(403, "Нет доступа");
   const ids = await allUserIds();
+  const teacherSet = new Set((await kv("SMEMBERS", "teachers")) || []);
   const rows = await Promise.all(ids.map(async (id) => {
     const [user, prof, nSkills, pos, score, threads] = await pipeline([
       ["HGETALL", `user:${id}`], ["GET", `profile:${id}`], ["HLEN", `skills:${id}`],
@@ -463,7 +474,7 @@ export const admin = api(async (request) => {
       name: p.name || "", grade: p.grade || "", city: p.city || "", goal: p.goal || "", tags: p.tags || [],
       onboarded: !!p.name, public: p.public !== false, skills: +nSkills || 0,
       place: pos === null || pos === undefined ? null : +pos + 1, score: score === null || score === undefined ? 0 : +score,
-      chats: +threads || 0,
+      chats: +threads || 0, teacher: teacherSet.has(id),
     };
   }));
   // уровень активности: только вошёл → прошёл опрос → проверил навык
@@ -479,3 +490,139 @@ export const admin = api(async (request) => {
   };
 }, { method: "GET" });
 
+
+// ═══════════ КАБИНЕТ УЧИТЕЛЯ ═══════════
+// Роль учителя выдаёт администратор (это основа лицензии для школ). Учитель создаёт класс и получает код;
+// ученик сам вводит код — только тогда учитель видит его прогресс. Ученик может выйти из класса.
+const CODE_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // без похожих символов (O/0, I/1)
+const newCode = () => Array.from(randomBytes(6), (b) => CODE_ABC[b % CODE_ABC.length]).join("");
+const cleanCode = (v) => str(v, 12).toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+export async function isTeacher(u) {
+  if (!u) return false;
+  if (isAdmin(u)) return true;
+  return !!+(await kv("SISMEMBER", "teachers", u.uid));
+}
+async function studentClass(uid) {
+  const code = await kv("GET", `student_class:${uid}`);
+  if (!code) return null;
+  const c = await kv("HGETALL", `class:${code}`);
+  const h = {}; for (let i = 0; i < (c || []).length; i += 2) h[c[i]] = c[i + 1];
+  if (!h.name) return null;
+  return { code, name: h.name, teacher: await displayName(h.teacher) };
+}
+
+async function studentCard(id) {
+  const [user, prof, skillsRaw, pos, score] = await pipeline([
+    ["HGETALL", `user:${id}`], ["GET", `profile:${id}`], ["HGETALL", `skills:${id}`], ["ZREVRANK", "rank", id], ["ZSCORE", "rank", id],
+  ]);
+  const h = {}; for (let i = 0; i < (user || []).length; i += 2) h[user[i]] = user[i + 1];
+  const p = parse(prof) || {};
+  const skills = [];
+  for (let i = 0; i < (skillsRaw || []).length; i += 2) { const sk = parse(skillsRaw[i + 1]); if (sk) skills.push({ skill: sk.skill, score: sk.score, level: sk.level, repo: sk.repo, at: sk.at }); }
+  skills.sort((a, b) => b.score - a.score);
+  return {
+    uid: id, name: p.name || h.name || h.login || "Ученик", grade: p.grade || "", goal: p.goal || "", tags: p.tags || [],
+    onboarded: !!p.name, github: h.login || "", created: +h.created || null, seen: +h.seen || +h.created || null,
+    skills, avg: skills.length ? Math.round(skills.reduce((a, x) => a + (+x.score || 0), 0) / skills.length) : 0,
+    rep: score === null || score === undefined ? computeRep(skills) : +score, place: pos === null || pos === undefined ? null : +pos + 1,
+  };
+}
+
+async function ownClass(u, code) {
+  const teacher = await kv("HGET", `class:${code}`, "teacher");
+  if (!teacher) throw new HttpError(404, "Класс не найден");
+  if (teacher !== u.uid && !isAdmin(u)) throw new HttpError(403, "Это не твой класс");
+}
+
+export const classApi = api(async (request, body) => {
+  const u = requireUser(request);
+  const action = str(body?.action, 20);
+
+  // ── ученик ──
+  if (action === "join") {
+    const code = cleanCode(body.code);
+    const [name, teacher] = await pipeline([["HGET", `class:${code}`, "name"], ["HGET", `class:${code}`, "teacher"]]);
+    if (!name) throw new HttpError(404, "Класс с таким кодом не найден");
+    if (teacher === u.uid) throw new HttpError(400, "Это твой собственный класс");
+    const prev = await kv("GET", `student_class:${u.uid}`);
+    await pipeline([
+      ...(prev && prev !== code ? [["SREM", `class_members:${prev}`, u.uid]] : []),
+      ["SET", `student_class:${u.uid}`, code], ["SADD", `class_members:${code}`, u.uid],
+    ]);
+    return { ok: true, my_class: await studentClass(u.uid) };
+  }
+  if (action === "leave") {
+    const prev = await kv("GET", `student_class:${u.uid}`);
+    if (prev) await pipeline([["SREM", `class_members:${prev}`, u.uid], ["DEL", `student_class:${u.uid}`]]);
+    return { ok: true };
+  }
+
+  // ── администратор выдаёт роль учителя ──
+  if (action === "grant") {
+    if (!isAdmin(u)) throw new HttpError(403, "Нет доступа");
+    const id = str(body.uid, 30);
+    if (!validUid(id) || !+(await kv("EXISTS", `user:${id}`))) throw new HttpError(404, "Пользователь не найден");
+    await kv(body.on === false ? "SREM" : "SADD", "teachers", id);
+    return { ok: true };
+  }
+
+  // ── учитель ──
+  if (!(await isTeacher(u))) throw new HttpError(403, "Кабинет учителя доступен только учителям. Напиши администратору Verix.");
+  if (action === "create") {
+    const name = str(body.name, 60).replace(/[<>]/g, "");
+    if (name.length < 2) throw new HttpError(400, "Напиши название класса, например «11 А»");
+    const mine = (await kv("SMEMBERS", `teacher_classes:${u.uid}`)) || [];
+    if (mine.length >= 20) throw new HttpError(400, "Не больше 20 классов");
+    let code;
+    for (let i = 0; i < 5 && !code; i++) { const c = newCode(); if (await kv("HSETNX", `class:${c}`, "teacher", u.uid)) code = c; }
+    if (!code) throw new HttpError(500, "Не получилось создать код, попробуй ещё раз");
+    await pipeline([["HSET", `class:${code}`, "name", name, "created", String(Date.now())], ["SADD", `teacher_classes:${u.uid}`, code]]);
+    return { ok: true, code };
+  }
+  if (action === "list") {
+    const codes = (await kv("SMEMBERS", `teacher_classes:${u.uid}`)) || [];
+    const classes = await Promise.all(codes.map(async (code) => {
+      const [name, created, count] = await pipeline([["HGET", `class:${code}`, "name"], ["HGET", `class:${code}`, "created"], ["SCARD", `class_members:${code}`]]);
+      return { code, name, created: +created || 0, students: +count || 0 };
+    }));
+    return { classes: classes.filter((c) => c.name).sort((a, b) => b.created - a.created) };
+  }
+  if (action === "class") {
+    const code = cleanCode(body.code);
+    await ownClass(u, code);
+    const [name, ids] = await Promise.all([kv("HGET", `class:${code}`, "name"), kv("SMEMBERS", `class_members:${code}`)]);
+    const students = await Promise.all((ids || []).map(studentCard));
+    students.sort((a, b) => b.rep - a.rep || a.name.localeCompare(b.name));
+    const week = Date.now() - 7 * 86_400_000;
+    const withSkills = students.filter((s) => s.skills.length);
+    return {
+      code, name, students,
+      summary: {
+        total: students.length, onboarded: students.filter((s) => s.onboarded).length, with_skills: withSkills.length,
+        active_week: students.filter((s) => s.seen > week).length,
+        avg_score: withSkills.length ? Math.round(withSkills.reduce((a, s) => a + s.avg, 0) / withSkills.length) : 0,
+        repos: students.reduce((a, s) => a + new Set(s.skills.map((x) => x.repo)).size, 0),
+      },
+    };
+  }
+  if (action === "remove") {
+    const code = cleanCode(body.code), id = str(body.uid, 30);
+    await ownClass(u, code);
+    const cur = await kv("GET", `student_class:${id}`);
+    await pipeline([["SREM", `class_members:${code}`, id], ...(cur === code ? [["DEL", `student_class:${id}`]] : [])]);
+    return { ok: true };
+  }
+  if (action === "delete_class") {
+    const code = cleanCode(body.code);
+    await ownClass(u, code);
+    const ids = (await kv("SMEMBERS", `class_members:${code}`)) || [];
+    const owner = await kv("HGET", `class:${code}`, "teacher");
+    await pipeline([
+      ...ids.map((id) => ["DEL", `student_class:${id}`]),
+      ["DEL", `class_members:${code}`], ["DEL", `class:${code}`], ["SREM", `teacher_classes:${owner}`, code],
+    ]);
+    return { ok: true };
+  }
+  throw new HttpError(400, "Неизвестное действие");
+});
