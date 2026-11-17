@@ -510,10 +510,6 @@ async function checkLogin(){
   showApp();
   toast(isNew?'Аккаунт создан. Добро пожаловать!':'С возвращением!');
 }
-function demoLogin(){
-  store.set('session',{email:'demo',demo:true,at:Date.now()});
-  showApp();toast('Демо-режим: данные хранятся в этом браузере');
-}
 function logout(){
   store.del('session');closeModal();
   document.getElementById('app').style.display='none';

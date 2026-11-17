@@ -24,9 +24,11 @@ with sync_playwright() as p:
     shot("01_login.png")
 
     # Первый вход → опрос
-    page.click("text=Попробовать без регистрации")
+    page.fill("#emailInput", "test@example.com")
+    page.fill("#passwordInput", "test-pass-123")
+    page.click("text=Войти в Verix")
     page.wait_for_selector("#obName", timeout=10_000)
-    wait(4000)  # уведомление «Демо-режим» успевает исчезнуть
+    wait(4000)  # уведомление о входе успевает исчезнуть
     page.fill("#obName", "Рамина Ибраимова")
     page.click(".ob-chip[data-group='grade'][data-value='11 класс']")
     page.click(".ob-chip[data-group='tags'][data-value='Frontend']")
