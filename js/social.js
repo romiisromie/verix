@@ -350,9 +350,52 @@
       renderProfile(); renderSavedSkills();
       // профиль из опроса, заполненный до входа, отправляем на сервер
       if (!(data.profile && data.profile.name) && loadP().onboarded) syncProfile();
+    } else if (data && data.ready) {
+      const sess = store.get('session', null), acc = store.get('account', null);
+      if (sess && sess.server) {
+        // серверная сессия истекла — просим войти заново
+        store.del('session');
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+      } else if (sess && !sess.demo && acc && acc.email && acc.email === sess.email && loadP().onboarded) {
+        // (кто ещё не прошёл опрос, увидит перенос в следующий раз — два окна сразу не показываем)
+        // старый аккаунт, который жил только в этом браузере, — переносим на сервер
+        setTimeout(() => vxOfferMigrate(acc.email), 600);
+      }
     }
     renderRankings();
   });
+
+  window.vxOfferMigrate = function (email) {
+    const T = (x) => (window.vxT ? vxT(x) : x);
+    shell('Сохрани свой аккаунт', `
+      <div class="hint" style="margin-bottom:10px">${esc(T('Мы обновили Verix: теперь аккаунт хранится на сервере и работает на любом устройстве. Введи пароль от своего аккаунта, чтобы перенести профиль. Это нужно один раз.'))}</div>
+      <div class="proj-desc" style="margin-bottom:8px">✉ ${esc(email)}</div>
+      <label class="sr-only" for="migPass">${esc('Пароль')}</label>
+      <input type="password" id="migPass" class="inp" placeholder="${esc(T('Твой пароль'))}" autocomplete="current-password">
+      <label class="f-check show-pass"><input type="checkbox" onchange="document.getElementById('migPass').type=this.checked?'text':'password'"> ${esc(T('Показать пароль'))}</label>
+      <div id="migErr" class="form-error" role="alert"></div>
+      <button class="go-btn" id="migBtn" style="margin-top:10px" onclick="vxDoMigrate()">${esc(T('Перенести аккаунт'))}</button>
+      <button class="outline-btn" style="margin-top:8px" onclick="vxCloseChat()">${esc(T('Позже'))}</button>`);
+    const inp = document.getElementById('migPass');
+    inp.focus();
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.vxDoMigrate(); });
+  };
+
+  window.vxDoMigrate = async function () {
+    const T = (x) => (window.vxT ? vxT(x) : x);
+    const acc = store.get('account', null), pass = document.getElementById('migPass').value, err = document.getElementById('migErr');
+    if (!acc) return;
+    // пароль проверяем по старому хешу в браузере — чужой пароль перенести нельзя
+    if ((await hashPass(acc.email, pass)) !== acc.hash) { err.textContent = T('Неверный пароль'); return; }
+    document.getElementById('migBtn').disabled = true;
+    try {
+      let r = await fetch('/api/auth/email', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'register', email: acc.email, password: pass }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'Ошибка сервера');
+      location.href = '/?login=ok'; // после входа профиль из этого браузера сам отправится на сервер
+    } catch (e) { err.textContent = T(e.message); document.getElementById('migBtn').disabled = false; }
+  };
 
   // Синхронизация после опроса и редактирования профиля
   const wrap = (name) => { const f = window[name]; if (typeof f !== 'function') return; window[name] = function () { const r = f.apply(this, arguments); setTimeout(syncProfile, 50); return r; }; };
