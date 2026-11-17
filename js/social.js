@@ -29,7 +29,7 @@
       name: sp.name, grade: sp.grade || p.grade, city: sp.city || p.city, goal: sp.goal || p.goal,
       tag1: tags[0] || '', tag2: tags[1] || '', tag3: tags[2] || '', onboarded: p.onboarded || Date.now(),
     });
-    p.public = sp.public !== false; p.dm = sp.dm !== false; p.github = 'https://github.com/' + data.user.login;
+    p.public = sp.public !== false; p.dm = sp.dm !== false; if (data.user.login) p.github = 'https://github.com/' + data.user.login;
     if ((!sp.name || sp.name === 'Ученик') && (!p.name || p.name === 'Ученик')) p.name = data.user.name || data.user.login;
     saveP(p);
     // навыки с сервера (только свои репозитории) — главный источник правды
@@ -62,6 +62,7 @@
     if (!proof) return;
     if (proof.recorded) { toast(proof.ownership === 'owner' ? 'Навык сохранён в аккаунте: это твой репозиторий' : 'Навык сохранён в аккаунте: ты соавтор репозитория'); refreshMe(); }
     else if (proof.ownership === 'not_yours') toast('Это не твой репозиторий — в рейтинг он не попадёт');
+    else if (proof.ownership === 'no_github') toast('Навык сохранён в профиле. Чтобы он попал в рейтинг, войди через GitHub: так видно, что репозиторий твой.');
   };
 
   // ── рейтинг ──
@@ -299,16 +300,16 @@
     const date = (t) => (t ? new Date(t).toLocaleString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
     const stat = (n, l) => `<div class="adm-stat"><b>${esc(n)}</b><span>${esc(l)}</span></div>`;
     const ST = { login: ['Только вошёл', 'st-login'], survey: ['Прошёл опрос', 'st-survey'], skill: ['Проверил навык', 'st-skill'] };
-    const row = (u) => `<div class="proj adm-row" data-st="${esc(u.status)}">
-        <div style="flex:1;min-width:0"><div class="proj-name">${esc(u.name || u.gh_name || u.login)} <a href="${esc(safeUrl('https://github.com/' + u.login))}" target="_blank" rel="noopener">@${esc(u.login)}</a></div>
-        <div><span class="adm-badge ${ST[u.status][1]}">${esc(ST[u.status][0])}</span></div>
+    const row = (u) => `<div class="proj adm-row" data-st="${esc(u.status)}" data-pr="${esc(u.provider)}">
+        <div style="flex:1;min-width:0"><div class="proj-name">${esc(u.name || u.gh_name || u.login || u.email)} ${u.provider === 'email' ? `<span class="adm-mail">✉ ${esc(u.email)}</span>` : `<a href="${esc(safeUrl('https://github.com/' + u.login))}" target="_blank" rel="noopener">@${esc(u.login)}</a>`}</div>
+        <div><span class="adm-badge ${ST[u.status][1]}">${esc(ST[u.status][0])}</span> <span class="adm-badge ${u.provider === 'email' ? 'st-mail' : 'st-gh'}">${u.provider === 'email' ? esc('Вход по email') : 'GitHub'}</span></div>
         <div class="proj-desc">${esc([u.grade, u.city, u.goal].filter(Boolean).join(' · ') || 'опрос не пройден')}</div>
         <div class="proj-desc">${esc('Регистрация')}: ${esc(date(u.created))} · ${esc('последний визит')}: ${esc(date(u.seen))}</div>
         <div class="proj-desc">${esc('навыков')}: ${esc(u.skills)} · ${esc('переписок')}: ${esc(u.chats)}${u.public ? '' : ' · ' + esc('скрыт из рейтинга')}</div></div>
         <div class="proj-score">${u.place ? '#' + esc(u.place) : '—'}</div></div>`;
     const reports = d.reports.length ? `<div class="lbl" style="margin-top:12px">${esc('Жалобы')} (${esc(d.reports.length)})</div>` + d.reports.map((r) => `<div class="proj-desc">${esc(date(r.at))}: uid ${esc(r.from)} → uid ${esc(r.about)}${r.note ? ' — ' + esc(r.note) : ''}</div>`).join('') : '';
     const n = (st) => d.users.filter((u) => u.status === st).length;
-    const chips = [['all', 'Все', d.total], ['login', 'Только вошли', n('login')], ['survey', 'Прошли опрос', n('survey')], ['skill', 'Проверили навык', n('skill')]]
+    const chips = [['all', 'Все', d.total], ['login', 'Только вошли', n('login')], ['survey', 'Прошли опрос', n('survey')], ['skill', 'Проверили навык', n('skill')], ['email', 'Вход по email', d.by_email || 0], ['github', 'GitHub', d.total - (d.by_email || 0)]]
       .map(([k, l, c], i) => `<button type="button" class="adm-chip${i ? '' : ' on'}" data-f="${k}">${esc(l)} · ${esc(c)}</button>`).join('');
     shell(title, `<div class="adm-stats">${stat(d.total, 'всего')}${stat(d.today, 'за сутки')}${stat(d.week, 'за неделю')}${stat(d.active_week, 'заходили за неделю')}</div>
       <div class="adm-chips">${chips}</div>
@@ -316,7 +317,7 @@
     document.querySelector('.adm-chips').addEventListener('click', (e) => {
       const b = e.target.closest('[data-f]'); if (!b) return;
       document.querySelectorAll('.adm-chip').forEach((x) => x.classList.toggle('on', x === b));
-      document.querySelectorAll('#admList .adm-row').forEach((r) => { r.hidden = b.dataset.f !== 'all' && r.dataset.st !== b.dataset.f; });
+      document.querySelectorAll('#admList .adm-row').forEach((r) => { const f = b.dataset.f; r.hidden = f !== 'all' && r.dataset.st !== f && r.dataset.pr !== f; });
     });
   };
 
@@ -334,15 +335,17 @@
     if (st) {
       history.replaceState(null, '', location.pathname);
       if (st === 'error') toast('Не получилось войти через GitHub. Попробуй ещё раз.');
+      if (st === 'new') toast('Аккаунт создан. Добро пожаловать!');
       if (st === 'unavailable') toast('Вход через GitHub ещё не настроен на сервере');
     }
     const data = await getJSON('/api/me');
     // Кнопку входа показываем, только если сервер ответил, что вход через GitHub настроен
+    window.vxServerReady = !!(data && data.ready); // есть сервер с аккаунтами — вход по email тоже идёт через него
     document.querySelectorAll('.gh-only').forEach((el) => { el.hidden = !(data && data.ready); });
     if (data && data.user) {
       ME = data; mergeServer(data);
-      store.set('session', { email: data.user.login, github: true, at: Date.now() });
-      if (st === 'ok') toast('Ты вошёл через GitHub: ' + data.user.login);
+      store.set('session', { email: data.user.email || data.user.login, github: data.user.provider === 'github', server: true, at: Date.now() });
+      if (st === 'ok') toast(data.user.provider === 'github' ? 'Ты вошёл через GitHub: ' + data.user.login : 'Ты вошёл: ' + data.user.email);
       if (window.showApp) showApp();
       renderProfile(); renderSavedSkills();
       // профиль из опроса, заполненный до входа, отправляем на сервер

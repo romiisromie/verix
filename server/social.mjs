@@ -4,6 +4,9 @@ import { HttpError, str, clamp, groqJSON } from "./groq.mjs";
 import { kv, pipeline, kvReady, json as parse } from "./kv.mjs";
 import { currentUser, sessionCookie, cookie, parseCookies, randomState, SESSION_COOKIE } from "./session.mjs";
 import { contributors, parseRepo } from "./github.mjs";
+import { scrypt as _scrypt, randomBytes, timingSafeEqual } from "node:crypto";
+import { promisify } from "node:util";
+const scrypt = promisify(_scrypt);
 
 const GRADES = ["8 класс", "9 класс", "10 класс", "11 класс", "1 курс", "2 курс", "3 курс", "4 курс"];
 const TAGS = ["Frontend", "Backend", "AI/ML", "Data", "Design", "Mobile", "Game Dev", "Cybersecurity"];
@@ -98,6 +101,66 @@ export async function authCallback(request) {
   }
 }
 
+// ═══════════ ВХОД ПО EMAIL И ПАРОЛЮ ═══════════
+// Пароль хранится только как хеш scrypt с солью; сам пароль нигде не сохраняется.
+const EMAIL_RE = /^[^\s@<>]{1,64}@[^\s@<>]{1,190}\.[a-z]{2,24}$/i;
+const EMAIL_UID_BASE = 9_000_000_000_000; // id email-аккаунтов не пересекаются с id GitHub
+const emailReady = () => !!((process.env.SESSION_SECRET || "").length >= 32 && kvReady());
+const SCRYPT = { N: 16384, r: 8, p: 1 };
+
+export async function hashPassword(pass, salt = randomBytes(16)) {
+  const key = await scrypt(pass, salt, 32, SCRYPT);
+  return `scrypt$${salt.toString("hex")}$${key.toString("hex")}`;
+}
+export async function checkPassword(pass, stored) {
+  const [kind, saltHex, keyHex] = String(stored || "").split("$");
+  if (kind !== "scrypt" || !saltHex || !keyHex) return false;
+  const key = await scrypt(pass, Buffer.from(saltHex, "hex"), 32, SCRYPT);
+  const want = Buffer.from(keyHex, "hex");
+  return want.length === key.length && timingSafeEqual(key, want);
+}
+
+// POST /api/auth/email { mode: "login" | "register", email, password }
+export async function authEmail(request) {
+  let account = null;
+  const r = await api(async (req, body) => {
+    if (!emailReady()) throw new HttpError(501, "Вход по email ещё не настроен на сервере");
+    const email = str(body?.email, 254).toLowerCase();
+    const pass = String(body?.password ?? "");
+    const mode = body?.mode === "register" ? "register" : "login";
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, "Введи корректный email");
+    if (pass.length < 6 || pass.length > 200) throw new HttpError(400, "Пароль — минимум 6 символов");
+    // защита от подбора пароля: не больше 10 попыток за 15 минут на один email
+    const slot = Math.floor(Date.now() / 900_000);
+    const [tries] = await pipeline([["INCR", `rl:auth:${email}:${slot}`], ["EXPIRE", `rl:auth:${email}:${slot}`, 1800]]);
+    if (+tries > 10) throw new HttpError(429, "Слишком много попыток. Подожди 15 минут.");
+    let uid = await kv("GET", `email:${email}`);
+    let created = false;
+    if (!uid) {
+      if (mode !== "register") throw new HttpError(404, "Аккаунт с таким email не найден. Нажми «Зарегистрироваться».");
+      const candidate = String(EMAIL_UID_BASE + +(await kv("INCR", "email_seq")));
+      const ok = await kv("SET", `email:${email}`, candidate, "NX");
+      if (!ok) throw new HttpError(409, "Этот email уже зарегистрирован. Войди.");
+      uid = candidate;
+      const now = String(Date.now());
+      await pipeline([
+        ["HSET", `user:${uid}`, "email", email, "provider", "email", "pass", await hashPassword(pass), "created", now],
+        ["ZADD", "users", "NX", now, uid],
+      ]);
+      created = true;
+    } else {
+      const stored = await kv("HGET", `user:${uid}`, "pass");
+      if (!(await checkPassword(pass, stored))) throw new HttpError(401, "Неверный пароль для этого email");
+    }
+    account = { uid, email };
+    return { ok: true, created };
+  })(request);
+  if (r.status !== 200 || !account) return r;
+  const h = new Headers(r.headers);
+  h.append("Set-Cookie", sessionCookie({ uid: account.uid, login: "", email: account.email }));
+  return new Response(r.body, { status: 200, headers: h });
+}
+
 export async function authLogout() {
   return redirect("/", [cookie(SESSION_COOKIE, "", 0)]);
 }
@@ -163,6 +226,7 @@ async function updateRank(uid, profile) {
 export async function recordProof(request, { skill, repo, result }) {
   const u = currentUser(request);
   if (!u || !repo || !result || result.scored_by !== "code" || !kvReady()) return null;
+  if (!u.login) return { ownership: "no_github", recorded: false }; // вход по email: чей репозиторий, неизвестно
   const { owner, repo: name } = parseRepo(repo);
   const login = u.login.toLowerCase();
   let ownership = owner.toLowerCase() === login ? "owner" : null;
@@ -180,7 +244,7 @@ export const me = api(async (request) => {
   if (!u) return { user: null, ready: oauthReady() };
   const [profile, skills, rawName] = await Promise.all([loadProfile(u.uid), loadSkills(u.uid), kv("HGET", `user:${u.uid}`, "name")]);
   const [pos] = await pipeline([["ZREVRANK", "rank", u.uid], ["HSET", `user:${u.uid}`, "seen", String(Date.now())]]); // последний визит — для админ-панели
-  return { user: { uid: u.uid, login: u.login, name: rawName || u.login, admin: isAdmin(u) }, profile, skills, rep: computeRep(skills), place: pos === null ? null : +pos + 1, ready: true };
+  return { user: { uid: u.uid, login: u.login || "", email: u.email || "", provider: u.login ? "github" : "email", name: rawName || u.login || "", admin: isAdmin(u) }, profile, skills, rep: computeRep(skills), place: pos === null ? null : +pos + 1, ready: true };
 }, { method: "GET" });
 
 // Публичный рейтинг: только место, имя и балл (класс, город и логин не раскрываются)
@@ -369,7 +433,7 @@ export const chat = api(async (request, body) => {
 // ═══════════ АДМИН: кто зарегистрировался ═══════════
 // Доступ только для логинов GitHub из переменной ADMIN_LOGINS (через запятую).
 const admins = () => (process.env.ADMIN_LOGINS || "romiisromie").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
-export const isAdmin = (u) => !!u && admins().includes(u.login.toLowerCase());
+export const isAdmin = (u) => !!u && !!u.login && admins().includes(u.login.toLowerCase());
 
 async function allUserIds() {
   // пользователи до появления индекса "users" находятся через SCAN по ключам user:*
@@ -395,7 +459,7 @@ export const admin = api(async (request) => {
     const h = {}; for (let i = 0; i < (user || []).length; i += 2) h[user[i]] = user[i + 1];
     const p = parse(prof) || {};
     return {
-      uid: id, login: h.login || "", gh_name: h.name || "", created: +h.created || null, seen: +h.seen || +h.created || null,
+      uid: id, login: h.login || "", email: h.email || "", provider: h.provider || "github", gh_name: h.name || "", created: +h.created || null, seen: +h.seen || +h.created || null,
       name: p.name || "", grade: p.grade || "", city: p.city || "", goal: p.goal || "", tags: p.tags || [],
       onboarded: !!p.name, public: p.public !== false, skills: +nSkills || 0,
       place: pos === null || pos === undefined ? null : +pos + 1, score: score === null || score === undefined ? 0 : +score,
@@ -410,6 +474,7 @@ export const admin = api(async (request) => {
   return {
     total: rows.length, today: rows.filter((r) => r.created > day).length, week: rows.filter((r) => r.created > week).length,
     with_skills: rows.filter((r) => r.skills > 0).length, only_login: rows.filter((r) => r.status === "login").length,
+    by_email: rows.filter((r) => r.provider === "email").length,
     active_week: rows.filter((r) => r.seen > week).length, users: rows, reports,
   };
 }, { method: "GET" });

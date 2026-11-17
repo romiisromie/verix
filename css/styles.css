@@ -513,3 +513,6 @@ a.proj{text-decoration:none;color:inherit;}
 .st-skill{background:#bbf7d0;}
 .rank-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .show-pass{margin-top:10px;font-weight:500;}
+.adm-mail{font-size:12px;font-weight:600;color:var(--accent);word-break:break-all;}
+.st-mail{background:#fde68a;}
+.st-gh{background:#e5e7eb;}

@@ -47,7 +47,9 @@ export function cookie(name, value, maxAge) {
 
 export function sessionCookie(user) {
   const exp = Math.floor(Date.now() / 1000) + MAX_AGE;
-  return cookie(SESSION_COOKIE, sign({ uid: String(user.uid), login: user.login, exp }), MAX_AGE);
+  const payload = { uid: String(user.uid), login: user.login || "", exp };
+  if (user.email) payload.email = user.email; // аккаунт по email (без GitHub)
+  return cookie(SESSION_COOKIE, sign(payload), MAX_AGE);
 }
 
 // Пользователь из cookie или null

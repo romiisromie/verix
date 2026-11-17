@@ -499,6 +499,17 @@ async function checkLogin(){
   const pass=document.getElementById('passwordInput').value;
   if(!EMAIL_RE.test(email))return loginError('Введи корректный email');
   if(pass.length<6)return loginError('Пароль — минимум 6 символов');
+  // Есть сервер с аккаунтами — настоящий аккаунт: работает на любом устройстве и виден в админ-панели
+  if(window.vxServerReady){
+    const send=(mode)=>fetch('/api/auth/email',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,email,password:pass})}).then(async r=>({ok:r.ok,status:r.status,data:await r.json().catch(()=>({}))}));
+    try{
+      let r=await send(window.vxRegisterMode?'register':'login');
+      if(r.status===404)r=await send('register'); // аккаунта ещё нет — создаём, как и раньше
+      if(!r.ok)return loginError(r.data.error||'Не получилось войти');
+      location.href='/?login='+(r.data.created?'new':'ok');
+    }catch(e){loginError('Нет связи с сервером. Попробуй ещё раз.');}
+    return;
+  }
   const h=await hashPass(email,pass);
   const acc=store.get('account',null);
   if(acc&&acc.email===email&&acc.hash!==h)return loginError('Неверный пароль для этого email');
@@ -517,6 +528,7 @@ function logout(){
   toast('Ты вышел из аккаунта');
 }
 function showRegister(){
+  window.vxRegisterMode=true;
   document.getElementById('emailInput').focus();
   toast('Введи email и пароль — аккаунт создастся сам');
 }

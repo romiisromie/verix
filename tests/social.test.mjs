@@ -17,7 +17,7 @@ function redis(cmd) {
   const get = (t) => db.get(k) ?? (t === "h" ? new Map() : t === "z" ? new Map() : t === "s" ? new Set() : t === "l" ? [] : null);
   switch (op) {
     case "GET": return db.get(k) ?? null;
-    case "SET": db.set(k, a[0]); return "OK";
+    case "SET": if (a.includes("NX") && db.has(k)) return null; db.set(k, a[0]); return "OK";
     case "EXISTS": return db.has(k) ? 1 : 0;
     case "INCR": { const v = (+db.get(k) || 0) + 1; db.set(k, String(v)); return v; }
     case "EXPIRE": return 1;
@@ -302,4 +302,61 @@ test("рейтинг: наружу только место, имя и балл; 
   assert.deepEqual(first.around.map((x) => x.place), [1, 2]);
   const [, anon] = await call(social.rank, new Request("https://verix.test/api/rank"));
   assert.deepEqual(anon.around, []);
+});
+
+const emailReq = (body, extra = {}) => new Request("https://verix.test/api/auth/email", {
+  method: "POST", headers: { "content-type": "application/json", ...extra }, body: JSON.stringify(body),
+});
+
+test("вход по email: регистрация, вход, неверный пароль, пароль не хранится открыто", async () => {
+  let r = await social.authEmail(emailReq({ mode: "register", email: "Aru@Gmail.com", password: "secret12" }));
+  assert.equal(r.status, 200);
+  assert.equal((await r.json()).created, true);
+  const cookieHdr = r.headers.get("set-cookie");
+  assert.match(cookieHdr, /vx_sess=/);
+  const uid = db.get("email:aru@gmail.com");
+  assert.ok(+uid >= 9_000_000_000_000);
+  const h = db.get(`user:${uid}`);
+  assert.equal(h.get("provider"), "email");
+  assert.ok(!JSON.stringify([...h]).includes("secret12"));
+  assert.match(h.get("pass"), /^scrypt\$/);
+  // повторная регистрация того же email — отказ; вход — успешно
+  r = await social.authEmail(emailReq({ mode: "register", email: "aru@gmail.com", password: "other123" }));
+  assert.equal(r.status, 401); // email уже есть — это вход, а пароль другой
+  r = await social.authEmail(emailReq({ mode: "login", email: "aru@gmail.com", password: "secret12" }));
+  assert.equal(r.status, 200);
+  r = await social.authEmail(emailReq({ mode: "login", email: "aru@gmail.com", password: "wrong999" }));
+  assert.equal(r.status, 401);
+  r = await social.authEmail(emailReq({ mode: "login", email: "nobody@gmail.com", password: "secret12" }));
+  assert.equal(r.status, 404);
+  r = await social.authEmail(emailReq({ mode: "login", email: "не почта", password: "secret12" }));
+  assert.equal(r.status, 400);
+  r = await social.authEmail(emailReq({ mode: "login", email: "aru@gmail.com", password: "secret12" }, { origin: "https://evil.test" }));
+  assert.equal(r.status, 403);
+  // сессия email-аккаунта: /api/me, не админ, навык в рейтинг не идёт
+  const sess = cookieHdr.split(";")[0];
+  const meReq = new Request("https://verix.test/api/me", { headers: { cookie: sess } });
+  const me = await (await social.me(meReq)).json();
+  assert.equal(me.user.provider, "email");
+  assert.equal(me.user.email, "aru@gmail.com");
+  assert.equal(me.user.admin, false);
+  const proof = await social.recordProof(meReq, { skill: "Web", repo: "https://github.com/aru/x", result: { scored_by: "code", overall_score: 90 } });
+  assert.deepEqual(proof, { ownership: "no_github", recorded: false });
+  // админ видит email-аккаунт
+  process.env.ADMIN_LOGINS = "ramina";
+  db.set("user:1", new Map([["login", "ramina"], ["created", String(Date.now())]]));
+  const [, d] = await call(social.admin, as("1", "ramina", null, "GET"));
+  const row = d.users.find((u) => u.uid === uid);
+  assert.equal(row.provider, "email");
+  assert.equal(row.email, "aru@gmail.com");
+  assert.equal(d.by_email, 1);
+  assert.ok(!JSON.stringify(d).includes("scrypt"));
+  delete process.env.ADMIN_LOGINS;
+});
+
+test("вход по email: защита от подбора пароля", async () => {
+  await social.authEmail(emailReq({ mode: "register", email: "a@b.kz", password: "secret12" }));
+  let last;
+  for (let i = 0; i < 12; i++) last = await social.authEmail(emailReq({ mode: "login", email: "a@b.kz", password: "bad" + i + "xxx" }));
+  assert.equal(last.status, 429);
 });
